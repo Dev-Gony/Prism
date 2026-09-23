@@ -76,6 +76,7 @@ export default function Home() {
   >("idle");
   const [detailedOpen, setDetailedOpen] = useState(false);
   const [birthTime, setBirthTime] = useState("12:00");
+  const [birthTimeKnown, setBirthTimeKnown] = useState(true);
   const [birthplaceId, setBirthplaceId] = useState("seoul");
   const [detailedStatus, setDetailedStatus] = useState<
     "idle" | "loading" | "done" | "error"
@@ -483,7 +484,8 @@ export default function Home() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           date: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
-          time: birthTime,
+          time: birthTimeKnown ? birthTime : null,
+          timeKnown: birthTimeKnown,
           birthplaceId,
           calendarType,
           isLeapMonth,
@@ -997,10 +999,12 @@ export default function Home() {
         {detailedOpen && (
           <DetailedModal
             birthTime={birthTime}
+            birthTimeKnown={birthTimeKnown}
             birthplaceId={birthplaceId}
             status={detailedStatus}
             error={detailedError}
             onBirthTime={setBirthTime}
+            onBirthTimeKnown={setBirthTimeKnown}
             onBirthplace={setBirthplaceId}
             onClose={() => setDetailedOpen(false)}
             onRun={runDetailedAnalysis}
@@ -1348,8 +1352,7 @@ function DetailedReport({
         <small>DETAILED READING</small>
         <h2>출생시간을 반영한 두 번째 프리즘</h2>
         <p>
-          {data.input.time} · {place ?? data.input.birthplaceId} · Whole Sign
-          Houses
+          {data.input.timeKnown ? data.input.time : "시간 미상"} · {place ?? data.input.birthplaceId} · {data.input.timeKnown ? "Whole Sign Houses" : "Time-independent mode"}
         </p>
       </div>
 
@@ -1379,29 +1382,35 @@ function DetailedReport({
       <div className="detailed-angle-row">
         <span>
           <small>ASC</small>
-          <b>{data.engines.astrology.ascendant.sign}</b>
-          <em>{data.engines.astrology.ascendant.degreeInSign.toFixed(1)}°</em>
+          <b>{data.engines.astrology.ascendant?.sign ?? "시간 필요"}</b>
+          <em>{data.engines.astrology.ascendant ? `${data.engines.astrology.ascendant.degreeInSign.toFixed(1)}°` : "미계산"}</em>
         </span>
         <span>
           <small>MC</small>
-          <b>{data.engines.astrology.midheaven.sign}</b>
-          <em>{data.engines.astrology.midheaven.degreeInSign.toFixed(1)}°</em>
+          <b>{data.engines.astrology.midheaven?.sign ?? "시간 필요"}</b>
+          <em>{data.engines.astrology.midheaven ? `${data.engines.astrology.midheaven.degreeInSign.toFixed(1)}°` : "미계산"}</em>
         </span>
         <span>
           <small>시주</small>
-          <b>{data.engines.saju.pillars[3]?.text ?? "-"}</b>
-          <em>{data.engines.saju.pillars[3]?.korean ?? ""}</em>
+          <b>{data.engines.saju.pillars[3]?.text ?? "시간 필요"}</b>
+          <em>{data.engines.saju.pillars[3]?.korean ?? "미계산"}</em>
         </span>
       </div>
 
-      <div className="detailed-house-grid">
-        {data.engines.astrology.houses.map((house) => (
-          <span key={house.house}>
-            <small>{house.house}H</small>
-            <b>{house.sign.replace("자리", "")}</b>
-          </span>
-        ))}
-      </div>
+      {data.engines.astrology.houses.length > 0 ? (
+        <div className="detailed-house-grid">
+          {data.engines.astrology.houses.map((house) => (
+            <span key={house.house}>
+              <small>{house.house}H</small>
+              <b>{house.sign.replace("자리", "")}</b>
+            </span>
+          ))}
+        </div>
+      ) : (
+        <div className="time-unknown-notice">
+          출생시간이 없어 12 Houses와 행성별 House는 계산하지 않았어요.
+        </div>
+      )}
 
       <section className="quick-detailed-compare">
         <div className="compare-heading">
@@ -1409,7 +1418,7 @@ function DetailedReport({
             <small>WHAT CHANGED</small>
             <h3>Quick에서 Detailed로, 무엇이 더 보였을까?</h3>
           </div>
-          <span>{data.input.time} · {place ?? data.input.birthplaceId}</span>
+          <span>{data.input.timeKnown ? data.input.time : "시간 미상"} · {place ?? data.input.birthplaceId}</span>
         </div>
 
         <div className="compare-grid">
@@ -1417,8 +1426,9 @@ function DetailedReport({
             <small>사주</small>
             <strong>시주가 추가됐어요</strong>
             <p>
-              Quick은 년주·월주·일주까지만 봤고, Detailed에서는
-              {hourPillar ? ` ${hourPillar.text}(${hourPillar.korean}) 시주` : " 시주"}까지 반영했어요.
+              {hourPillar
+                ? <>Quick은 년주·월주·일주까지만 봤고, Detailed에서는 {hourPillar.text}({hourPillar.korean}) 시주까지 반영했어요.</>
+                : <>출생시간이 없어 Quick과 동일하게 년주·월주·일주까지만 사용했어요.</>}
             </p>
           </article>
 
@@ -1426,8 +1436,10 @@ function DetailedReport({
             <small>점성학</small>
             <strong>상승궁과 하우스가 열렸어요</strong>
             <p>
-              태양 {quick.engines.astrology.sunSign}에 더해 ASC {data.engines.astrology.ascendant.sign},
-              달 {data.engines.astrology.moonSign}, MC {data.engines.astrology.midheaven.sign}을 볼 수 있어요.
+              {data.input.timeKnown
+                ? <>태양 {quick.engines.astrology.sunSign}에 더해 ASC {data.engines.astrology.ascendant?.sign},
+                    달 {data.engines.astrology.moonSign}, MC {data.engines.astrology.midheaven?.sign}을 볼 수 있어요.</>
+                : <>출생시간이 없어 태양과 시간 비민감 행성만 유지하고 Moon, ASC, MC, Houses는 제외했어요.</>}
             </p>
           </article>
 
@@ -1556,19 +1568,23 @@ function AuthModal({
 
 function DetailedModal({
   birthTime,
+  birthTimeKnown,
   birthplaceId,
   status,
   error,
   onBirthTime,
+  onBirthTimeKnown,
   onBirthplace,
   onClose,
   onRun,
 }: {
   birthTime: string;
+  birthTimeKnown: boolean;
   birthplaceId: string;
   status: "idle" | "loading" | "done" | "error";
   error: string;
   onBirthTime: (value: string) => void;
+  onBirthTimeKnown: (value: boolean) => void;
   onBirthplace: (value: string) => void;
   onClose: () => void;
   onRun: () => void;
@@ -1598,8 +1614,21 @@ function DetailedModal({
           <input
             type="time"
             value={birthTime}
+            disabled={!birthTimeKnown}
             onChange={(event) => onBirthTime(event.target.value)}
           />
+        </label>
+
+        <label className="unknown-time-option">
+          <input
+            type="checkbox"
+            checked={!birthTimeKnown}
+            onChange={(event) => onBirthTimeKnown(!event.target.checked)}
+          />
+          <span>
+            <strong>태어난 시간을 몰라요</strong>
+            <small>시주, Moon, ASC, MC, 12 Houses는 제외하고 가능한 정보만 분석해요.</small>
+          </span>
         </label>
 
         <label className="editorial-modal-field">
