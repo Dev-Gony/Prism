@@ -6,8 +6,10 @@ import type {
   QuickAnalysisResponse,
   TraitKey,
 } from "@/lib/analysis/types";
+import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 
-type EnginePayload = QuickAnalysisResponse["engines"];
+type QuickEnginePayload = QuickAnalysisResponse["engines"];
+type DetailedEnginePayload = DetailedAnalysisResponse["engines"];
 
 const TRAIT_KEYS: TraitKey[] = [
   "autonomy",
@@ -105,9 +107,14 @@ function isNarrative(
   );
 }
 
-function logFallback(reason: string, error?: unknown) {
+function logFallback(
+  mode: "quick" | "detailed",
+  reason: string,
+  error?: unknown,
+) {
   if (error instanceof Error) {
     console.error("[Prism][Gemini] fallback", {
+      mode,
       reason,
       name: error.name,
       message: error.message,
@@ -116,43 +123,68 @@ function logFallback(reason: string, error?: unknown) {
   }
 
   console.error("[Prism][Gemini] fallback", {
+    mode,
     reason,
     error: error ? String(error) : undefined,
   });
 }
 
-export async function createNarrative(
-  engines: EnginePayload,
+async function generateNarrative(
+  mode: "quick" | "detailed",
+  engines: QuickEnginePayload | DetailedEnginePayload,
   cross: CrossInsight[],
 ): Promise<AnalysisNarrative> {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
+
   if (!apiKey) {
-    logFallback("missing_api_key");
+    logFallback(mode, "missing_api_key");
     return fallbackNarrative(cross);
   }
 
   const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash";
   const ai = new GoogleGenAI({ apiKey });
 
-  const instruction = [
+  const commonInstruction = [
     "당신은 Prism의 설명 레이어입니다.",
     "사주·점성술·수비학 계산값을 새로 만들거나 수정하지 마세요.",
     "제공된 구조화 데이터만 근거로 사용하세요.",
     "세 체계가 다르게 보이면 하나를 정답으로 고르지 말고 차이를 설명하세요.",
-    "출생시간·출생지가 없는 Quick Reading의 한계를 존중하세요.",
     "미래 사건을 단정적으로 예언하지 마세요.",
     "전문용어보다 쉬운 한국어를 먼저 쓰세요.",
     "사용자를 단정적으로 규정하지 말고 '보여요', '읽을 수 있어요'처럼 표현하세요.",
+    "과학적 성격 진단처럼 표현하지 마세요.",
     "모바일에서 읽기 좋게 각 문장을 짧게 쓰세요.",
-  ].join("\n");
+  ];
+
+  const modeInstruction =
+    mode === "detailed"
+      ? [
+          "이 요청은 Detailed Reading입니다.",
+          "출생시간과 출생지역을 반영한 시주, Moon, ASC, MC, 12 Houses, 행성별 House 정보를 중요한 추가 근거로 활용하세요.",
+          "Quick Reading보다 무엇이 더 구체화되었는지 자연스럽게 드러내세요.",
+          "ASC·MC·House·시주 같은 전문용어는 먼저 일상적인 의미를 설명한 뒤 괄호나 짧은 보조 표현으로 전문용어를 붙이세요.",
+          "수비학 Life Path처럼 출생시간 추가로 바뀌지 않는 값은 억지로 변화한 것처럼 설명하지 마세요.",
+        ]
+      : [
+          "이 요청은 Quick Reading입니다.",
+          "출생시간·출생지가 없는 분석의 한계를 존중하세요.",
+          "시주, ASC, MC, Houses처럼 제공되지 않은 값을 추측하지 마세요.",
+        ];
+
+  const task =
+    mode === "detailed"
+      ? "아래 Detailed Reading 데이터를 바탕으로 출생시간과 위치를 반영한 깊이 있는 Prism 해석을 작성하세요."
+      : "아래 Quick Reading 데이터를 바탕으로 Prism의 세 관점이 함께 말하는 내용을 다정하고 간결하게 정리하세요.";
 
   const input = [
-    instruction,
+    ...commonInstruction,
+    ...modeInstruction,
     "",
-    "아래 Quick Reading 데이터를 Prism의 세 요정이 함께 정리한 것처럼 다정하고 간결하게 설명하세요.",
+    task,
     "summary는 2문장 이내, keyword/observation/cross explanation은 각각 2문장 이내로 작성하세요.",
+    "crossHighlights의 trait 값은 제공된 cross의 trait 중에서만 선택하세요.",
     "",
-    JSON.stringify({ engines, cross }),
+    JSON.stringify({ mode, engines, cross }),
   ].join("\n");
 
   try {
@@ -169,7 +201,7 @@ export async function createNarrative(
     const raw = interaction.output_text?.trim();
 
     if (!raw) {
-      logFallback("empty_response");
+      logFallback(mode, "empty_response");
       return fallbackNarrative(cross);
     }
 
@@ -177,12 +209,12 @@ export async function createNarrative(
     try {
       parsed = JSON.parse(raw);
     } catch (error) {
-      logFallback("invalid_json", error);
+      logFallback(mode, "invalid_json", error);
       return fallbackNarrative(cross);
     }
 
     if (!isNarrative(parsed)) {
-      logFallback("schema_validation_failed");
+      logFallback(mode, "schema_validation_failed");
       return fallbackNarrative(cross);
     }
 
@@ -192,7 +224,21 @@ export async function createNarrative(
       model,
     };
   } catch (error) {
-    logFallback("interaction_failed", error);
+    logFallback(mode, "interaction_failed", error);
     return fallbackNarrative(cross);
   }
+}
+
+export function createNarrative(
+  engines: QuickEnginePayload,
+  cross: CrossInsight[],
+): Promise<AnalysisNarrative> {
+  return generateNarrative("quick", engines, cross);
+}
+
+export function createDetailedNarrative(
+  engines: DetailedEnginePayload,
+  cross: CrossInsight[],
+): Promise<AnalysisNarrative> {
+  return generateNarrative("detailed", engines, cross);
 }
