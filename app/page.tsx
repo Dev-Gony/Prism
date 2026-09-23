@@ -18,6 +18,16 @@ const presetDates = [
   { label: "2001.03.15", y: "2001", m: "03", d: "15" },
 ];
 
+const TRAIT_LABELS: Record<string, string> = {
+  autonomy: "자기 주도성",
+  reflection: "사고의 깊이",
+  stability: "안정 지향",
+  sociability: "관계 확장성",
+  creativity: "표현과 창의성",
+  adaptability: "변화 적응력",
+  care: "돌봄과 배려",
+};
+
 const loadingSteps = [
   {
     key: "saju",
@@ -288,6 +298,23 @@ export default function Home() {
           : "상세 리포트를 저장하지 못했어요.",
       );
     }
+  }
+
+  async function signOutUser() {
+    if (!isSupabaseConfigured()) return;
+
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut();
+
+    window.sessionStorage.removeItem("prism.pending-analysis.v1");
+    setUser(null);
+    setAuthPromptOpen(false);
+    setSaveStatus("idle");
+    setSaveMessage("");
+    setDetailedSaveStatus("idle");
+    setDetailedSaveMessage("");
+
+    window.location.assign("/");
   }
 
   async function startGoogleLogin() {
@@ -620,18 +647,18 @@ export default function Home() {
               <span className="legend-chip numero"><i />Pico 수비학</span>
             </div>
 
-            <button
-              className="report-profile"
-              type="button"
-              onClick={user ? () => { window.location.href = "/my/results"; } : undefined}
-              aria-label={user ? "내 프리즘 도감" : "로그인 전"}
-            >
-              {user?.user_metadata?.avatar_url ? (
-                <img src={String(user.user_metadata.avatar_url)} alt="" />
-              ) : (
-                <span>{user ? "✓" : "👤"}</span>
-              )}
-            </button>
+            {user ? (
+              <UserAccountMenu user={user} onLogout={signOutUser} />
+            ) : (
+              <button
+                className="report-profile"
+                type="button"
+                aria-label="로그인 전"
+                title="결과 저장 시 로그인할 수 있어요."
+              >
+                <span>👤</span>
+              </button>
+            )}
           </div>
         </header>
 
@@ -814,6 +841,7 @@ export default function Home() {
             <section className="deep-report-section" id="deep-report">
               {detailedAnalysis ? (
                 <DetailedReport
+                  quick={analysis}
                   data={detailedAnalysis}
                   saveStatus={detailedSaveStatus}
                   saveMessage={detailedSaveMessage}
@@ -916,6 +944,12 @@ export default function Home() {
 
   return (
     <main className="editorial-shell landing-shell">
+      {user && (
+        <div className="landing-account-row">
+          <UserAccountMenu user={user} onLogout={signOutUser} />
+        </div>
+      )}
+
       <section className="landing-hero">
         <span className="landing-kicker"><i /> 인간 본질을 비추는 세 가지 빛</span>
         <h1>여러 관점으로 나를 보다.</h1>
@@ -1173,11 +1207,13 @@ function LensCard({
 }
 
 function DetailedReport({
+  quick,
   data,
   saveStatus,
   saveMessage,
   onSave,
 }: {
+  quick: QuickAnalysisResponse;
   data: DetailedAnalysisResponse;
   saveStatus: "idle" | "saving" | "saved" | "error";
   saveMessage: string;
@@ -1186,6 +1222,24 @@ function DetailedReport({
   const place = BIRTHPLACES.find(
     (item) => item.id === data.input.birthplaceId,
   )?.label;
+
+  const agreementChanges = data.cross
+    .map((item) => {
+      const quickItem = quick.cross.find((entry) => entry.trait === item.trait);
+      const quickAgreement = quickItem?.agreement ?? 0;
+
+      return {
+        trait: item.trait,
+        label: TRAIT_LABELS[item.trait] ?? item.trait,
+        quick: quickAgreement,
+        detailed: item.agreement,
+        delta: item.agreement - quickAgreement,
+      };
+    })
+    .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
+    .slice(0, 3);
+
+  const hourPillar = data.engines.saju.pillars[3];
 
   return (
     <div className="detailed-editorial-report">
@@ -1225,6 +1279,65 @@ function DetailedReport({
         ))}
       </div>
 
+      <section className="quick-detailed-compare">
+        <div className="compare-heading">
+          <div>
+            <small>WHAT CHANGED</small>
+            <h3>Quick에서 Detailed로, 무엇이 더 보였을까?</h3>
+          </div>
+          <span>{data.input.time} · {place ?? data.input.birthplaceId}</span>
+        </div>
+
+        <div className="compare-grid">
+          <article>
+            <small>사주</small>
+            <strong>시주가 추가됐어요</strong>
+            <p>
+              Quick은 년주·월주·일주까지만 봤고, Detailed에서는
+              {hourPillar ? ` ${hourPillar.text}(${hourPillar.korean}) 시주` : " 시주"}까지 반영했어요.
+            </p>
+          </article>
+
+          <article>
+            <small>점성학</small>
+            <strong>상승궁과 하우스가 열렸어요</strong>
+            <p>
+              태양 {quick.engines.astrology.sunSign}에 더해 ASC {data.engines.astrology.ascendant.sign},
+              달 {data.engines.astrology.moonSign}, MC {data.engines.astrology.midheaven.sign}을 볼 수 있어요.
+            </p>
+          </article>
+
+          <article>
+            <small>수비학</small>
+            <strong>Life Path는 그대로예요</strong>
+            <p>
+              수비학은 생년월일을 기준으로 하므로 Life Path {data.engines.numerology.lifePath}는
+              출생시간을 추가해도 바뀌지 않아요.
+            </p>
+          </article>
+        </div>
+
+        <div className="agreement-delta-list">
+          <div className="agreement-delta-head">
+            <strong>관점 합의도 변화</strong>
+            <small>상세 정보 추가 전후 비교</small>
+          </div>
+          {agreementChanges.map((item) => (
+            <div className="agreement-delta-row" key={item.trait}>
+              <span>{item.label}</span>
+              <div className="agreement-delta-values">
+                <small>Quick {item.quick}%</small>
+                <b>→</b>
+                <strong>Detailed {item.detailed}%</strong>
+                <em className={item.delta > 0 ? "up" : item.delta < 0 ? "down" : "same"}>
+                  {item.delta > 0 ? `+${item.delta}` : item.delta}
+                </em>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <div className="detailed-report-actions">
         <button
           className="report-primary-btn compact"
@@ -1243,6 +1356,45 @@ function DetailedReport({
         )}
       </div>
     </div>
+  );
+}
+
+function UserAccountMenu({
+  user,
+  onLogout,
+}: {
+  user: User;
+  onLogout: () => void;
+}) {
+  const displayName =
+    typeof user.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name
+      : user.email?.split("@")[0] ?? "Prism";
+
+  const avatarUrl =
+    typeof user.user_metadata?.avatar_url === "string"
+      ? user.user_metadata.avatar_url
+      : null;
+
+  return (
+    <details className="user-account-menu">
+      <summary className="report-profile" aria-label="계정 메뉴">
+        {avatarUrl ? (
+          <img src={avatarUrl} alt="" />
+        ) : (
+          <span>{displayName.slice(0, 1).toUpperCase()}</span>
+        )}
+      </summary>
+
+      <div className="user-account-popover">
+        <div className="user-account-copy">
+          <strong>{displayName}</strong>
+          <small>{user.email}</small>
+        </div>
+        <a href="/my/results">내 프리즘 도감</a>
+        <button type="button" onClick={onLogout}>로그아웃</button>
+      </div>
+    </details>
   );
 }
 
