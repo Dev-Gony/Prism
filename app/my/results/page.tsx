@@ -120,7 +120,7 @@ export default async function SavedResultsPage() {
         <div className="library-brand">
           <a className="library-back" href="/">‹</a>
           <div>
-            <small>PRISM FAIRY LIBRARY</small>
+            <small>PRISM REPORT LIBRARY</small>
             <h1>내 프리즘 도감</h1>
           </div>
         </div>
@@ -137,9 +137,9 @@ export default async function SavedResultsPage() {
       <section className="library-intro">
         <span className="library-book">📖</span>
         <div>
-          <small>나의 마음 기록 보관함</small>
-          <h2>요정들과 발견한 나를<br />차곡차곡 모아두는 곳</h2>
-          <p>같은 생일이라도 다시 분석하면 그 시점의 결과를 새로운 도감으로 저장해요.</p>
+          <small>나의 분석 기록 보관함</small>
+          <h2>지금까지 저장한<br />Prism Report를 모아보는 곳</h2>
+          <p>Quick과 Detailed 결과를 비교하고, 같은 입력으로 다시 분석해 변화된 해석을 확인할 수 있어요.</p>
         </div>
       </section>
 
