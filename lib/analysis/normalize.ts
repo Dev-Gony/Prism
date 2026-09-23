@@ -83,15 +83,17 @@ export function normalizeDetailedResults(
   const dominant = SAJU_ELEMENT[dominantElement] ?? day;
   const hourElement = saju.pillars[3]?.stemElement
     ? SAJU_ELEMENT[saju.pillars[3].stemElement]
-    : day;
+    : null;
 
   const sajuVector = Object.fromEntries(
     TRAITS.map((trait) => [
       trait,
       Math.round(
-        day[trait] * 0.55 +
-          dominant[trait] * 0.25 +
-          hourElement[trait] * 0.2,
+        hourElement
+          ? day[trait] * 0.55 +
+              dominant[trait] * 0.25 +
+              hourElement[trait] * 0.2
+          : day[trait] * 0.7 + dominant[trait] * 0.3,
       ),
     ]),
   ) as TraitVector;
@@ -102,13 +104,17 @@ export function normalizeDetailedResults(
   return [
     ...emit("saju", sajuVector, () => [
       "일간 " + saju.dayMaster.korean + saju.dayMaster.element,
-      "시주 " + (saju.pillars[3]?.text ?? "-"),
+      saju.pillars[3]
+        ? "시주 " + saju.pillars[3].text
+        : "출생시간 미상 · 시주 제외",
       "대표 오행 " + dominantElement,
     ]),
     ...emit("astrology", astroVector, () => [
       "태양 " + astrology.sunSign,
-      "달 " + astrology.moonSign,
-      "출생시각 반영",
+      astrology.moonSign
+        ? "달 " + astrology.moonSign
+        : "출생시간 미상 · 달/ASC/House 제외",
+      astrology.timeKnown ? "출생시각 반영" : "정오 스냅샷 기반",
     ]),
     ...emit("numerology", numberVector, () => [
       "Life Path " + numerology.lifePath,
