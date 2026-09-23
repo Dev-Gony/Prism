@@ -28,23 +28,34 @@ export function calculateSajuDetailed(
   year: number,
   month: number,
   day: number,
-  hour: number,
-  minute: number,
+  hour: number | null,
+  minute: number | null,
 ): DetailedSajuResult {
-  const chinaTime = new Date(Date.UTC(year, month - 1, day, hour - 1, minute));
+  const effectiveHour = hour ?? 12;
+  const effectiveMinute = minute ?? 0;
+  const chinaTime = new Date(
+    Date.UTC(year, month - 1, day, effectiveHour - 1, effectiveMinute),
+  );
 
   const terms = Solar.fromYmdHms(
     chinaTime.getUTCFullYear(),
     chinaTime.getUTCMonth() + 1,
     chinaTime.getUTCDate(),
     chinaTime.getUTCHours(),
-    minute,
+    effectiveMinute,
     0,
   )
     .getLunar()
     .getEightChar();
 
-  const local = Solar.fromYmdHms(year, month, day, hour, minute, 0)
+  const local = Solar.fromYmdHms(
+    year,
+    month,
+    day,
+    effectiveHour,
+    effectiveMinute,
+    0,
+  )
     .getLunar()
     .getEightChar();
 
@@ -54,7 +65,7 @@ export function calculateSajuDetailed(
     pillar("년주", terms.getYear()),
     pillar("월주", terms.getMonth()),
     pillar("일주", local.getDay()),
-    pillar("시주", local.getTime()),
+    ...(hour === null ? [] : [pillar("시주", local.getTime())]),
   ];
 
   const elements: DetailedSajuResult["elements"] = {
@@ -79,6 +90,8 @@ export function calculateSajuDetailed(
       element: pillars[2].stemElement,
     },
     method:
-      "양력 · 한국 표준시(UTC+9) · 출생시각 반영 · 23시 일자 변경 · 진태양시 보정 없음",
+      hour === null
+        ? "양력 · 한국 표준시(UTC+9) · 출생시간 미상 · 시주 제외 · 진태양시 보정 없음"
+        : "양력 · 한국 표준시(UTC+9) · 출생시각 반영 · 23시 일자 변경 · 진태양시 보정 없음",
   };
 }
