@@ -5,28 +5,44 @@ import type { User } from "@supabase/supabase-js";
 import type { QuickAnalysisResponse } from "@/lib/analysis/types";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 import { BIRTHPLACES } from "@/lib/analysis/birthplaces";
-import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import {
+  createSupabaseBrowserClient,
+  isSupabaseConfigured,
+} from "@/lib/supabase/client";
 
 type Phase = "landing" | "loading" | "result";
 
 const presetDates = [
-  { label: "✨ 1995.10.24", y: "1995", m: "10", d: "24" },
-  { label: "🌸 1998.05.12", y: "1998", m: "05", d: "12" },
-  { label: "🍀 2001.12.03", y: "2001", m: "12", d: "03" },
+  { label: "1995.10.24", y: "1995", m: "10", d: "24" },
+  { label: "1998.05.12", y: "1998", m: "05", d: "12" },
+  { label: "2001.03.15", y: "2001", m: "03", d: "15" },
 ];
 
 const loadingSteps = [
-  ["사주 명리 기운 조각 추출", "년주·월주·일주와 기본 오행을 확인하고 있어요."],
-  ["별빛 기본 데이터 대조", "생년월일로 확인 가능한 행성 위치를 살펴보고 있어요."],
-  ["피타고라스 숫자 퍼즐 맞추기", "생년월일 숫자 패턴과 Life Path를 계산하고 있어요."],
-  ["세 요정의 의견 모으기", "세 관점의 공통점과 차이점을 정리하고 있어요."],
-];
-
-const loadingQuotes = [
-  "모디가 태어난 날의 기운을 하나씩 꺼내보고 있어요 🔥",
-  "스텔라가 같은 날의 별빛 위치를 조심조심 맞춰보는 중이에요 🪐",
-  "피코가 숫자 조각을 모아 Life Path를 만들고 있어요 🌱",
-  "세 요정이 서로 다른 말을 한 장의 도감으로 정리하고 있어요 ✨",
+  {
+    key: "saju",
+    tone: "saju",
+    eyebrow: "사주명식 (Saju)",
+    companion: "Modi",
+    title: "년주 · 월주 · 일주 계산",
+    detail: "일간 및 십신 오행 매핑 완료",
+  },
+  {
+    key: "astro",
+    tone: "astro",
+    eyebrow: "점성학 (Astrology)",
+    companion: "Stella",
+    title: "천체 좌표 및 하우스 확인",
+    detail: "태양 · 달 · 수성 황도 12궁 좌표 동기화",
+  },
+  {
+    key: "numero",
+    tone: "numero",
+    eyebrow: "수비학 (Numerology)",
+    companion: "Pico",
+    title: "Life Path 계산",
+    detail: "생명수 및 피타고라스 매트릭스 도출",
+  },
 ];
 
 export default function Home() {
@@ -39,21 +55,30 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<QuickAnalysisResponse | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
   const [saveMessage, setSaveMessage] = useState("");
-  const [narrativeState, setNarrativeState] = useState<"idle" | "loading" | "gemini" | "fallback">("idle");
+  const [narrativeState, setNarrativeState] = useState<
+    "idle" | "loading" | "gemini" | "fallback"
+  >("idle");
   const [detailedOpen, setDetailedOpen] = useState(false);
   const [birthTime, setBirthTime] = useState("12:00");
   const [birthplaceId, setBirthplaceId] = useState("seoul");
-  const [detailedStatus, setDetailedStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [detailedStatus, setDetailedStatus] = useState<
+    "idle" | "loading" | "done" | "error"
+  >("idle");
   const [detailedError, setDetailedError] = useState("");
-  const [detailedAnalysis, setDetailedAnalysis] = useState<DetailedAnalysisResponse | null>(null);
+  const [detailedAnalysis, setDetailedAnalysis] =
+    useState<DetailedAnalysisResponse | null>(null);
 
-  const birthday = useMemo(
-    () => `${year || "----"}.${month.padStart(2, "0") || "--"}.${day.padStart(2, "0") || "--"}`,
+  const birthDate = useMemo(
+    () =>
+      `${year || "----"}.${month.padStart(2, "0") || "--"}.${
+        day.padStart(2, "0") || "--"
+      }`,
     [year, month, day],
   );
-
 
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
@@ -71,7 +96,9 @@ export default function Home() {
 
       if (!currentUser || pendingHandled) return;
 
-      const pendingRaw = window.sessionStorage.getItem("prism.pending-analysis.v1");
+      const pendingRaw = window.sessionStorage.getItem(
+        "prism.pending-analysis.v1",
+      );
       if (!pendingRaw) return;
 
       try {
@@ -91,7 +118,8 @@ export default function Home() {
 
         pendingHandled = true;
         setAnalysis(pending.analysis);
-        const [pendingYear, pendingMonth, pendingDay] = pending.analysis.input.date.split("-");
+        const [pendingYear, pendingMonth, pendingDay] =
+          pending.analysis.input.date.split("-");
         setYear(pendingYear);
         setMonth(pendingMonth);
         setDay(pendingDay);
@@ -101,7 +129,7 @@ export default function Home() {
           await saveAnalysisToServer(pending.analysis);
           window.sessionStorage.removeItem("prism.pending-analysis.v1");
           setSaveStatus("saved");
-          setSaveMessage("내 프리즘 도감에 저장했어요 ✨");
+          setSaveMessage("내 프리즘 도감에 저장했어요.");
         } catch (pendingError) {
           pendingHandled = false;
           setSaveStatus("error");
@@ -126,9 +154,11 @@ export default function Home() {
     window.addEventListener("focus", handleFocus);
     window.addEventListener("popstate", handlePopState);
 
-    const { data: authSubscription } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) setUser(session?.user ?? null);
-    });
+    const { data: authSubscription } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (active) setUser(session?.user ?? null);
+      },
+    );
 
     return () => {
       active = false;
@@ -141,15 +171,16 @@ export default function Home() {
 
   useEffect(() => {
     if (phase !== "loading") return;
+
     setLoadingIndex(0);
     const timers = [
-      window.setTimeout(() => setLoadingIndex(1), 700),
-      window.setTimeout(() => setLoadingIndex(2), 1450),
-      window.setTimeout(() => setLoadingIndex(3), 2200),
+      window.setTimeout(() => setLoadingIndex(1), 550),
+      window.setTimeout(() => setLoadingIndex(2), 1100),
+      window.setTimeout(() => setLoadingIndex(3), 1650),
     ];
+
     return () => timers.forEach(window.clearTimeout);
   }, [phase]);
-
 
   async function saveAnalysisToServer(result: QuickAnalysisResponse) {
     const response = await fetch("/api/results", {
@@ -187,7 +218,7 @@ export default function Home() {
       setSaveStatus("saving");
       await saveAnalysisToServer(analysis);
       setSaveStatus("saved");
-      setSaveMessage("내 프리즘 도감에 저장했어요 ✨");
+      setSaveMessage("내 프리즘 도감에 저장했어요.");
     } catch (saveError) {
       setSaveStatus("error");
       setSaveMessage(
@@ -231,13 +262,14 @@ export default function Home() {
     }
   }
 
-
   async function enrichNarrative(result: QuickAnalysisResponse) {
     setNarrativeState("loading");
 
+    let timeout = 0;
+
     try {
       const controller = new AbortController();
-      const timeout = window.setTimeout(() => controller.abort(), 12000);
+      timeout = window.setTimeout(() => controller.abort(), 15000);
 
       const response = await fetch("/api/narrative", {
         method: "POST",
@@ -248,8 +280,6 @@ export default function Home() {
         }),
         signal: controller.signal,
       });
-
-      window.clearTimeout(timeout);
 
       if (!response.ok) {
         setNarrativeState("fallback");
@@ -271,14 +301,18 @@ export default function Home() {
       setNarrativeState(
         payload.narrative.generatedBy === "gemini" ? "gemini" : "fallback",
       );
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
+    } catch (requestError) {
+      if (
+        requestError instanceof DOMException &&
+        requestError.name === "AbortError"
+      ) {
         console.warn("Gemini narrative timed out; keeping fallback narrative.");
       }
       setNarrativeState("fallback");
+    } finally {
+      if (timeout) window.clearTimeout(timeout);
     }
   }
-
 
   async function runDetailedAnalysis() {
     setDetailedStatus("loading");
@@ -303,26 +337,31 @@ export default function Home() {
       setDetailedAnalysis(payload as DetailedAnalysisResponse);
       setDetailedStatus("done");
       setDetailedOpen(false);
+
       window.setTimeout(() => {
-        document.getElementById("detailed-result")?.scrollIntoView({
+        document.getElementById("deep-report")?.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
       }, 80);
-    } catch (error) {
+    } catch (detailedRequestError) {
       setDetailedStatus("error");
       setDetailedError(
-        error instanceof Error ? error.message : "상세 분석에 실패했어요.",
+        detailedRequestError instanceof Error
+          ? detailedRequestError.message
+          : "상세 분석에 실패했어요.",
       );
     }
   }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+
     const y = Number(year);
     const m = Number(month);
     const d = Number(day);
     const date = new Date(Date.UTC(y, m - 1, d));
+
     const valid =
       /^\d{4}$/.test(year) &&
       /^\d{1,2}$/.test(month) &&
@@ -338,8 +377,12 @@ export default function Home() {
 
     setError("");
     setAnalysis(null);
+    setDetailedAnalysis(null);
+    setNarrativeState("idle");
     setPhase("loading");
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const startedAt = Date.now();
 
     try {
       const response = await fetch("/api/analyze", {
@@ -349,18 +392,27 @@ export default function Home() {
           date: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
         }),
       });
+
       const payload = await response.json();
+
       if (!response.ok) {
         throw new Error(payload.error || "분석 요청에 실패했어요.");
       }
+
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < 1700) {
+        await new Promise((resolve) =>
+          window.setTimeout(resolve, 1700 - elapsed),
+        );
+      }
+
       const quickResult = payload as QuickAnalysisResponse;
       setLoadingIndex(3);
       setAnalysis(quickResult);
       setNarrativeState("loading");
-      window.setTimeout(() => {
-        setPhase("result");
-        void enrichNarrative(quickResult);
-      }, 250);
+      setPhase("result");
+      window.scrollTo({ top: 0, behavior: "instant" });
+      void enrichNarrative(quickResult);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -372,629 +424,834 @@ export default function Home() {
   }
 
   if (phase === "loading") {
-    const progress = analysis ? 100 : ([28, 52, 78, 94][loadingIndex] ?? 94);
+    const progress = [34, 58, 78, 94][loadingIndex] ?? 94;
 
     return (
-      <Shell>
-        <div className="loading-screen">
-          <header className="lab-header stitch-lab-header">
-            <div className="lab-brand">
-              <span className="lab-heart">♡</span>
-              <div>
-                <small>TAMAGOTCHI LAB</small>
-                <strong>꼬마 요정 연구소</strong>
-              </div>
+      <main className="editorial-shell loading-shell">
+        <section className="analysis-loading">
+          <div className="loading-kicker">SYNTHESIS IN PROGRESS</div>
+          <h1>세 가지 관점을 맞춰보고 있어요.</h1>
+          <p className="loading-lead">
+            각 분석 결과를 계산한 뒤 공통점과 차이를 정리합니다.
+          </p>
+
+          <div className="synthesis-visual">
+            <div className="orbit-graphic" aria-hidden="true">
+              <span className="orbit orbit-a" />
+              <span className="orbit orbit-b" />
+              <span className="orbit orbit-c" />
+              <span className="orbit-core">
+                <i className="dot modi" />
+                <i className="dot stella" />
+                <i className="dot pico" />
+              </span>
             </div>
-            <span className="sync-pill"><i />SYNC {progress}%</span>
-          </header>
-
-          <section className="stitch-loading-card">
-            <span className="loading-glow loading-glow-peach" />
-            <span className="loading-glow loading-glow-lavender" />
-
-            <div className="loading-title center">
-              <span className="loading-chip">🫧 심층 운명 데이터 조합 중</span>
-              <h1>세 꼬마 요정이<br />내 마음을 모으는 중... 🫧</h1>
-              <p>사주, 별자리, 수비학 요정들이 머리를 맞대고 있어요!</p>
+            <div className="converging-label">CONVERGING · 0.{progress}4</div>
+            <div className="progress-copy">
+              <strong>{Math.min(loadingIndex + 1, 3)}단계 교차 분석 진행 중</strong>
+              <b>{progress}%</b>
             </div>
-
-            <div className="fairy-console">
-              <div className="console-top">
-                <span className="console-lights"><i /><i /><i /></span>
-                <small>FAIRY CONSOLE v2.4</small>
-              </div>
-
-              <div className="stitch-fairy-stage">
-                <LoadingFairy
-                  tone="peach"
-                  icon="🔥"
-                  badge="+ 기운"
-                  name="불꼬미 모디"
-                  state={loadingIndex === 0 ? "측정 중 🔥" : "기운 확인 완료"}
-                  active={loadingIndex === 0}
-                />
-                <LoadingFairy
-                  tone="lavender"
-                  icon="✨"
-                  badge="궤도 🔭"
-                  name="별빛냥 스텔라"
-                  state={loadingIndex === 1 ? "행성 대조 중 🪐" : loadingIndex > 1 ? "별빛 확인 완료" : "차례 기다리는 중"}
-                  active={loadingIndex === 1}
-                />
-                <LoadingFairy
-                  tone="mint"
-                  icon="🌱"
-                  badge="숫자"
-                  name="숫자새싹 피코"
-                  state={loadingIndex === 2 ? "조약돌 계산 중 🌱" : loadingIndex > 2 ? "숫자 확인 완료" : "차례 기다리는 중"}
-                  active={loadingIndex === 2}
-                />
-              </div>
-
-              <div className="console-buttons" aria-hidden="true">
-                <b /><b className="active">◉</b><b />
-              </div>
-            </div>
-
-            <div className="progress-block stitch-progress">
-              <div>
-                <span>⌛ 요정 조율 완료도</span>
-                <strong>{progress}%</strong>
-              </div>
-              <div className="progress-track">
-                <i style={{ width: `${progress}%` }} />
-              </div>
-            </div>
-          </section>
-
-          <section className="loading-list stitch-loading-list">
-            <div className="section-head">
-              <span>분석 진행 프로토콜</span>
-              <b>{Math.min(loadingIndex + 1, 4)} / 4 작업 중</b>
-            </div>
-
-            {loadingSteps.map(([title, desc], index) => {
-              const state = index < loadingIndex ? "done" : index === loadingIndex ? "active" : "wait";
-              const tones = ["peach", "lavender", "mint", "neutral"];
-
-              return (
-                <div className={`loading-row stitch-loading-row ${state} ${tones[index]}`} key={title}>
-                  <span className="step-icon">
-                    {state === "done" ? "✓" : state === "active" ? "↻" : "…"}
-                  </span>
-                  <div>
-                    <strong>{title}</strong>
-                    <small>{desc}</small>
-                  </div>
-                  <span className="state-chip">
-                    {state === "done" ? "완료 💖" : state === "active" ? "분석 중 ⏳" : "대기 중 💭"}
-                  </span>
-                </div>
-              );
-            })}
-          </section>
-
-          <div className="whisper stitch-whisper">
-            <span className="whisper-avatar">💬</span>
-            <div>
-              <small>요정들의 귓속말 · 실시간 속닥속닥</small>
-              <p>“{loadingQuotes[loadingIndex] ?? loadingQuotes[3]}”</p>
+            <div className="report-progress">
+              <span style={{ width: `${progress}%` }} />
             </div>
           </div>
-        </div>
-      </Shell>
+
+          <div className="loading-domain-list">
+            {loadingSteps.map((step, index) => {
+              const complete = index < loadingIndex || loadingIndex >= 3;
+              const active = index === loadingIndex && loadingIndex < 3;
+
+              return (
+                <article
+                  className={`loading-domain-card ${step.tone} ${
+                    active ? "active" : ""
+                  }`}
+                  key={step.key}
+                >
+                  <div className="domain-mark">
+                    {step.key === "saju" ? "年" : step.key === "astro" ? "✦" : "№7"}
+                  </div>
+                  <div className="loading-domain-copy">
+                    <div>
+                      <h2>{step.eyebrow}</h2>
+                      <span className="companion-tag">{step.companion}</span>
+                    </div>
+                    <strong>{step.title}</strong>
+                    <p>{step.detail}</p>
+                  </div>
+                  <span className={`domain-status ${complete ? "done" : active ? "working" : "wait"}`}>
+                    {complete ? "● 완료" : active ? "↻ 연산 중" : "대기"}
+                  </span>
+                </article>
+              );
+            })}
+          </div>
+
+          <section className="cross-analysis-preview">
+            <div className="cross-preview-head">
+              <h2>Cross Analysis</h2>
+              <span>합의 도출 단계</span>
+            </div>
+            <div className="cross-preview-body">
+              <strong>● 세 관점의 공통점과 차이를 정리하는 중</strong>
+              <p>
+                사주, 점성학, 수비학이 각각 말하는 성향을 하나의 문장으로
+                단정하지 않고, 겹치는 부분과 다른 부분을 나란히 비교합니다.
+              </p>
+              <div className="cross-preview-stats">
+                <span><small>동기화 수준</small><b>{progress}.4%</b></span>
+                <span><small>상호 보완성</small><b>높음</b></span>
+                <span><small>해석 정밀도</small><b>심층</b></span>
+              </div>
+            </div>
+          </section>
+
+          <div className="loading-note">
+            <span className="mini-companion modi">M</span>
+            <span className="mini-companion stella">S</span>
+            <span className="mini-companion pico">P</span>
+            <p>
+              어려운 전문 용어나 한자 대신, 오늘의 나에게 닿는 명료한 언어로
+              정리하고 있어요.
+            </p>
+          </div>
+        </section>
+      </main>
     );
   }
 
-  if (phase === "result") {
-    const harmony = analysis?.cross.length
-      ? Math.round(
-          analysis.cross.reduce((sum, item) => sum + item.agreement, 0) /
-            analysis.cross.length,
-        )
-      : 0;
-    const leadKeyword = analysis?.narrative.keywords[0]?.title ?? "나만의 빛을 찾는 탐색자";
+  if (phase === "result" && analysis) {
     const generatedLabel =
       narrativeState === "loading"
         ? "AI 해석 정리 중"
-        : analysis?.narrative.generatedBy === "gemini"
+        : analysis.narrative.generatedBy === "gemini"
           ? "Gemini 해석"
-          : "Rule Fallback";
+          : "규칙 기반 해석";
 
     return (
-      <Shell>
-        <div className="result-screen">
-          <header className="result-top stitch-result-top">
-            <div className="brand-line">
-              <span className="brand-gem">✦</span>
-              <strong>Prism ✦</strong>
-              <span className="tiny-pill lavender">나 알아보기 ✨</span>
+      <main className="report-app">
+        <header className="report-header">
+          <div className="report-header-inner">
+            <a className="report-brand" href="/" onClick={(event) => {
+              event.preventDefault();
+              setPhase("landing");
+            }}>
+              <strong>Prism</strong>
+              <span>프리즘</span>
+              <small>Multi-System Insight</small>
+            </a>
+
+            <div className="desktop-domain-legend">
+              <span className="legend-chip saju"><i />Modi 사주</span>
+              <span className="legend-chip astro"><i />Stella 점성학</span>
+              <span className="legend-chip numero"><i />Pico 수비학</span>
             </div>
+
             <button
-              className="profile-btn"
-              aria-label={user ? "내 프리즘 도감" : "로그인 전"}
-              title={user ? "내 프리즘 도감" : "로그인 전"}
+              className="report-profile"
+              type="button"
               onClick={user ? () => { window.location.href = "/my/results"; } : undefined}
+              aria-label={user ? "내 프리즘 도감" : "로그인 전"}
             >
               {user?.user_metadata?.avatar_url ? (
                 <img src={String(user.user_metadata.avatar_url)} alt="" />
-              ) : user ? "✓" : "👤"}
+              ) : (
+                <span>{user ? "✓" : "👤"}</span>
+              )}
             </button>
-          </header>
+          </div>
+        </header>
 
-          <section className="result-hero stitch-result-hero">
-            <div className="result-meta">
-              <span className="result-date-pill">📖 {birthday} 친구의 프리즘 도감 ✨</span>
-              <span className="result-number-pill"><i />{generatedLabel}</span>
+        <div className="report-layout">
+          <aside className="report-anchor">
+            <div className="anchor-card">
+              <span className="anchor-kicker">PRISM REPORT</span>
+              <h2>{birthDate}</h2>
+              <p>Quick Reading</p>
+              <div className="anchor-rule" />
+              <strong>{analysis.narrative.keywords[0]?.title ?? "나의 교차 리포트"}</strong>
+              <small>{generatedLabel}</small>
             </div>
 
-            <div className="soul-pod">
-              <div className="soul-pod-head">
-                <div>
-                  <span className="soul-icon">🐾</span>
-                  <div>
-                    <small>SOUL TAMAGOTCHI</small>
-                    <strong>{leadKeyword}</strong>
-                  </div>
-                </div>
-                <span className="harmony-pill">조율도 {harmony}%</span>
+            <nav className="anchor-nav">
+              <a href="#core-essence">핵심 성향</a>
+              <a href="#cross-analysis">교차 분석</a>
+              <a href="#three-lenses">각 관점</a>
+              <a href="#observation-log">관찰 노트</a>
+              <a href="#deep-report">상세 분석</a>
+            </nav>
+          </aside>
+
+          <article className="report-stream">
+            <section className="report-intro">
+              <div className="report-meta-line">
+                <span>1998.05.12 · 나의 Prism Report</span>
+                <span className={`narrative-badge ${analysis.narrative.generatedBy}`}>
+                  {generatedLabel}
+                </span>
               </div>
-
-              <div className="soul-screen">
-                <div className="screen-stats">
-                  <span>빛의 조화도 <b>{harmony}%</b></span>
-                  <span>♡ 3요정 동행 중</span>
-                </div>
-
-                <div className="result-fairy-row">
-                  <ResultFairy
-                    tone="peach"
-                    icon="🔥"
-                    name="모디"
-                    value={analysis ? `일간 ${analysis.engines.saju.dayMaster.korean}${analysis.engines.saju.dayMaster.element}` : "사주"}
-                  />
-                  <ResultFairy
-                    tone="lavender"
-                    icon="✨"
-                    name="스텔라"
-                    value={analysis ? `태양 ${analysis.engines.astrology.sunSign}` : "점성"}
-                    featured
-                  />
-                  <ResultFairy
-                    tone="mint"
-                    icon="🌱"
-                    name="피코"
-                    value={analysis ? `Life Path ${analysis.engines.numerology.lifePath}` : "수비"}
-                  />
-                </div>
-
-                <p className="fairy-mini-bubble">
-                  ✨ 세 요정이 실제 계산 결과를 한 장의 도감으로 모았어요!
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="summary stitch-summary">
-            <span className="summary-icon">💭</span>
-            <div>
-              <small>SUMMARY DIALOGUE · {generatedLabel}</small>
-              <p>{analysis?.narrative.summary ?? "세 가지 관점을 한 문장으로 정리하고 있어요."}</p>
-            </div>
-          </section>
-
-          <section className="result-section">
-            <div className="result-section-head">
-              <div>
-                <span>📚</span>
-                <h2>3대 핵심 키워드 카드</h2>
-              </div>
-              <small>터치해서 보는 나의 핵심 조각</small>
-            </div>
-
-            <div className="keyword-list stitch-keyword-list">
-              {(analysis?.narrative.keywords ?? []).map((item, index) => (
-                <Keyword
-                  key={item.title + index}
-                  tone={["peach", "lavender", "mint"][index] ?? "peach"}
-                  emoji={["🦁", "🔍", "🌿"][index] ?? "✨"}
-                  title={item.title}
-                  pick={index === 0 ? "교차분석 핵심" : index === 1 ? "깊이 탐구" : "3요정 관찰"}
-                  text={item.description}
-                  tags={item.tags}
-                />
-              ))}
-            </div>
-          </section>
-
-          <section className="result-section cross-section">
-            <div className="result-section-head stacked">
-              <div>
-                <span>🔮</span>
-                <h2>세 요정의 교차 분석</h2>
-              </div>
-              <p>사주(모디) · 점성(스텔라) · 수비학(피코)이 각자의 돋보기로 함께 살펴본 나만의 입체적 지도예요.</p>
-            </div>
-
-            <div className="cross-list stitch-cross-list">
-              {(analysis?.narrative.crossHighlights ?? []).map((item, index) => {
-                const source = analysis?.cross.find((cross) => cross.trait === item.trait);
-                return (
-                  <CrossCard
-                    key={item.trait}
-                    tone={["peach", "lavender", "mint"][index] ?? "peach"}
-                    badge={item.label + (source ? ` · ${source.agreement}%` : "")}
-                    title={item.title}
-                  >
-                    {source?.sources.map((entry) => (
-                      <Dialogue
-                        key={entry.source}
-                        name={entry.source === "saju" ? "모디(사주)" : entry.source === "astrology" ? "스텔라(점성)" : "피코(수비학)"}
-                        tone={entry.source === "saju" ? "peach" : entry.source === "astrology" ? "lavender" : "mint"}
-                      >
-                        {entry.evidence.join(" · ")}
-                      </Dialogue>
-                    ))}
-                    <Conclusion>{item.explanation}</Conclusion>
-                  </CrossCard>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="result-section diary-section">
-            <div className="result-section-head">
-              <div>
-                <span>📝</span>
-                <h2>요정들의 5가지 관찰 일기</h2>
-              </div>
-              <small>소장용 메모</small>
-            </div>
-
-            <div className="diary-list">
-              {(analysis?.narrative.observations ?? []).map((item, index) => (
-                <article className="diary-row stitch-diary-row" key={item.label + index}>
-                  <span className={`diary-label tone-${["peach","lavender","mint","peach","lavender"][index] ?? "peach"}`}>
-                    {item.label}
-                  </span>
-                  <div>
-                    <strong>{item.title}</strong>
-                    <p>{item.description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section className="deep-card stitch-deep-card">
-            <div className="deep-title">
-              <span className="deep-key">🔑</span>
-              <div>
-                <strong>더 깊은 비밀이 궁금해? 🗝️</strong>
-                <p>출생시간과 출생지역을 더하면 숨겨진 2층 다락방이 열려요.</p>
-              </div>
-            </div>
-
-            <div className="deep-preview">
-              <div>
-                <span>◷ 정확한 태어난 시간</span>
-                <small>Detailed Reading에서 입력</small>
-              </div>
-              <div className="deep-preview-grid">
-                <span>시주 <b>잠금</b></span>
-                <span>ASC / Houses <b>잠금</b></span>
-              </div>
-            </div>
-
-            <button
-              className="squishy"
-              type="button"
-              onClick={() => setDetailedOpen(true)}
-            >
-              🔓 상세 분석 잠금 해제 준비하기
-            </button>
-          </section>
-
-          {detailedAnalysis && (
-            <section id="detailed-result" className="detailed-result-card">
-              <div className="detailed-result-head">
-                <div>
-                  <small>DETAILED READING v1</small>
-                  <h2>출생시간을 반영한 두 번째 프리즘</h2>
-                  <p>{birthTime} · {BIRTHPLACES.find((place) => place.id === birthplaceId)?.label ?? birthplaceId}</p>
-                </div>
-                <span className="detailed-badge">확장 분석</span>
-              </div>
-
-              <div className="detailed-engine-grid">
-                <article>
-                  <span>사주</span>
-                  <strong>{detailedAnalysis.engines.saju.pillars.map((item) => item.text).join(" · ")}</strong>
-                  <small>시주 포함 8자</small>
-                </article>
-                <article>
-                  <span>점성</span>
-                  <strong>ASC {detailedAnalysis.engines.astrology.ascendant.sign}</strong>
-                  <small>MC {detailedAnalysis.engines.astrology.midheaven.sign} · 태양 {detailedAnalysis.engines.astrology.sunSign}</small>
-                </article>
-                <article>
-                  <span>수비학</span>
-                  <strong>Life Path {detailedAnalysis.engines.numerology.lifePath}</strong>
-                  <small>{detailedAnalysis.engines.numerology.meaningKey}</small>
-                </article>
-              </div>
-
-              <div className="detailed-angle-grid">
-                <span><small>ASC</small><b>{detailedAnalysis.engines.astrology.ascendant.sign} {detailedAnalysis.engines.astrology.ascendant.degreeInSign.toFixed(1)}°</b></span>
-                <span><small>MC</small><b>{detailedAnalysis.engines.astrology.midheaven.sign} {detailedAnalysis.engines.astrology.midheaven.degreeInSign.toFixed(1)}°</b></span>
-                <span><small>DSC</small><b>{detailedAnalysis.engines.astrology.descendant.sign}</b></span>
-                <span><small>IC</small><b>{detailedAnalysis.engines.astrology.imumCoeli.sign}</b></span>
-              </div>
-
-              <div className="house-strip">
-                {detailedAnalysis.engines.astrology.houses.map((house) => (
-                  <span key={house.house}>
-                    <small>{house.house}H</small>
-                    <b>{house.sign.replace("자리", "")}</b>
-                  </span>
-                ))}
-              </div>
-
-              <div className="detailed-note">
-                <strong>이번 단계에서 추가된 것</strong>
-                <p>사주 시주, 실제 출생시각 기준 주요 행성 위치, ASC, MC, 그리고 Whole Sign 기준 12 Houses를 반영했어요.</p>
+              <h1>세 관점이 함께 말하는 나</h1>
+              <blockquote>
+                “{analysis.narrative.summary}”
+              </blockquote>
+              <div className="report-source-row">
+                <span><i className="source-dot saju" />사주 · Modi</span>
+                <span><i className="source-dot astro" />점성학 · Stella</span>
+                <span><i className="source-dot numero" />수비학 · Pico</span>
               </div>
             </section>
-          )}
 
-          {detailedOpen && (
-            <div className="auth-sheet-backdrop" role="presentation" onClick={() => setDetailedOpen(false)}>
-              <section className="detailed-sheet" role="dialog" aria-modal="true" aria-labelledby="detailed-title" onClick={(event) => event.stopPropagation()}>
-                <div className="detailed-sheet-head">
-                  <div>
-                    <small>DETAILED READING</small>
-                    <h2 id="detailed-title">태어난 시간과 지역을 더해볼게요.</h2>
+            <section className="report-section" id="core-essence">
+              <div className="section-heading-row">
+                <div>
+                  <small>CORE ESSENCE</small>
+                  <h2>핵심 성향 세 가지</h2>
+                </div>
+                <span>핵심 요약</span>
+              </div>
+
+              <div className="essence-list">
+                {analysis.narrative.keywords.slice(0, 3).map((item, index) => (
+                  <article className="essence-item" key={item.title + index}>
+                    <span className="editorial-index">{String(index + 1).padStart(2, "0")}</span>
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>{item.description}</p>
+                      <div className="tag-row">
+                        {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="report-section" id="cross-analysis">
+              <div className="section-heading-row">
+                <div>
+                  <small>CROSS ANALYSIS</small>
+                  <h2>세 관점의 교차 분석</h2>
+                </div>
+                <span>{analysis.cross.length}개 영역 비교</span>
+              </div>
+
+              <div className="cross-report-list">
+                {analysis.narrative.crossHighlights.map((highlight, index) => {
+                  const source = analysis.cross.find(
+                    (item) => item.trait === highlight.trait,
+                  );
+
+                  return (
+                    <article className="cross-report-card" key={highlight.trait}>
+                      <div className="cross-report-card-head">
+                        <span>교차 영역 {String(index + 1).padStart(2, "0")}</span>
+                        <span className="agreement-chip">
+                          {highlight.label}
+                          {source ? ` · ${source.agreement}%` : ""}
+                        </span>
+                      </div>
+                      <h3>{highlight.title}</h3>
+
+                      <div className="source-evidence-list">
+                        {source?.sources.map((entry) => (
+                          <div className={`evidence-row ${entry.source}`} key={entry.source}>
+                            <span className="evidence-avatar">
+                              {entry.source === "saju" ? "M" : entry.source === "astrology" ? "S" : "P"}
+                            </span>
+                            <strong>
+                              {entry.source === "saju"
+                                ? "Modi"
+                                : entry.source === "astrology"
+                                  ? "Stella"
+                                  : "Pico"}
+                            </strong>
+                            <p>{entry.evidence.join(" · ")}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="editorial-callout">
+                        <strong>Prism 통합 해석</strong>
+                        <p>{highlight.explanation}</p>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="report-section" id="three-lenses">
+              <div className="section-heading-row">
+                <div>
+                  <small>THREE LENSES</small>
+                  <h2>각 관점에서 본 나</h2>
+                </div>
+              </div>
+
+              <div className="lens-grid">
+                <LensCard
+                  tone="saju"
+                  code="M"
+                  title="사주 (Four Pillars)"
+                  subtitle="Modi · 동양의 기운"
+                  quote={`“일간 ${analysis.engines.saju.dayMaster.korean}${analysis.engines.saju.dayMaster.element}, 대표 오행 ${analysis.engines.saju.dominantElement}.”`}
+                  detail={analysis.engines.saju.pillars.map((item) => item.text).join(" · ")}
+                />
+                <LensCard
+                  tone="astro"
+                  code="S"
+                  title="점성학 (Astrology)"
+                  subtitle="Stella · 서양 점성"
+                  quote={`“태양 ${analysis.engines.astrology.sunSign}.”`}
+                  detail={analysis.engines.astrology.planets.map((planet) => `${planet.body} ${planet.sign}`).join(" · ")}
+                />
+                <LensCard
+                  tone="numero"
+                  code="P"
+                  title="수비학 (Numerology)"
+                  subtitle="Pico · 생애 수비학"
+                  quote={`“Life Path ${analysis.engines.numerology.lifePath}.”`}
+                  detail={analysis.engines.numerology.meaningKey}
+                />
+              </div>
+            </section>
+
+            <section className="report-section" id="observation-log">
+              <div className="section-heading-row">
+                <div>
+                  <small>OBSERVATION LOG</small>
+                  <h2>관찰 노트</h2>
+                </div>
+                <span>현재 분석 스냅샷</span>
+              </div>
+
+              <ol className="observation-list">
+                {analysis.narrative.observations.map((item, index) => (
+                  <li key={item.label + index}>
+                    <span>{index + 1}</span>
+                    <div>
+                      <strong>{item.title}</strong>
+                      <p>{item.description}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <section className="deep-report-section" id="deep-report">
+              {detailedAnalysis ? (
+                <DetailedReport data={detailedAnalysis} />
+              ) : (
+                <>
+                  <div className="deep-report-copy">
+                    <small>DEEP HORIZON</small>
+                    <h2>출생시간을 더하면 더 깊은 프리즘이 열려요</h2>
+                    <p>
+                      출생시간과 지역을 더하면 사주의 시주와 점성학의 ASC,
+                      MC, 12 Houses를 함께 볼 수 있어요.
+                    </p>
                   </div>
-                  <button type="button" onClick={() => setDetailedOpen(false)}>×</button>
-                </div>
 
-                <label className="detailed-field">
-                  <span>태어난 시간</span>
-                  <input type="time" value={birthTime} onChange={(event) => setBirthTime(event.target.value)} />
-                </label>
+                  <div className="deep-feature-grid">
+                    <span><b>사주</b><small>시주 추가</small></span>
+                    <span><b>점성학</b><small>ASC · MC · 12 Houses</small></span>
+                  </div>
 
-                <label className="detailed-field">
-                  <span>태어난 지역</span>
-                  <select value={birthplaceId} onChange={(event) => setBirthplaceId(event.target.value)}>
-                    {BIRTHPLACES.map((place) => (
-                      <option key={place.id} value={place.id}>{place.label}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <div className="detailed-sheet-preview">
-                  <span>시주</span>
-                  <span>ASC · MC</span>
-                  <span>12 Houses</span>
-                </div>
-
-                {detailedError && <p className="form-error">{detailedError}</p>}
-
-                <button
-                  className="dark-btn detailed-run-btn"
-                  type="button"
-                  disabled={detailedStatus === "loading"}
-                  onClick={runDetailedAnalysis}
-                >
-                  {detailedStatus === "loading" ? "상세 분석 중..." : "상세 분석 시작"}
-                </button>
-
-                <p className="detailed-sheet-foot">대한민국 주요 도시 기준 · Whole Sign House System</p>
-              </section>
-            </div>
-          )}
-
-          <section className="result-actions">
-            <button className="bubble-btn" onClick={() => setPhase("landing")}>← 처음으로</button>
-            <button
-              className="dark-btn"
-              onClick={saveCurrentAnalysis}
-              disabled={saveStatus === "saving"}
-            >
-              {saveStatus === "saving"
-                ? "저장 중..."
-                : saveStatus === "saved"
-                  ? "도감 저장 완료 ✓"
-                  : "내 도감에 저장"}
-            </button>
-          </section>
-
-          {saveMessage && (
-            <p className={`save-message ${saveStatus}`}>
-              {saveMessage}
-              {user && saveStatus === "saved" && (
-                <> · <a href="/my/results">내 도감 보기</a></>
+                  <button
+                    className="report-primary-btn"
+                    type="button"
+                    onClick={() => setDetailedOpen(true)}
+                  >
+                    상세 분석 열기
+                    <span>→</span>
+                  </button>
+                </>
               )}
+            </section>
+
+            <section className="report-actions">
+              <button
+                className="report-secondary-btn"
+                type="button"
+                onClick={() => setPhase("landing")}
+              >
+                새 분석
+              </button>
+              <button
+                className="report-primary-btn compact"
+                type="button"
+                disabled={saveStatus === "saving"}
+                onClick={saveCurrentAnalysis}
+              >
+                {saveStatus === "saving"
+                  ? "저장 중..."
+                  : saveStatus === "saved"
+                    ? "저장 완료"
+                    : "내 프리즘 도감에 저장"}
+              </button>
+            </section>
+
+            {saveMessage && (
+              <p className={`editorial-save-message ${saveStatus}`}>
+                {saveMessage}
+                {user && saveStatus === "saved" && (
+                  <> · <a href="/my/results">도감 보기</a></>
+                )}
+              </p>
+            )}
+
+            <p className="report-disclaimer">
+              본 분석은 전통적·문화적 자기탐색 프레임워크를 활용한 참고
+              정보이며 과학적 성격 진단이나 미래 예측을 의미하지 않습니다.
             </p>
-          )}
-
-          {authPromptOpen && (
-            <div className="auth-sheet-backdrop" role="presentation" onClick={() => setAuthPromptOpen(false)}>
-              <section className="auth-sheet toy-card" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={(event) => event.stopPropagation()}>
-                <span className="round-icon peach">🔐</span>
-                <h2 id="auth-title">이 결과를 계속 보관할까요?</h2>
-                <p>Google로 로그인하면 지금 보고 있는 분석을 그대로 내 프리즘 도감에 저장해요.</p>
-                <button className="google-login-btn" type="button" onClick={startGoogleLogin}>
-                  <span>G</span>
-                  Google로 계속하기
-                </button>
-                <button className="auth-later-btn" type="button" onClick={() => setAuthPromptOpen(false)}>
-                  나중에 할게요
-                </button>
-              </section>
-            </div>
-          )}
-
-          <details className="evidence-drawer">
-            <summary>실제 계산 근거 보기</summary>
-            <div className="engine-proof-grid">
-              <span>사주 <b>{analysis?.engines.saju.pillars.map((item) => item.text).join(" · ")}</b></span>
-              <span>점성 <b>태양 {analysis?.engines.astrology.sunSign}</b></span>
-              <span>수비 <b>Life Path {analysis?.engines.numerology.lifePath}</b></span>
-            </div>
-            <p>계산 엔진 값과 교차분석을 먼저 만든 뒤, 설명 레이어가 이를 사람이 읽기 쉬운 문장으로 바꿉니다.</p>
-          </details>
-
-          <p className="prototype-note">
-            계산 엔진은 실제 값이며, 해석은 전통적·문화적 자기탐색을 위한 참고 정보입니다.
-          </p>
+          </article>
         </div>
-      </Shell>
+
+        <nav className="mobile-report-nav">
+          <button type="button" onClick={() => setPhase("landing")}>분석하기</button>
+          <a href="#cross-analysis" className="active">교차 리포트</a>
+          <a href="/my/results">내 프리즘 도감</a>
+        </nav>
+
+        {authPromptOpen && (
+          <AuthModal
+            onClose={() => setAuthPromptOpen(false)}
+            onGoogle={startGoogleLogin}
+          />
+        )}
+
+        {detailedOpen && (
+          <DetailedModal
+            birthTime={birthTime}
+            birthplaceId={birthplaceId}
+            status={detailedStatus}
+            error={detailedError}
+            onBirthTime={setBirthTime}
+            onBirthplace={setBirthplaceId}
+            onClose={() => setDetailedOpen(false)}
+            onRun={runDetailedAnalysis}
+          />
+        )}
+      </main>
     );
   }
 
   return (
-    <Shell>
-      <section className="intro center">
-        <span className="soft-pill">✨ 프리즘 꼬마 연구소 v1.2 <i /></span>
-        <h1>세 꼬마 요정이 읽어주는<br />나의 비밀 노트 ✨</h1>
-        <p>사주 꼬미, 별빛 냥이, 숫자 새싹이 속닥속닥 모여<br />나를 가장 다정하고 입체적으로 비춰줘요.</p>
+    <main className="editorial-shell landing-shell">
+      <section className="landing-hero">
+        <span className="landing-kicker"><i /> 인간 본질을 비추는 세 가지 빛</span>
+        <h1>여러 관점으로 나를 보다.</h1>
+        <p>
+          생년월일 하나로 사주, 점성술, 수비학을 함께 살펴보고
+          <br className="desktop-break" />
+          세 관점이 겹치는 부분과 다르게 말하는 부분을 이해해보세요.
+        </p>
+
+        <figure className="prism-photo">
+          <img
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuae1nenex4FYZRraygw4ECMyjsZ4brvTG02aQLK-QZ5KmDYBZfOLYhXYSeLQsqS33ggHevgV7s7fKj-JYzGUr_THoFRm4Ld_3AV8rqh0Xrw_VaIcvUR3pjHUUPkE-_o8lU86w-u4d64I7QY8KSaQvnFhHtLeglI0uSiVTfr_zduvxvX8qF39TS4i-3sgDYbk51nOp6VIELrjzy212Cwgy3k-YO4CcPlFN5DOJyh2cKSZCSnNhIcVC"
+            alt="따뜻한 빛 아래 놓인 프리즘 오브제"
+          />
+          <figcaption>
+            <span>PRISM ARCHITECTURE</span>
+            <em>Cross-Cosmic Inquiries</em>
+          </figcaption>
+        </figure>
+
+        <div className="landing-domain-stack">
+          <DomainIntro
+            tone="saju"
+            mark="炎"
+            title="사주"
+            companion="Modi"
+            description="타고난 기질과 에너지의 흐름을 오행과 십신으로 분석합니다."
+          />
+          <DomainIntro
+            tone="astro"
+            mark="✦"
+            title="점성술"
+            companion="Stella"
+            description="관계, 표현, 감정의 미묘한 결을 천체 배치도를 통해 짚어냅니다."
+          />
+          <DomainIntro
+            tone="numero"
+            mark="№"
+            title="수비학"
+            companion="Pico"
+            description="삶의 방향과 반복되는 숫자 패턴 속 고유한 생애 주기 리듬을 발견합니다."
+          />
+        </div>
       </section>
 
-      <section className="pet-pod">
-        <div className="pod-status"><span>♡ 하트 동기화 99%</span><span><i /> 온라인 연결됨</span></div>
-        <div className="pet-screen">
-          <div className="speech">💬 “너의 생일을 쏙 넣으면 비밀이 열려!”</div>
-          <div className="fairy-room">
-            <img
-              className="fairy-art"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwOBHFgMplF4-GckqC4SJONOGgj9LzIScOah9ieTXhKLy_F3IL_NjTPgbX2cJrJoWpWOptuxHzX-AiFf9HF_iOnv91TfF8ZIY8izAEeLUpNXQfk2XmW3uY2XfgD_1c-WUO_O24Ci17QESN4svfnm4Ny7C6d_9pLvxOQyEuYq3lRirD7PgYrZ_MlzpFSGEhF7-R4Rd3LgVrHvDCsA6Co74YKsXV69H3JoECFxNwCcOT1R0WbTjWUJx-"
-              alt="파스텔 방에서 쉬고 있는 모디, 스텔라, 피코"
-            />
+      <form className="editorial-input-card" onSubmit={submit}>
+        <div className="input-card-head">
+          <div>
+            <h2>생년월일 입력</h2>
+            <p>정확한 교차 분석을 위한 기본 정보입니다.</p>
           </div>
-          <div className="fairy-meters">
-            <Meter tone="peach" label="🔥 사주 모디" width="82%" />
-            <Meter tone="lavender" label="✨ 별빛 스텔라" width="96%" />
-            <Meter tone="mint" label="🌱 숫자 피코" width="75%" />
+          <div className="calendar-toggle">
+            <b>양력</b>
+            <span>음력</span>
           </div>
         </div>
-      </section>
 
-      <form className="birthday-card toy-card" onSubmit={submit}>
-        <div className="birthday-head"><h2>🎂 생년월일 쏙 넣기</h2><div className="segment"><b>☀️ 양력</b><span title="MVP 이후 지원 예정">🌙 음력</span></div></div>
-        <div className="preset-block"><small>빠른 생일 픽! 🎂 탭해서 채우기</small><div>{presetDates.map((p) => <button key={p.label} type="button" onClick={() => {setYear(p.y); setMonth(p.m); setDay(p.d); setError("");}}>{p.label}</button>)}</div></div>
-        <div className="date-grid">
-          <DateField label="태어난 해" value={year} setValue={setYear} suffix="년" maxLength={4} />
-          <DateField label="월" value={month} setValue={setMonth} suffix="월" maxLength={2} />
-          <DateField label="일" value={day} setValue={setDay} suffix="일" maxLength={2} />
+        <div className="editorial-date-grid">
+          <EditorialDateField
+            label="연도 (YYYY)"
+            value={year}
+            suffix=""
+            maxLength={4}
+            setValue={setYear}
+          />
+          <EditorialDateField
+            label="월 (MM)"
+            value={month}
+            suffix=""
+            maxLength={2}
+            setValue={setMonth}
+          />
+          <EditorialDateField
+            label="일 (DD)"
+            value={day}
+            suffix=""
+            maxLength={2}
+            setValue={setDay}
+          />
         </div>
-        <div className="time-option" aria-disabled="true">
-          <div><span>◷</span><b>태어난 시간 알기</b></div>
-          <div><small>상세 분석에서 입력</small><span className="fake-toggle"><i /></span></div>
+
+        <div className="preset-row">
+          <span>예시 선택:</span>
+          {presetDates.map((preset) => (
+            <button
+              type="button"
+              key={preset.label}
+              onClick={() => {
+                setYear(preset.y);
+                setMonth(preset.m);
+                setDay(preset.d);
+                setError("");
+              }}
+            >
+              {preset.label}
+            </button>
+          ))}
         </div>
-        {error && <p className="form-error">{error}</p>}
-        <button className="squishy" type="submit"><span>‹</span> 내 꼬마 요정들 깨우기 (무료로 알아보기)</button>
-        <p className="privacy">🔒 Quick Reading은 생년월일만 사용해요. 로그인은 필요 없어요.</p>
+
+        {error && <p className="editorial-form-error">{error}</p>}
+
+        <button className="editorial-primary-cta" type="submit">
+          나의 프리즘 분석 시작
+          <span>→</span>
+        </button>
+
+        <p className="editorial-privacy">
+          <span>▣</span>
+          로그인 없이 바로 분석할 수 있어요 · 데이터는 안전하게 보관됩니다.
+        </p>
       </form>
 
-      <div className="reassure"><span>🐣</span><div><strong>무서운 점괘나 어려운 한자는 전혀 없어요</strong><p>전문용어는 숨기지 않되, 먼저 이해하기 쉬운 말로 번역해 들려줄게요.</p></div></div>
+      <section className="landing-manifesto">
+        <h2>
+          하나의 해석이 아니라,
+          <br />
+          세 가지 관점을 함께 봅니다.
+        </h2>
+        <p>
+          선형적 운명론에 갇히지 않고, 서로 다른 체계가 마주칠 때 드러나는
+          나만의 입체적 서사를 기록합니다.
+        </p>
 
-      <SectionTitle title="세 요정은 나를 어떻게 볼까?" sub="3대 프리즘 렌즈" />
-      <section className="perspectives">
-        <Perspective tone="peach" icon="🔥" title="사주 꼬미 모디" chip="동양의 기운">내가 태어난 계절과 날씨의 흐름을 통해 <b>타고난 마음의 온도와 활력의 흐름</b>을 솔직하게 짚어줘요.</Perspective>
-        <Perspective tone="lavender" icon="🪐" title="별빛 냥이 스텔라" chip="서양 점성">생년월일로 확인 가능한 별빛 데이터를 엮어 <b>관계를 맺는 방식과 드러나는 매력</b>을 비춰줘요.</Perspective>
-        <Perspective tone="mint" icon="🌱" title="숫자 새싹 피코" chip="생애 수비학">생년월일 숫자를 하나하나 모아 <b>고유한 나침반 번호와 성장 키워드</b>를 싹틔워요.</Perspective>
+        <div className="prism-diagram" aria-hidden="true">
+          <span className="prism-triangle" />
+          <i className="ray ray-saju" />
+          <i className="ray ray-astro" />
+          <i className="ray ray-numero" />
+          <b>PRISM</b>
+        </div>
+
+        <div className="manifesto-points">
+          <article>
+            <span>01</span>
+            <div>
+              <strong>단편적 점괘가 아니라 다각도 교차 검증</strong>
+              <p>독립적인 세 관점의 공통점과 차이를 한곳에서 비교합니다.</p>
+            </div>
+          </article>
+          <article>
+            <span>02</span>
+            <div>
+              <strong>차이를 모순이 아닌 입체적 잠재력으로 해석</strong>
+              <p>서로 다른 결론을 지우지 않고, 맥락과 조건의 차이로 읽습니다.</p>
+            </div>
+          </article>
+          <article>
+            <span>03</span>
+            <div>
+              <strong>쉬운 일상 한국어로 풀어낸 지적인 에세이 리포트</strong>
+              <p>전문용어는 근거로 남기되, 먼저 사람이 읽을 수 있는 언어로 번역합니다.</p>
+            </div>
+          </article>
+        </div>
       </section>
-      <footer className="fairy-footer">© PRISM FAIRY COMPANION<br /><span>✨ 모디 · 🌙 스텔라 · 🌿 피코</span></footer>
-    </Shell>
+
+      <footer className="editorial-footer">
+        <strong>✾ PRISM · 프리즘</strong>
+        <p>
+          본 분석 서비스는 개인의 내면 탐색과 사색을 돕기 위해 현대 심리학적
+          프레임워크와 전통적 문화 인사이트를 참고합니다.
+        </p>
+        <small>© 2026 Prism Analytical Studio.</small>
+      </footer>
+    </main>
   );
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
-  return <main className="prism-shell">{children}</main>;
-}
-
-function DateField({ label, value, setValue, suffix, maxLength }: { label: string; value: string; setValue: (v: string) => void; suffix: string; maxLength: number }) {
-  return <label className="date-field"><span>{label}</span><div><input inputMode="numeric" value={value} maxLength={maxLength} onChange={(e) => setValue(e.target.value.replace(/\D/g, "").slice(0, maxLength))} /><em>{suffix}</em></div></label>;
-}
-
-function Fairy({ tone, icon, name, sub, big = false }: { tone: string; icon: string; name: string; sub: string; big?: boolean }) {
-  return <div className={`fairy fairy-${tone} ${big ? "big" : ""}`}><div>{icon}</div><strong>{name}</strong><small>{sub}</small></div>;
-}
-
-function LoadingFairy({
-  tone,
-  icon,
-  badge,
-  name,
-  state,
-  active,
-}: {
-  tone: string;
-  icon: string;
-  badge: string;
-  name: string;
-  state: string;
-  active?: boolean;
-}) {
-  return (
-    <div className={`loading-fairy loading-fairy-${tone} ${active ? "active" : ""}`}>
-      <div className="loading-fairy-orb">
-        <span className="loading-fairy-icon">{icon}</span>
-        <span className="loading-fairy-badge">{badge}</span>
-      </div>
-      <strong>{name}</strong>
-      <small>{state}</small>
-    </div>
-  );
-}
-
-function ResultFairy({
-  tone,
-  icon,
-  name,
+function EditorialDateField({
+  label,
   value,
-  featured = false,
+  setValue,
+  suffix,
+  maxLength,
 }: {
-  tone: string;
-  icon: string;
-  name: string;
+  label: string;
   value: string;
-  featured?: boolean;
+  setValue: (value: string) => void;
+  suffix: string;
+  maxLength: number;
 }) {
   return (
-    <div className={`result-fairy result-fairy-${tone} ${featured ? "featured" : ""}`}>
-      <div>{icon}</div>
-      <strong>{name}</strong>
-      <small>{value}</small>
+    <label className="editorial-date-field">
+      <span>{label}</span>
+      <div>
+        <input
+          inputMode="numeric"
+          value={value}
+          maxLength={maxLength}
+          onChange={(event) =>
+            setValue(event.target.value.replace(/\D/g, "").slice(0, maxLength))
+          }
+        />
+        {suffix && <em>{suffix}</em>}
+      </div>
+    </label>
+  );
+}
+
+function DomainIntro({
+  tone,
+  mark,
+  title,
+  companion,
+  description,
+}: {
+  tone: "saju" | "astro" | "numero";
+  mark: string;
+  title: string;
+  companion: string;
+  description: string;
+}) {
+  return (
+    <article className={`landing-domain-card ${tone}`}>
+      <span className="domain-symbol">{mark}</span>
+      <div>
+        <div className="domain-title-row">
+          <strong>{title}</strong>
+          <span>{companion}</span>
+        </div>
+        <p>{description}</p>
+      </div>
+    </article>
+  );
+}
+
+function LensCard({
+  tone,
+  code,
+  title,
+  subtitle,
+  quote,
+  detail,
+}: {
+  tone: "saju" | "astro" | "numero";
+  code: string;
+  title: string;
+  subtitle: string;
+  quote: string;
+  detail: string;
+}) {
+  return (
+    <article className={`lens-card ${tone}`}>
+      <div className="lens-card-head">
+        <span>{code}</span>
+        <div>
+          <h3>{title}</h3>
+          <small>{subtitle}</small>
+        </div>
+      </div>
+      <blockquote>{quote}</blockquote>
+      <p>{detail}</p>
+    </article>
+  );
+}
+
+function DetailedReport({ data }: { data: DetailedAnalysisResponse }) {
+  const place = BIRTHPLACES.find(
+    (item) => item.id === data.input.birthplaceId,
+  )?.label;
+
+  return (
+    <div className="detailed-editorial-report">
+      <div className="deep-report-copy">
+        <small>DETAILED READING</small>
+        <h2>출생시간을 반영한 두 번째 프리즘</h2>
+        <p>
+          {data.input.time} · {place ?? data.input.birthplaceId} · Whole Sign
+          Houses
+        </p>
+      </div>
+
+      <div className="detailed-angle-row">
+        <span>
+          <small>ASC</small>
+          <b>{data.engines.astrology.ascendant.sign}</b>
+          <em>{data.engines.astrology.ascendant.degreeInSign.toFixed(1)}°</em>
+        </span>
+        <span>
+          <small>MC</small>
+          <b>{data.engines.astrology.midheaven.sign}</b>
+          <em>{data.engines.astrology.midheaven.degreeInSign.toFixed(1)}°</em>
+        </span>
+        <span>
+          <small>시주</small>
+          <b>{data.engines.saju.pillars[3]?.text ?? "-"}</b>
+          <em>{data.engines.saju.pillars[3]?.korean ?? ""}</em>
+        </span>
+      </div>
+
+      <div className="detailed-house-grid">
+        {data.engines.astrology.houses.map((house) => (
+          <span key={house.house}>
+            <small>{house.house}H</small>
+            <b>{house.sign.replace("자리", "")}</b>
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
 
-function Meter({ tone, label, width }: { tone: string; label: string; width: string }) {
-  return <div className={`meter tone-${tone}`}><strong>{label}</strong><span><i style={{ width }} /></span></div>;
+function AuthModal({
+  onClose,
+  onGoogle,
+}: {
+  onClose: () => void;
+  onGoogle: () => void;
+}) {
+  return (
+    <div className="editorial-modal-backdrop" onClick={onClose}>
+      <section
+        className="editorial-modal"
+        role="dialog"
+        aria-modal="true"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <small>SAVE REPORT</small>
+        <h2>이 리포트를 내 도감에 보관할까요?</h2>
+        <p>
+          Google로 로그인하면 지금 보고 있는 분석 결과를 그대로 저장합니다.
+        </p>
+        <button className="google-editorial-btn" type="button" onClick={onGoogle}>
+          <span>G</span>
+          Google로 계속하기
+        </button>
+        <button className="modal-ghost-btn" type="button" onClick={onClose}>
+          나중에 할게요
+        </button>
+      </section>
+    </div>
+  );
 }
 
-function SectionTitle({ icon, title, sub }: { icon?: string; title: string; sub: string }) {
-  return <div className="section-title"><h2>{icon && <span>{icon}</span>}{title}</h2><small>{sub}</small></div>;
-}
+function DetailedModal({
+  birthTime,
+  birthplaceId,
+  status,
+  error,
+  onBirthTime,
+  onBirthplace,
+  onClose,
+  onRun,
+}: {
+  birthTime: string;
+  birthplaceId: string;
+  status: "idle" | "loading" | "done" | "error";
+  error: string;
+  onBirthTime: (value: string) => void;
+  onBirthplace: (value: string) => void;
+  onClose: () => void;
+  onRun: () => void;
+}) {
+  return (
+    <div className="editorial-modal-backdrop" onClick={onClose}>
+      <section
+        className="editorial-modal detailed-editorial-modal"
+        role="dialog"
+        aria-modal="true"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="modal-heading-row">
+          <div>
+            <small>DETAILED READING</small>
+            <h2>더 정확한 나를 보기 위한 정보</h2>
+          </div>
+          <button type="button" onClick={onClose}>×</button>
+        </div>
 
-function Perspective({ tone, icon, title, chip, children }: { tone: string; icon: string; title: string; chip: string; children: React.ReactNode }) {
-  return <article className="perspective toy-card"><span className={`perspective-icon tone-${tone}`}>{icon}</span><div><div className="perspective-title"><strong>{title}</strong><span className={`tiny-pill tone-${tone}`}>{chip}</span></div><p>{children}</p></div></article>;
-}
+        <p className="modal-description">
+          출생시간은 사주의 시주와 점성술의 상승궁·하우스 계산에 사용됩니다.
+        </p>
 
-function Keyword({ tone, emoji, title, pick, text, tags }: { tone: string; emoji: string; title: string; pick: string; text: string; tags: string[] }) {
-  return <article className={`keyword toy-card keyword-${tone}`}><div className="keyword-title"><div><span>{emoji}</span><strong>{title}</strong></div><span className={`tiny-pill tone-${tone}`}>{pick}</span></div><p>{text}</p><div className="tags">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div></article>;
-}
+        <label className="editorial-modal-field">
+          <span>태어난 시간</span>
+          <input
+            type="time"
+            value={birthTime}
+            onChange={(event) => onBirthTime(event.target.value)}
+          />
+        </label>
 
-function CrossCard({ tone, badge, title, children }: { tone: string; badge: string; title: string; children: React.ReactNode }) {
-  return <article className={`cross-card toy-card cross-${tone}`}><div className="cross-title"><span className={`tiny-pill tone-${tone}`}>{badge}</span><strong>{title}</strong></div><div className="dialogue-thread">{children}</div></article>;
-}
+        <label className="editorial-modal-field">
+          <span>태어난 지역</span>
+          <select
+            value={birthplaceId}
+            onChange={(event) => onBirthplace(event.target.value)}
+          >
+            {BIRTHPLACES.map((place) => (
+              <option key={place.id} value={place.id}>
+                {place.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
-function Dialogue({ name, tone, children }: { name: string; tone: string; children: React.ReactNode }) {
-  return <div className="dialogue"><span className={`avatar tone-${tone}`}>{name.slice(0, 1)}</span><p><b className={`text-${tone}`}>{name}:</b> “{children}”</p></div>;
-}
+        <div className="modal-feature-row">
+          <span>시주</span>
+          <span>ASC · MC</span>
+          <span>12 Houses</span>
+        </div>
 
-function Conclusion({ children }: { children: React.ReactNode }) {
-  return <div className="conclusion">💡 <span>{children}</span></div>;
+        {error && <p className="editorial-form-error">{error}</p>}
+
+        <button
+          className="report-primary-btn"
+          type="button"
+          disabled={status === "loading"}
+          onClick={onRun}
+        >
+          {status === "loading" ? "상세 분석 중..." : "상세 분석 시작"}
+          <span>→</span>
+        </button>
+      </section>
+    </div>
+  );
 }
