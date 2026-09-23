@@ -10,7 +10,7 @@ export async function GET() {
   }
 
   const apiKey = process.env.GEMINI_API_KEY?.trim();
-  const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
+  const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash";
 
   if (!apiKey) {
     return NextResponse.json(
