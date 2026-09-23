@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { AnalysisInputError, parseBirthDate } from "@/lib/analysis/input";
+import { AnalysisInputError } from "@/lib/analysis/input";
+import { normalizeBirthInput } from "@/lib/analysis/calendar";
 import { getBirthplace } from "@/lib/analysis/birthplaces";
 import { calculateSajuDetailed } from "@/lib/saju/detailed";
 import { calculateAstrologyDetailed } from "@/lib/astrology/detailed";
@@ -26,9 +27,15 @@ export async function POST(request: Request) {
       date?: unknown;
       time?: unknown;
       birthplaceId?: unknown;
+      calendarType?: unknown;
+      isLeapMonth?: unknown;
     };
 
-    const input = parseBirthDate(body.date);
+    const input = normalizeBirthInput(
+      body.date,
+      body.calendarType,
+      body.isLeapMonth,
+    );
     const time = parseTime(body.time);
 
     if (typeof body.birthplaceId !== "string") {
@@ -67,6 +74,9 @@ export async function POST(request: Request) {
         date: input.date,
         time: time.time,
         birthplaceId: birthplace.id,
+        calendarType: input.calendarType,
+        originalDate: input.originalDate,
+        isLeapMonth: input.isLeapMonth,
       },
       engines: {
         saju,
@@ -78,7 +88,7 @@ export async function POST(request: Request) {
       narrative,
       warnings: [
         "Detailed v1은 대한민국 주요 도시 출생지를 우선 지원합니다.",
-        "ASC·MC·12 Houses는 다음 단계에서 추가합니다.",
+        "ASC·MC·12 Houses는 출생시간과 출생지역을 기준으로 계산합니다.",
         "사주 계산은 진태양시 보정을 아직 적용하지 않습니다.",
         "해석은 전통적·문화적 자기탐색을 위한 참고 정보입니다.",
       ],
