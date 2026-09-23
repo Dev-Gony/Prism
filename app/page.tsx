@@ -14,10 +14,17 @@ const presetDates = [
 ];
 
 const loadingSteps = [
-  ["사주 기본 기운 조각 추출", "년주·월주·일주와 기본 오행을 확인하고 있어요."],
-  ["별빛 기본 데이터 확인", "생년월일로 확인 가능한 점성 데이터를 살펴보고 있어요."],
-  ["피타고라스 숫자 퍼즐 맞추기", "생년월일 숫자 패턴을 계산하고 있어요."],
+  ["사주 명리 기운 조각 추출", "년주·월주·일주와 기본 오행을 확인하고 있어요."],
+  ["별빛 기본 데이터 대조", "생년월일로 확인 가능한 행성 위치를 살펴보고 있어요."],
+  ["피타고라스 숫자 퍼즐 맞추기", "생년월일 숫자 패턴과 Life Path를 계산하고 있어요."],
   ["세 요정의 의견 모으기", "세 관점의 공통점과 차이점을 정리하고 있어요."],
+];
+
+const loadingQuotes = [
+  "모디가 태어난 날의 기운을 하나씩 꺼내보고 있어요 🔥",
+  "스텔라가 같은 날의 별빛 위치를 조심조심 맞춰보는 중이에요 🪐",
+  "피코가 숫자 조각을 모아 Life Path를 만들고 있어요 🌱",
+  "세 요정이 서로 다른 말을 한 장의 도감으로 정리하고 있어요 ✨",
 ];
 
 export default function Home() {
@@ -266,207 +273,379 @@ export default function Home() {
 
   if (phase === "loading") {
     const progress = analysis ? 100 : ([28, 52, 78, 94][loadingIndex] ?? 94);
+
     return (
       <Shell>
-        <header className="lab-header">
-          <div className="lab-brand">
-            <span className="round-icon peach">♡</span>
-            <div><small>TAMAGOTCHI LAB</small><strong>꼬마 요정 연구소</strong></div>
-          </div>
-          <span className="sync-pill"><i />SYNC {progress}%</span>
-        </header>
-
-        <section className="loading-hero toy-card">
-          <div className="center">
-            <span className="soft-pill">🫧 심층 데이터 조합 중</span>
-            <h1>세 꼬마 요정이<br />내 마음을 모으는 중... 🫧</h1>
-            <p>사주, 별자리, 수비학 요정들이 머리를 맞대고 있어요!</p>
-          </div>
-
-          <div className="console">
-            <div className="console-top"><span>● ● ●</span><small>FAIRY CONSOLE v2.4</small></div>
-            <div className="fairy-stage">
-              <Fairy tone="peach" icon="🔥" name="불꼬미 모디" sub={loadingIndex >= 0 ? "기운 측정 중" : "대기"} />
-              <Fairy tone="lavender" icon="✨" name="별빛냥 스텔라" sub={loadingIndex >= 1 ? "별빛 대조 중" : "대기"} />
-              <Fairy tone="mint" icon="🌱" name="숫자새싹 피코" sub={loadingIndex >= 2 ? "숫자 계산 중" : "대기"} />
-            </div>
-            <div className="console-buttons"><b /><b className="active" /><b /></div>
-          </div>
-
-          <div className="progress-block">
-            <div><span>⌛ 요정 조율 완료도</span><strong>{progress}%</strong></div>
-            <div className="progress-track"><i style={{ width: `${progress}%` }} /></div>
-          </div>
-        </section>
-
-        <section className="loading-list">
-          <div className="section-head"><span>분석 진행 프로토콜</span><b>{Math.min(loadingIndex + 1, 4)} / 4 작업 중</b></div>
-          {loadingSteps.map(([title, desc], index) => {
-            const state = index < loadingIndex ? "done" : index === loadingIndex ? "active" : "wait";
-            return (
-              <div className={`loading-row ${state}`} key={title}>
-                <span className="step-icon">{state === "done" ? "✓" : state === "active" ? "↻" : "…"}</span>
-                <div><strong>{title}</strong><small>{desc}</small></div>
-                <span className="state-chip">{state === "done" ? "완료 💖" : state === "active" ? "분석 중 ⏳" : "대기 중 💭"}</span>
+        <div className="loading-screen">
+          <header className="lab-header stitch-lab-header">
+            <div className="lab-brand">
+              <span className="lab-heart">♡</span>
+              <div>
+                <small>TAMAGOTCHI LAB</small>
+                <strong>꼬마 요정 연구소</strong>
               </div>
-            );
-          })}
-        </section>
+            </div>
+            <span className="sync-pill"><i />SYNC {progress}%</span>
+          </header>
 
-        <div className="whisper toy-card">
-          <span className="round-icon peach">💬</span>
-          <div><small>요정들의 귓속말 · 실시간 속닥속닥</small><p>“복잡한 말 대신, 네가 바로 이해할 수 있는 말로 정리해 줄게! 🍵✨”</p></div>
+          <section className="stitch-loading-card">
+            <span className="loading-glow loading-glow-peach" />
+            <span className="loading-glow loading-glow-lavender" />
+
+            <div className="loading-title center">
+              <span className="loading-chip">🫧 심층 운명 데이터 조합 중</span>
+              <h1>세 꼬마 요정이<br />내 마음을 모으는 중... 🫧</h1>
+              <p>사주, 별자리, 수비학 요정들이 머리를 맞대고 있어요!</p>
+            </div>
+
+            <div className="fairy-console">
+              <div className="console-top">
+                <span className="console-lights"><i /><i /><i /></span>
+                <small>FAIRY CONSOLE v2.4</small>
+              </div>
+
+              <div className="stitch-fairy-stage">
+                <LoadingFairy
+                  tone="peach"
+                  icon="🔥"
+                  badge="+ 기운"
+                  name="불꼬미 모디"
+                  state={loadingIndex === 0 ? "측정 중 🔥" : "기운 확인 완료"}
+                  active={loadingIndex === 0}
+                />
+                <LoadingFairy
+                  tone="lavender"
+                  icon="✨"
+                  badge="궤도 🔭"
+                  name="별빛냥 스텔라"
+                  state={loadingIndex === 1 ? "행성 대조 중 🪐" : loadingIndex > 1 ? "별빛 확인 완료" : "차례 기다리는 중"}
+                  active={loadingIndex === 1}
+                />
+                <LoadingFairy
+                  tone="mint"
+                  icon="🌱"
+                  badge="숫자"
+                  name="숫자새싹 피코"
+                  state={loadingIndex === 2 ? "조약돌 계산 중 🌱" : loadingIndex > 2 ? "숫자 확인 완료" : "차례 기다리는 중"}
+                  active={loadingIndex === 2}
+                />
+              </div>
+
+              <div className="console-buttons" aria-hidden="true">
+                <b /><b className="active">◉</b><b />
+              </div>
+            </div>
+
+            <div className="progress-block stitch-progress">
+              <div>
+                <span>⌛ 요정 조율 완료도</span>
+                <strong>{progress}%</strong>
+              </div>
+              <div className="progress-track">
+                <i style={{ width: `${progress}%` }} />
+              </div>
+            </div>
+          </section>
+
+          <section className="loading-list stitch-loading-list">
+            <div className="section-head">
+              <span>분석 진행 프로토콜</span>
+              <b>{Math.min(loadingIndex + 1, 4)} / 4 작업 중</b>
+            </div>
+
+            {loadingSteps.map(([title, desc], index) => {
+              const state = index < loadingIndex ? "done" : index === loadingIndex ? "active" : "wait";
+              const tones = ["peach", "lavender", "mint", "neutral"];
+
+              return (
+                <div className={`loading-row stitch-loading-row ${state} ${tones[index]}`} key={title}>
+                  <span className="step-icon">
+                    {state === "done" ? "✓" : state === "active" ? "↻" : "…"}
+                  </span>
+                  <div>
+                    <strong>{title}</strong>
+                    <small>{desc}</small>
+                  </div>
+                  <span className="state-chip">
+                    {state === "done" ? "완료 💖" : state === "active" ? "분석 중 ⏳" : "대기 중 💭"}
+                  </span>
+                </div>
+              );
+            })}
+          </section>
+
+          <div className="whisper stitch-whisper">
+            <span className="whisper-avatar">💬</span>
+            <div>
+              <small>요정들의 귓속말 · 실시간 속닥속닥</small>
+              <p>“{loadingQuotes[loadingIndex] ?? loadingQuotes[3]}”</p>
+            </div>
+          </div>
         </div>
       </Shell>
     );
   }
 
   if (phase === "result") {
+    const harmony = analysis?.cross.length
+      ? Math.round(
+          analysis.cross.reduce((sum, item) => sum + item.agreement, 0) /
+            analysis.cross.length,
+        )
+      : 0;
+    const leadKeyword = analysis?.narrative.keywords[0]?.title ?? "나만의 빛을 찾는 탐색자";
+    const generatedLabel =
+      analysis?.narrative.generatedBy === "gemini" ? "Gemini 해석" : "Rule Fallback";
+
     return (
       <Shell>
-        <header className="result-top">
-          <div className="brand-line"><span className="round-icon peach">✦</span><strong>Prism ✦</strong><span className="tiny-pill lavender">나 알아보기 ✨</span></div>
-          <button
-            className="profile-btn"
-            aria-label={user ? "내 프리즘 도감" : "로그인 전"}
-            title={user ? "내 프리즘 도감" : "로그인 전"}
-            onClick={user ? () => { window.location.href = "/my/results"; } : undefined}
-          >
-            {user?.user_metadata?.avatar_url ? (
-              <img src={String(user.user_metadata.avatar_url)} alt="" />
-            ) : user ? "✓" : "👤"}
-          </button>
-        </header>
-
-        <section className="result-hero">
-          <div className="result-meta"><span className="tiny-pill lavender">📖 {birthday} 친구의 프리즘 도감</span><span className="tiny-pill">● UI PROTOTYPE</span></div>
-          <div className="toy-card terrarium">
-            <div className="hero-title"><div><small>SOUL TAMAGOTCHI</small><strong>성향 레벨: 반짝이는 사색가 🌟</strong></div><span className="tiny-pill mint">LV.4 친밀도 만점!</span></div>
-            <div className="mini-screen">
-              <div className="screen-stats"><span>빛의 조화도 <b>94%</b></span><span>♡ 3요정 동행 중</span></div>
-              <div className="mini-fairies">
-                <Fairy tone="peach" icon="🔥" name="모디" sub="사주" />
-                <Fairy tone="lavender" icon="✨" name="스텔라" sub="점성" big />
-                <Fairy tone="mint" icon="7" name="피코" sub="수비" />
-              </div>
-              <p>✨ 세 요정이 머리를 맞대고 너의 빛을 조합했어요!</p>
+        <div className="result-screen">
+          <header className="result-top stitch-result-top">
+            <div className="brand-line">
+              <span className="brand-gem">✦</span>
+              <strong>Prism ✦</strong>
+              <span className="tiny-pill lavender">나 알아보기 ✨</span>
             </div>
-          </div>
-        </section>
+            <button
+              className="profile-btn"
+              aria-label={user ? "내 프리즘 도감" : "로그인 전"}
+              title={user ? "내 프리즘 도감" : "로그인 전"}
+              onClick={user ? () => { window.location.href = "/my/results"; } : undefined}
+            >
+              {user?.user_metadata?.avatar_url ? (
+                <img src={String(user.user_metadata.avatar_url)} alt="" />
+              ) : user ? "✓" : "👤"}
+            </button>
+          </header>
 
-        <section className="summary toy-card">
-          <span className="round-icon peach">▦</span>
-          <div>
-            <small>SUMMARY DIALOGUE 💭 · {analysis?.narrative.generatedBy === "gemini" ? "Gemini" : "Rule Fallback"}</small>
-            <p>{analysis?.narrative.summary ?? "세 가지 관점을 한 문장으로 정리하고 있어요."}</p>
-          </div>
-        </section>
+          <section className="result-hero stitch-result-hero">
+            <div className="result-meta">
+              <span className="result-date-pill">📖 {birthday} 친구의 프리즘 도감 ✨</span>
+              <span className="result-number-pill"><i />{generatedLabel}</span>
+            </div>
 
-        <SectionTitle icon="📚" title="3대 핵심 키워드 카드" sub="UI Mock Result" />
-        <section className="keyword-list">
-          {(analysis?.narrative.keywords ?? []).map((item, index) => (
-            <Keyword
-              key={item.title + index}
-              tone={["peach", "lavender", "mint"][index] ?? "peach"}
-              emoji={["🦁", "🔍", "🌿"][index] ?? "✨"}
-              title={item.title}
-              pick={index === 0 ? "교차분석 핵심" : "Prism Lens"}
-              text={item.description}
-              tags={item.tags}
-            />
-          ))}
-        </section>
+            <div className="soul-pod">
+              <div className="soul-pod-head">
+                <div>
+                  <span className="soul-icon">🐾</span>
+                  <div>
+                    <small>SOUL TAMAGOTCHI</small>
+                    <strong>{leadKeyword}</strong>
+                  </div>
+                </div>
+                <span className="harmony-pill">조율도 {harmony}%</span>
+              </div>
 
-        <SectionTitle icon="🔮" title="세 요정의 교차 분석" sub="Prism 핵심 경험" />
-        <section className="cross-list">
-          {(analysis?.narrative.crossHighlights ?? []).map((item, index) => {
-            const source = analysis?.cross.find((cross) => cross.trait === item.trait);
-            return (
-              <CrossCard
-                key={item.trait}
-                tone={["peach", "lavender", "mint"][index] ?? "peach"}
-                badge={item.label + (source ? ` · ${source.agreement}%` : "")}
-                title={item.title}
-              >
-                {source?.sources.map((entry) => (
-                  <Dialogue
-                    key={entry.source}
-                    name={entry.source === "saju" ? "모디(사주)" : entry.source === "astrology" ? "스텔라(점성)" : "피코(수비학)"}
-                    tone={entry.source === "saju" ? "peach" : entry.source === "astrology" ? "lavender" : "mint"}
+              <div className="soul-screen">
+                <div className="screen-stats">
+                  <span>빛의 조화도 <b>{harmony}%</b></span>
+                  <span>♡ 3요정 동행 중</span>
+                </div>
+
+                <div className="result-fairy-row">
+                  <ResultFairy
+                    tone="peach"
+                    icon="🔥"
+                    name="모디"
+                    value={analysis ? `일간 ${analysis.engines.saju.dayMaster.korean}${analysis.engines.saju.dayMaster.element}` : "사주"}
+                  />
+                  <ResultFairy
+                    tone="lavender"
+                    icon="✨"
+                    name="스텔라"
+                    value={analysis ? `태양 ${analysis.engines.astrology.sunSign}` : "점성"}
+                    featured
+                  />
+                  <ResultFairy
+                    tone="mint"
+                    icon="🌱"
+                    name="피코"
+                    value={analysis ? `Life Path ${analysis.engines.numerology.lifePath}` : "수비"}
+                  />
+                </div>
+
+                <p className="fairy-mini-bubble">
+                  ✨ 세 요정이 실제 계산 결과를 한 장의 도감으로 모았어요!
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="summary stitch-summary">
+            <span className="summary-icon">💭</span>
+            <div>
+              <small>SUMMARY DIALOGUE · {generatedLabel}</small>
+              <p>{analysis?.narrative.summary ?? "세 가지 관점을 한 문장으로 정리하고 있어요."}</p>
+            </div>
+          </section>
+
+          <section className="result-section">
+            <div className="result-section-head">
+              <div>
+                <span>📚</span>
+                <h2>3대 핵심 키워드 카드</h2>
+              </div>
+              <small>터치해서 보는 나의 핵심 조각</small>
+            </div>
+
+            <div className="keyword-list stitch-keyword-list">
+              {(analysis?.narrative.keywords ?? []).map((item, index) => (
+                <Keyword
+                  key={item.title + index}
+                  tone={["peach", "lavender", "mint"][index] ?? "peach"}
+                  emoji={["🦁", "🔍", "🌿"][index] ?? "✨"}
+                  title={item.title}
+                  pick={index === 0 ? "교차분석 핵심" : index === 1 ? "깊이 탐구" : "3요정 관찰"}
+                  text={item.description}
+                  tags={item.tags}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className="result-section cross-section">
+            <div className="result-section-head stacked">
+              <div>
+                <span>🔮</span>
+                <h2>세 요정의 교차 분석</h2>
+              </div>
+              <p>사주(모디) · 점성(스텔라) · 수비학(피코)이 각자의 돋보기로 함께 살펴본 나만의 입체적 지도예요.</p>
+            </div>
+
+            <div className="cross-list stitch-cross-list">
+              {(analysis?.narrative.crossHighlights ?? []).map((item, index) => {
+                const source = analysis?.cross.find((cross) => cross.trait === item.trait);
+                return (
+                  <CrossCard
+                    key={item.trait}
+                    tone={["peach", "lavender", "mint"][index] ?? "peach"}
+                    badge={item.label + (source ? ` · ${source.agreement}%` : "")}
+                    title={item.title}
                   >
-                    {entry.evidence.join(" · ")}
-                  </Dialogue>
-                ))}
-                <Conclusion>{item.explanation}</Conclusion>
-              </CrossCard>
-            );
-          })}
-        </section>
+                    {source?.sources.map((entry) => (
+                      <Dialogue
+                        key={entry.source}
+                        name={entry.source === "saju" ? "모디(사주)" : entry.source === "astrology" ? "스텔라(점성)" : "피코(수비학)"}
+                        tone={entry.source === "saju" ? "peach" : entry.source === "astrology" ? "lavender" : "mint"}
+                      >
+                        {entry.evidence.join(" · ")}
+                      </Dialogue>
+                    ))}
+                    <Conclusion>{item.explanation}</Conclusion>
+                  </CrossCard>
+                );
+              })}
+            </div>
+          </section>
 
-        <SectionTitle icon="📝" title="요정들의 5가지 관찰 일기" sub="읽기 쉬운 결과 요약" />
-        <section className="diary-list">
-          {(analysis?.narrative.observations ?? []).map((item, index) => (
-            <article className="diary-row" key={item.label + index}>
-              <span className={`diary-label tone-${["peach","lavender","mint","peach","lavender"][index] ?? "peach"}`}>{item.label}</span>
-              <div><strong>{item.title}</strong><p>{item.description}</p></div>
-            </article>
-          ))}
-        </section>
+          <section className="result-section diary-section">
+            <div className="result-section-head">
+              <div>
+                <span>📝</span>
+                <h2>요정들의 5가지 관찰 일기</h2>
+              </div>
+              <small>소장용 메모</small>
+            </div>
 
-        <section className="deep-card">
-          <div className="deep-title"><span className="round-icon peach">🔑</span><div><strong>더 깊은 비밀이 궁금해? 🗝️</strong><p>출생시간과 출생지역을 더하면 Detailed Reading으로 이어져요.</p></div></div>
-          <button className="squishy" type="button" onClick={() => alert("Detailed Mode는 다음 구현 단계에서 연결합니다.")}>상세 분석 잠금 해제 준비하기</button>
-        </section>
+            <div className="diary-list">
+              {(analysis?.narrative.observations ?? []).map((item, index) => (
+                <article className="diary-row stitch-diary-row" key={item.label + index}>
+                  <span className={`diary-label tone-${["peach","lavender","mint","peach","lavender"][index] ?? "peach"}`}>
+                    {item.label}
+                  </span>
+                  <div>
+                    <strong>{item.title}</strong>
+                    <p>{item.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
 
-        <div className="prototype-actions">
-          <button className="bubble-btn" onClick={() => setPhase("landing")}>← 처음으로</button>
-          <button
-            className="dark-btn"
-            onClick={saveCurrentAnalysis}
-            disabled={saveStatus === "saving"}
-          >
-            {saveStatus === "saving"
-              ? "저장 중..."
-              : saveStatus === "saved"
-                ? "저장 완료 ✓"
-                : "도감 저장하기"}
-          </button>
-        </div>
-        {saveMessage && (
-          <p className={`save-message ${saveStatus}`}>
-            {saveMessage}
-            {user && saveStatus === "saved" && (
-              <> · <a href="/my/results">내 도감 보기</a></>
-            )}
+          <section className="deep-card stitch-deep-card">
+            <div className="deep-title">
+              <span className="deep-key">🔑</span>
+              <div>
+                <strong>더 깊은 비밀이 궁금해? 🗝️</strong>
+                <p>출생시간과 출생지역을 더하면 숨겨진 2층 다락방이 열려요.</p>
+              </div>
+            </div>
+
+            <div className="deep-preview">
+              <div>
+                <span>◷ 정확한 태어난 시간</span>
+                <small>Detailed Reading에서 입력</small>
+              </div>
+              <div className="deep-preview-grid">
+                <span>시주 <b>잠금</b></span>
+                <span>ASC / Houses <b>잠금</b></span>
+              </div>
+            </div>
+
+            <button
+              className="squishy"
+              type="button"
+              onClick={() => alert("Detailed Mode는 다음 구현 단계에서 연결합니다.")}
+            >
+              🔓 상세 분석 잠금 해제 준비하기
+            </button>
+          </section>
+
+          <section className="result-actions">
+            <button className="bubble-btn" onClick={() => setPhase("landing")}>← 처음으로</button>
+            <button
+              className="dark-btn"
+              onClick={saveCurrentAnalysis}
+              disabled={saveStatus === "saving"}
+            >
+              {saveStatus === "saving"
+                ? "저장 중..."
+                : saveStatus === "saved"
+                  ? "도감 저장 완료 ✓"
+                  : "내 도감에 저장"}
+            </button>
+          </section>
+
+          {saveMessage && (
+            <p className={`save-message ${saveStatus}`}>
+              {saveMessage}
+              {user && saveStatus === "saved" && (
+                <> · <a href="/my/results">내 도감 보기</a></>
+              )}
+            </p>
+          )}
+
+          {authPromptOpen && (
+            <div className="auth-sheet-backdrop" role="presentation" onClick={() => setAuthPromptOpen(false)}>
+              <section className="auth-sheet toy-card" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={(event) => event.stopPropagation()}>
+                <span className="round-icon peach">🔐</span>
+                <h2 id="auth-title">이 결과를 계속 보관할까요?</h2>
+                <p>Google로 로그인하면 지금 보고 있는 분석을 그대로 내 프리즘 도감에 저장해요.</p>
+                <button className="google-login-btn" type="button" onClick={startGoogleLogin}>
+                  <span>G</span>
+                  Google로 계속하기
+                </button>
+                <button className="auth-later-btn" type="button" onClick={() => setAuthPromptOpen(false)}>
+                  나중에 할게요
+                </button>
+              </section>
+            </div>
+          )}
+
+          <details className="evidence-drawer">
+            <summary>실제 계산 근거 보기</summary>
+            <div className="engine-proof-grid">
+              <span>사주 <b>{analysis?.engines.saju.pillars.map((item) => item.text).join(" · ")}</b></span>
+              <span>점성 <b>태양 {analysis?.engines.astrology.sunSign}</b></span>
+              <span>수비 <b>Life Path {analysis?.engines.numerology.lifePath}</b></span>
+            </div>
+            <p>계산 엔진 값과 교차분석을 먼저 만든 뒤, 설명 레이어가 이를 사람이 읽기 쉬운 문장으로 바꿉니다.</p>
+          </details>
+
+          <p className="prototype-note">
+            계산 엔진은 실제 값이며, 해석은 전통적·문화적 자기탐색을 위한 참고 정보입니다.
           </p>
-        )}
-
-        {authPromptOpen && (
-          <div className="auth-sheet-backdrop" role="presentation" onClick={() => setAuthPromptOpen(false)}>
-            <section className="auth-sheet toy-card" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={(event) => event.stopPropagation()}>
-              <span className="round-icon peach">🔐</span>
-              <h2 id="auth-title">이 결과를 계속 보관할까요?</h2>
-              <p>Google로 로그인하면 지금 보고 있는 분석을 그대로 내 프리즘 도감에 저장해요.</p>
-              <button className="google-login-btn" type="button" onClick={startGoogleLogin}>
-                <span>G</span>
-                Google로 계속하기
-              </button>
-              <button className="auth-later-btn" type="button" onClick={() => setAuthPromptOpen(false)}>
-                나중에 할게요
-              </button>
-            </section>
-          </div>
-        )}
-
-        <section className="engine-proof">
-          <strong>이번 Quick Reading에서 실제 계산된 값</strong>
-          <div className="engine-proof-grid">
-            <span>사주 <b>{analysis?.engines.saju.pillars.map((item) => item.text).join(" · ")}</b></span>
-            <span>점성 <b>태양 {analysis?.engines.astrology.sunSign}</b></span>
-            <span>수비 <b>Life Path {analysis?.engines.numerology.lifePath}</b></span>
-          </div>
-        </section>
-        <p className="prototype-note">계산 엔진은 실제 값이며, 해석은 전통적·문화적 자기탐색을 위한 참고 정보입니다.</p>
+        </div>
       </Shell>
     );
   }
@@ -538,6 +717,55 @@ function DateField({ label, value, setValue, suffix, maxLength }: { label: strin
 
 function Fairy({ tone, icon, name, sub, big = false }: { tone: string; icon: string; name: string; sub: string; big?: boolean }) {
   return <div className={`fairy fairy-${tone} ${big ? "big" : ""}`}><div>{icon}</div><strong>{name}</strong><small>{sub}</small></div>;
+}
+
+function LoadingFairy({
+  tone,
+  icon,
+  badge,
+  name,
+  state,
+  active,
+}: {
+  tone: string;
+  icon: string;
+  badge: string;
+  name: string;
+  state: string;
+  active?: boolean;
+}) {
+  return (
+    <div className={`loading-fairy loading-fairy-${tone} ${active ? "active" : ""}`}>
+      <div className="loading-fairy-orb">
+        <span className="loading-fairy-icon">{icon}</span>
+        <span className="loading-fairy-badge">{badge}</span>
+      </div>
+      <strong>{name}</strong>
+      <small>{state}</small>
+    </div>
+  );
+}
+
+function ResultFairy({
+  tone,
+  icon,
+  name,
+  value,
+  featured = false,
+}: {
+  tone: string;
+  icon: string;
+  name: string;
+  value: string;
+  featured?: boolean;
+}) {
+  return (
+    <div className={`result-fairy result-fairy-${tone} ${featured ? "featured" : ""}`}>
+      <div>{icon}</div>
+      <strong>{name}</strong>
+      <small>{value}</small>
+    </div>
+  );
 }
 
 function Meter({ tone, label, width }: { tone: string; label: string; width: string }) {
