@@ -2325,3 +2325,53 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+.detailed-angle-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:14px;
+}
+
+.detailed-angle-grid span,
+.house-strip span{
+  padding:10px;
+  border-radius:12px;
+  background:#fbfaf9;
+  border:1px solid #ece6e2;
+  text-align:center;
+}
+
+.detailed-angle-grid small,
+.house-strip small{
+  display:block;
+  color:#8a7973;
+  font-size:8px;
+  font-weight:800;
+}
+
+.detailed-angle-grid b,
+.house-strip b{
+  display:block;
+  margin-top:3px;
+  color:#261f1d;
+  font-size:10px;
+}
+
+.house-strip{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:6px;
+  margin-top:8px;
+}
+
+@media (max-width:560px){
+  .detailed-angle-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .house-strip{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
