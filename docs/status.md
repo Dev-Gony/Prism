@@ -4,7 +4,7 @@ Prism의 현재 개발 상태를 추적합니다.
 
 ## Current Phase
 
-**Phase 2 — UI Prototype / Local Technical Spike**
+**Phase 3 — Auth / Persistence Implementation**
 
 - [x] 제품 방향 정의
 - [x] MVP 범위 정의
@@ -22,6 +22,10 @@ Prism의 현재 개발 상태를 추적합니다.
 - [ ] 2차 UI 시각 검증
 - [x] Local Technical Spike 코드 작성
 - [x] Google Login / Analysis Result Storage Spec 작성
+- [x] Google OAuth + Supabase SSR auth 구현
+- [x] 분석 결과 저장/목록/상세/삭제 구현
+- [x] Supabase `analysis_results` migration + RLS 적용
+- [x] Security Advisor 경고 0건 확인
 - [ ] 실제 엔진 기능 구현
 - [ ] Test / Validation
 - [ ] Deploy
@@ -90,8 +94,9 @@ Prism의 현재 개발 상태를 추적합니다.
 - 실제 키는 `.env.local`에만 저장
 - `.env*`는 Git에서 제외하며 `.env.example`만 예외
 - Gemini 실제 API 연결: 아직 미구현
-- Supabase 실제 SDK/프로젝트 연결: 아직 미구현
-- 로그인/결과 저장 구현 시 Supabase 연동 예정
+- Supabase SSR/Auth 코드 연결: 구현 완료, 로컬 환경변수 입력 필요
+- 분석 결과 저장 DB/RLS: migration 적용 완료
+- Google OAuth 실제 로그인 성공 여부: localhost 검증 필요
 
 
 ---
@@ -133,3 +138,36 @@ Supabase live project 확인:
 - 현재 사용 가능한 관리 도구에서는 Google Provider의 enabled/client 설정을 직접 조회할 수 없어 Google Cloud ↔ Supabase Provider 설정 완료 여부를 확정하지 않음
 
 구현 및 실제 Google 로그인 1회 성공 후 auth.users / auth.identities로 재검증한다.
+
+
+---
+
+## Auth / Persistence Implementation
+
+구현 완료:
+
+- `@supabase/ssr` 기반 Browser / Server client
+- Next.js `proxy.ts` session refresh
+- Google OAuth callback: `/auth/callback`
+- OAuth error page
+- 비로그인 저장 시 pending analysis를 `sessionStorage`에 30분 보관
+- 로그인 복귀 후 pending result 자동 저장
+- `POST /api/results`
+- `GET /api/results`
+- `GET /api/results/:id`
+- `DELETE /api/results/:id`
+- `/my/results` 저장 목록
+- `/my/results/:id` 저장 결과 상세
+- Supabase `public.analysis_results` 생성
+- RLS SELECT/INSERT/DELETE 정책 적용
+- authenticated role의 UPDATE/TRUNCATE/REFERENCES/TRIGGER 권한 제거
+- 기존 `public.rls_auto_enable()` SECURITY DEFINER 함수의 anon/authenticated EXECUTE 권한 제거
+- Supabase Security Advisor: 현재 0건
+
+남은 검증:
+
+- 로컬 Supabase 환경변수 설정
+- 실제 Google OAuth 1회 성공
+- `auth.users` / `auth.identities(provider=google)` 생성 확인
+- 실제 Quick Result 저장 및 재조회
+- npm check / build 재검증
