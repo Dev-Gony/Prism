@@ -1,19 +1,13 @@
-"use client";
-
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-
-let client: SupabaseClient | null = null;
+import { createBrowserClient } from "@supabase/ssr";
 
 export function isSupabaseConfigured() {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   );
 }
 
-export function getSupabaseClient() {
-  if (client) return client;
-
+export function createSupabaseBrowserClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -23,6 +17,7 @@ export function getSupabaseClient() {
     );
   }
 
-  client = createClient(url,key);
-  return client;
+  return createBrowserClient(url, key);
 }
+
+export const getSupabaseClient = createSupabaseBrowserClient;
