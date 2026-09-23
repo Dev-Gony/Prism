@@ -251,3 +251,28 @@ Supabase live project 확인:
 - [x] Default Gemini model changed to `gemini-3.5-flash`
 - Reason: lower-tier usage testing and user preference
 - Local `.env.local` must also use `GEMINI_MODEL=gemini-3.5-flash`
+
+
+---
+
+## Detailed Reading v1
+
+구현 완료:
+
+- [x] 출생시간 입력
+- [x] 대한민국 주요 도시 출생지역 선택
+- [x] 시주 포함 사주 8자 계산
+- [x] 실제 출생시각 기준 Sun / Moon / Mercury / Venus / Mars / Jupiter / Saturn 계산
+- [x] Detailed 전용 정규화 및 교차분석
+- [x] `POST /api/analyze/detailed`
+- [x] Result 화면에서 Detailed Reading 입력 Modal 연결
+- [x] Quick 결과 아래 Detailed 요약 카드 노출
+
+다음 구현:
+
+1. ASC
+2. MC
+3. 12 Houses
+4. Detailed 결과 전용 해석 UI
+5. 저장 스키마에서 analysis_type=detailed 지원
+6. 전체 UI를 새 Professional + Warm Prism 디자인으로 리디자인
