@@ -7,10 +7,6 @@ declare module "lunar-javascript" {
     getTime(): string;
   }
 
-  class Lunar {
-    getEightChar(): EightChar;
-  }
-
   class Solar {
     static fromYmdHms(
       year: number,
@@ -21,8 +17,21 @@ declare module "lunar-javascript" {
       second: number,
     ): Solar;
     getLunar(): Lunar;
+    getYear(): number;
+    getMonth(): number;
+    getDay(): number;
   }
 
-  const lunar: { Solar: typeof Solar };
+  class Lunar {
+    static fromYmd(year: number, month: number, day: number): Lunar;
+    getEightChar(): EightChar;
+    getSolar(): Solar;
+  }
+
+  const lunar: {
+    Solar: typeof Solar;
+    Lunar: typeof Lunar;
+  };
+
   export default lunar;
 }
