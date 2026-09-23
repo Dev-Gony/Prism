@@ -69,6 +69,8 @@ export default function Home() {
     "idle" | "loading" | "done" | "error"
   >("idle");
   const [detailedError, setDetailedError] = useState("");
+  const [detailedSaveStatus, setDetailedSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [detailedSaveMessage, setDetailedSaveMessage] = useState("");
   const [detailedAnalysis, setDetailedAnalysis] =
     useState<DetailedAnalysisResponse | null>(null);
 
@@ -104,7 +106,8 @@ export default function Home() {
       try {
         const pending = JSON.parse(pendingRaw) as {
           createdAt: number;
-          analysis: QuickAnalysisResponse;
+          kind?: "quick" | "detailed";
+          analysis: QuickAnalysisResponse | DetailedAnalysisResponse;
         };
 
         if (
@@ -117,7 +120,6 @@ export default function Home() {
         }
 
         pendingHandled = true;
-        setAnalysis(pending.analysis);
         const [pendingYear, pendingMonth, pendingDay] =
           pending.analysis.input.date.split("-");
         setYear(pendingYear);
@@ -125,19 +127,44 @@ export default function Home() {
         setDay(pendingDay);
         setPhase("result");
 
+        const isDetailedPending =
+          pending.kind === "detailed" || "time" in pending.analysis.input;
+
+        if (isDetailedPending) {
+          setDetailedAnalysis(pending.analysis as DetailedAnalysisResponse);
+        } else {
+          setAnalysis(pending.analysis as QuickAnalysisResponse);
+        }
+
         try {
           await saveAnalysisToServer(pending.analysis);
           window.sessionStorage.removeItem("prism.pending-analysis.v1");
-          setSaveStatus("saved");
-          setSaveMessage("내 프리즘 도감에 저장했어요.");
+
+          if (isDetailedPending) {
+            setDetailedSaveStatus("saved");
+            setDetailedSaveMessage("상세 리포트를 내 프리즘 도감에 저장했어요.");
+          } else {
+            setSaveStatus("saved");
+            setSaveMessage("내 프리즘 도감에 저장했어요.");
+          }
         } catch (pendingError) {
           pendingHandled = false;
-          setSaveStatus("error");
-          setSaveMessage(
-            pendingError instanceof Error
-              ? pendingError.message
-              : "저장하지 못했어요.",
-          );
+
+          if (isDetailedPending) {
+            setDetailedSaveStatus("error");
+            setDetailedSaveMessage(
+              pendingError instanceof Error
+                ? pendingError.message
+                : "상세 리포트를 저장하지 못했어요.",
+            );
+          } else {
+            setSaveStatus("error");
+            setSaveMessage(
+              pendingError instanceof Error
+                ? pendingError.message
+                : "저장하지 못했어요.",
+            );
+          }
         }
       } catch {
         window.sessionStorage.removeItem("prism.pending-analysis.v1");
@@ -182,7 +209,7 @@ export default function Home() {
     return () => timers.forEach(window.clearTimeout);
   }, [phase]);
 
-  async function saveAnalysisToServer(result: QuickAnalysisResponse) {
+  async function saveAnalysisToServer(result: QuickAnalysisResponse | DetailedAnalysisResponse) {
     const response = await fetch("/api/results", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -207,6 +234,7 @@ export default function Home() {
         "prism.pending-analysis.v1",
         JSON.stringify({
           createdAt: Date.now(),
+          kind: "quick",
           analysis,
         }),
       );
@@ -229,8 +257,42 @@ export default function Home() {
     }
   }
 
+  async function saveDetailedAnalysis() {
+    if (!detailedAnalysis) return;
+
+    setDetailedSaveMessage("");
+
+    if (!user) {
+      window.sessionStorage.setItem(
+        "prism.pending-analysis.v1",
+        JSON.stringify({
+          createdAt: Date.now(),
+          kind: "detailed",
+          analysis: detailedAnalysis,
+        }),
+      );
+      setAuthPromptOpen(true);
+      return;
+    }
+
+    try {
+      setDetailedSaveStatus("saving");
+      await saveAnalysisToServer(detailedAnalysis);
+      setDetailedSaveStatus("saved");
+      setDetailedSaveMessage("상세 리포트를 내 프리즘 도감에 저장했어요.");
+    } catch (saveError) {
+      setDetailedSaveStatus("error");
+      setDetailedSaveMessage(
+        saveError instanceof Error
+          ? saveError.message
+          : "상세 리포트를 저장하지 못했어요.",
+      );
+    }
+  }
+
   async function startGoogleLogin() {
-    if (!analysis) return;
+    const pendingRaw = window.sessionStorage.getItem("prism.pending-analysis.v1");
+    if (!analysis && !pendingRaw) return;
 
     if (!isSupabaseConfigured()) {
       setAuthPromptOpen(false);
@@ -243,6 +305,7 @@ export default function Home() {
       "prism.pending-analysis.v1",
       JSON.stringify({
         createdAt: Date.now(),
+        kind: "quick",
         analysis,
       }),
     );
@@ -740,7 +803,12 @@ export default function Home() {
 
             <section className="deep-report-section" id="deep-report">
               {detailedAnalysis ? (
-                <DetailedReport data={detailedAnalysis} />
+                <DetailedReport
+                  data={detailedAnalysis}
+                  saveStatus={detailedSaveStatus}
+                  saveMessage={detailedSaveMessage}
+                  onSave={saveDetailedAnalysis}
+                />
               ) : (
                 <>
                   <div className="deep-report-copy">
@@ -1094,7 +1162,17 @@ function LensCard({
   );
 }
 
-function DetailedReport({ data }: { data: DetailedAnalysisResponse }) {
+function DetailedReport({
+  data,
+  saveStatus,
+  saveMessage,
+  onSave,
+}: {
+  data: DetailedAnalysisResponse;
+  saveStatus: "idle" | "saving" | "saved" | "error";
+  saveMessage: string;
+  onSave: () => void;
+}) {
   const place = BIRTHPLACES.find(
     (item) => item.id === data.input.birthplaceId,
   )?.label;
@@ -1135,6 +1213,24 @@ function DetailedReport({ data }: { data: DetailedAnalysisResponse }) {
             <b>{house.sign.replace("자리", "")}</b>
           </span>
         ))}
+      </div>
+
+      <div className="detailed-report-actions">
+        <button
+          className="report-primary-btn compact"
+          type="button"
+          disabled={saveStatus === "saving" || saveStatus === "saved"}
+          onClick={onSave}
+        >
+          {saveStatus === "saving"
+            ? "상세 리포트 저장 중..."
+            : saveStatus === "saved"
+              ? "상세 리포트 저장 완료"
+              : "상세 리포트 저장"}
+        </button>
+        {saveMessage && (
+          <p className={`editorial-save-message ${saveStatus}`}>{saveMessage}</p>
+        )}
       </div>
     </div>
   );
