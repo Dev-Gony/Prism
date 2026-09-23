@@ -183,3 +183,22 @@ Supabase live project 확인:
 - Supabase live counts at this point: auth.users=0 / google identities=0 / analysis_results=0
 
 다음 검증은 실제 Google OAuth 로그인 1회와 분석 결과 저장이다.
+
+
+---
+
+## UI Readability Pass
+
+- [x] 2차 가독성 개선
+- Desktop companion shell: 480px → 최대 580px
+- 본문 / 설명 / 보조 텍스트 크기 상향
+- Muted text 대비 강화
+- Landing 카드 내부 패딩 및 정보 위계 개선
+- Result / Loading 텍스트 가독성 동시 보정
+
+다음 UI 단계:
+
+1. Stitch `code(1).html` 기반 Loading 재구성
+2. Stitch `code(2).html` 기반 Result 전면 재구성
+3. 실제 분석 데이터를 해당 UI에 주입
+4. `/my/results`를 Prism 도감 스타일로 재설계
