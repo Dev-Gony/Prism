@@ -202,3 +202,21 @@ Supabase live project 확인:
 2. Stitch `code(2).html` 기반 Result 전면 재구성
 3. 실제 분석 데이터를 해당 UI에 주입
 4. `/my/results`를 Prism 도감 스타일로 재설계
+
+
+---
+
+## Latest UI Rebuild
+
+- [x] Loading / Result Stitch 재구성 완료
+- Loading: Fairy Console, 단계별 프로토콜, 조율 게이지, 요정 상태 반영
+- Result: Soul Tamagotchi, 실제 계산값 요정 카드, Summary, Keyword, Cross Analysis, Observation Diary, Detailed CTA 재구성
+- 실제 `/api/analyze` 결과를 새 Result UI에 연결
+- 계산 근거는 접을 수 있는 Evidence Drawer로 이동
+- 로그인/저장 플로우 유지
+
+다음 구현 우선순위:
+
+1. Gemini fallback 원인 수정 및 `generatedBy=gemini` 검증
+2. `/my/results` 도감 UI 재설계
+3. Detailed Reading Spec/입력 화면 구현 시작
