@@ -31,7 +31,7 @@ export type DetailedAstrologyBody = {
   longitude: number;
   sign: string;
   element: "fire" | "earth" | "air" | "water";
-  house: number;
+  house?: number;
 };
 
 export type DetailedChartAngle = {
@@ -47,7 +47,8 @@ export type DetailedHouse = {
 };
 
 export type DetailedAstrologyResult = {
-  instantUtc: string;
+  timeKnown: boolean;
+  instantUtc: string | null;
   birthplace: {
     id: string;
     label: string;
@@ -57,13 +58,13 @@ export type DetailedAstrologyResult = {
   };
   bodies: DetailedAstrologyBody[];
   sunSign: string;
-  moonSign: string;
+  moonSign: string | null;
   sunElement: DetailedAstrologyBody["element"];
-  houseSystem: "whole-sign";
-  ascendant: DetailedChartAngle;
-  midheaven: DetailedChartAngle;
-  descendant: DetailedChartAngle;
-  imumCoeli: DetailedChartAngle;
+  houseSystem: "whole-sign" | null;
+  ascendant: DetailedChartAngle | null;
+  midheaven: DetailedChartAngle | null;
+  descendant: DetailedChartAngle | null;
+  imumCoeli: DetailedChartAngle | null;
   houses: DetailedHouse[];
   method: string;
   pending: string[];
@@ -72,7 +73,8 @@ export type DetailedAstrologyResult = {
 export type DetailedAnalysisResponse = {
   input: {
     date: string;
-    time: string;
+    time: string | null;
+    timeKnown: boolean;
     birthplaceId: string;
     calendarType?: "solar" | "lunar";
     originalDate?: string;
