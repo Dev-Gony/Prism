@@ -462,3 +462,26 @@ Local visual/build validation still required after `git pull`.
 - [x] 세션 내 최근 질문 스레드 표시
 
 사용자 결정에 따라 계산값 테스트와 회귀 테스트는 기능 구현 완료 후 일괄 진행.
+
+
+---
+
+## Saved Report Reanalysis UX
+
+구현 완료:
+
+- [x] 저장 결과 목록 Quick / Detailed 필터
+- [x] 생년월일 / 요약 / 엔진 라벨 검색
+- [x] 저장된 input_snapshot 기반 "다시 분석"
+- [x] Quick 재분석 시 생년월일 / 양력·음력 / 윤달 복원
+- [x] Detailed 재분석 시 출생시간 / 시간 미상 / 출생지역까지 복원
+- [x] Detailed 저장 결과에서 재분석 시 입력 모달 자동 오픈
+- [x] 도감 카피를 Warm Editorial Prism 방향으로 정리
+- [x] 기존 저장 결과 삭제 / 열기 / 로그아웃 유지
+
+다음 기능 구현 후보:
+
+1. 저장된 Detailed 리포트에서도 AI 질문 이어가기
+2. 최근 분석 / 가장 높은 합의도 등 라이브러리 요약
+3. 공유용 결과 카드 생성
+4. 기능 구현 마감 후 일괄 Test / Validation
