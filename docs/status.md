@@ -50,11 +50,16 @@ Prism의 현재 개발 상태를 추적합니다.
 
 ## Design Decisions
 
-- Direction: Tactile Soft-Pop + Digital Pet Nostalgia
-- Companion: 모디(사주) / 스텔라(점성) / 피코(수비학)
-- Mobile First / core shell max-width 480px
-- 상세 디자인 토큰: `docs/DESIGN_SYSTEM.md`
-- 현재 UI 결과 문구는 Mock이며 실제 분석 결과가 아님
+- Current Direction: Warm Editorial Insight
+- Previous Tactile Soft-Pop / Tamagotchi-heavy direction retired
+- Editorial serif headings + analytical sans-serif body
+- Warm ivory / coral / dusty lavender / sage palette
+- Companions: Modi(사주) / Stella(점성학) / Pico(수비학), now used as restrained analytical guides
+- Desktop result layout: editorial report stream + sticky anchor rail
+- Mobile result layout: single-column report + bottom navigation
+- Meaningful body text target: 12px+ / primary reading text 14–16px
+- Rectangular report cards keep radius at or below 20px
+- New Stitch sources received and applied to Landing / Loading / Quick Result
 
 ---
 
@@ -300,3 +305,34 @@ Supabase live project 확인:
 - tests 추가
 - detailed 저장 지원
 - 새 Stitch 시안 반영
+
+
+---
+
+## Warm Editorial Insight Redesign
+
+User-provided Stitch package set reviewed:
+
+- Landing / Quick input
+- Analysis loading
+- Quick cross-report result
+- Shared `Warm Editorial Insight` design system
+
+Applied:
+
+- [x] Landing redesigned from mascot/game layout to editorial self-insight product
+- [x] Prism still-life visual and three restrained system guides
+- [x] Birth input rebuilt as structured report input
+- [x] Loading rebuilt as analytical synthesis pipeline
+- [x] Quick Result rebuilt as editorial report
+- [x] Desktop sticky report anchor navigation
+- [x] Cross-analysis evidence rows retained with real calculated data
+- [x] Three-lens section connected to live Saju/Astrology/Numerology engine values
+- [x] Observation log connected to live narrative
+- [x] Detailed Reading CTA/modal kept and restyled
+- [x] Detailed ASC / MC / Whole Sign Houses result kept and restyled
+- [x] Login / save / archive links preserved
+- [x] Gemini async enrichment preserved
+- [x] Editorial web fonts loaded before CSS rules
+
+Local visual/build validation still required after `git pull`.
