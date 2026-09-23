@@ -44,12 +44,16 @@ export default function Home() {
 
     const supabase = createSupabaseBrowserClient();
     let active = true;
+    let pendingHandled = false;
 
-    supabase.auth.getUser().then(({ data }) => {
+    const syncUser = async () => {
+      const { data } = await supabase.auth.getUser();
       if (!active) return;
-      setUser(data.user ?? null);
 
-      if (!data.user) return;
+      const currentUser = data.user ?? null;
+      setUser(currentUser);
+
+      if (!currentUser || pendingHandled) return;
 
       const pendingRaw = window.sessionStorage.getItem("prism.pending-analysis.v1");
       if (!pendingRaw) return;
@@ -69,6 +73,7 @@ export default function Home() {
           return;
         }
 
+        pendingHandled = true;
         setAnalysis(pending.analysis);
         const [pendingYear, pendingMonth, pendingDay] = pending.analysis.input.date.split("-");
         setYear(pendingYear);
@@ -76,24 +81,34 @@ export default function Home() {
         setDay(pendingDay);
         setPhase("result");
 
-        saveAnalysisToServer(pending.analysis)
-          .then(() => {
-            window.sessionStorage.removeItem("prism.pending-analysis.v1");
-            setSaveStatus("saved");
-            setSaveMessage("내 프리즘 도감에 저장했어요 ✨");
-          })
-          .catch((pendingError) => {
-            setSaveStatus("error");
-            setSaveMessage(
-              pendingError instanceof Error
-                ? pendingError.message
-                : "저장하지 못했어요.",
-            );
-          });
+        try {
+          await saveAnalysisToServer(pending.analysis);
+          window.sessionStorage.removeItem("prism.pending-analysis.v1");
+          setSaveStatus("saved");
+          setSaveMessage("내 프리즘 도감에 저장했어요 ✨");
+        } catch (pendingError) {
+          pendingHandled = false;
+          setSaveStatus("error");
+          setSaveMessage(
+            pendingError instanceof Error
+              ? pendingError.message
+              : "저장하지 못했어요.",
+          );
+        }
       } catch {
         window.sessionStorage.removeItem("prism.pending-analysis.v1");
       }
-    });
+    };
+
+    void syncUser();
+
+    const handlePageShow = () => void syncUser();
+    const handleFocus = () => void syncUser();
+    const handlePopState = () => void syncUser();
+
+    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("popstate", handlePopState);
 
     const { data: authSubscription } = supabase.auth.onAuthStateChange((_event, session) => {
       if (active) setUser(session?.user ?? null);
@@ -101,6 +116,9 @@ export default function Home() {
 
     return () => {
       active = false;
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("popstate", handlePopState);
       authSubscription.subscription.unsubscribe();
     };
   }, []);
@@ -466,12 +484,11 @@ export default function Home() {
         <div className="pet-screen">
           <div className="speech">💬 “너의 생일을 쏙 넣으면 비밀이 열려!”</div>
           <div className="fairy-room">
-            <div className="room-glow" />
-            <div className="room-fairies">
-              <Fairy tone="peach" icon="🔥" name="모디" sub="사주" />
-              <Fairy tone="lavender" icon="✨" name="스텔라" sub="점성" big />
-              <Fairy tone="mint" icon="🌱" name="피코" sub="수비" />
-            </div>
+            <img
+              className="fairy-art"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwOBHFgMplF4-GckqC4SJONOGgj9LzIScOah9ieTXhKLy_F3IL_NjTPgbX2cJrJoWpWOptuxHzX-AiFf9HF_iOnv91TfF8ZIY8izAEeLUpNXQfk2XmW3uY2XfgD_1c-WUO_O24Ci17QESN4svfnm4Ny7C6d_9pLvxOQyEuYq3lRirD7PgYrZ_MlzpFSGEhF7-R4Rd3LgVrHvDCsA6Co74YKsXV69H3JoECFxNwCcOT1R0WbTjWUJx-"
+              alt="파스텔 방에서 쉬고 있는 모디, 스텔라, 피코"
+            />
           </div>
           <div className="fairy-meters">
             <Meter tone="peach" label="🔥 사주 모디" width="82%" />
@@ -489,8 +506,12 @@ export default function Home() {
           <DateField label="월" value={month} setValue={setMonth} suffix="월" maxLength={2} />
           <DateField label="일" value={day} setValue={setDay} suffix="일" maxLength={2} />
         </div>
+        <div className="time-option" aria-disabled="true">
+          <div><span>◷</span><b>태어난 시간 알기</b></div>
+          <div><small>상세 분석에서 입력</small><span className="fake-toggle"><i /></span></div>
+        </div>
         {error && <p className="form-error">{error}</p>}
-        <button className="squishy" type="submit">‹ 내 꼬마 요정들 깨우기 (무료로 알아보기)</button>
+        <button className="squishy" type="submit"><span>‹</span> 내 꼬마 요정들 깨우기 (무료로 알아보기)</button>
         <p className="privacy">🔒 Quick Reading은 생년월일만 사용해요. 로그인은 필요 없어요.</p>
       </form>
 
@@ -498,9 +519,9 @@ export default function Home() {
 
       <SectionTitle title="세 요정은 나를 어떻게 볼까?" sub="3대 프리즘 렌즈" />
       <section className="perspectives">
-        <Perspective tone="peach" icon="🔥" title="사주 꼬미 모디" chip="동양의 기운">태어난 날과 계절의 흐름을 바탕으로 <b>타고난 기질과 기본 에너지</b>를 살펴봐요.</Perspective>
-        <Perspective tone="lavender" icon="🪐" title="별빛 냥이 스텔라" chip="서양 점성">생년월일로 확인 가능한 별빛 데이터를 바탕으로 <b>또 다른 관점의 성향</b>을 비춰줘요.</Perspective>
-        <Perspective tone="mint" icon="🌱" title="숫자 새싹 피코" chip="생애 수비학">생년월일 숫자를 모아 <b>대표 숫자와 성장 키워드</b>를 싹틔워요.</Perspective>
+        <Perspective tone="peach" icon="🔥" title="사주 꼬미 모디" chip="동양의 기운">내가 태어난 계절과 날씨의 흐름을 통해 <b>타고난 마음의 온도와 활력의 흐름</b>을 솔직하게 짚어줘요.</Perspective>
+        <Perspective tone="lavender" icon="🪐" title="별빛 냥이 스텔라" chip="서양 점성">생년월일로 확인 가능한 별빛 데이터를 엮어 <b>관계를 맺는 방식과 드러나는 매력</b>을 비춰줘요.</Perspective>
+        <Perspective tone="mint" icon="🌱" title="숫자 새싹 피코" chip="생애 수비학">생년월일 숫자를 하나하나 모아 <b>고유한 나침반 번호와 성장 키워드</b>를 싹틔워요.</Perspective>
       </section>
       <footer className="fairy-footer">© PRISM FAIRY COMPANION<br /><span>✨ 모디 · 🌙 스텔라 · 🌿 피코</span></footer>
     </Shell>
