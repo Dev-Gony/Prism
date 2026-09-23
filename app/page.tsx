@@ -714,8 +714,8 @@ export default function Home() {
                 </article>
                 <article>
                   <span>점성</span>
-                  <strong>태양 {detailedAnalysis.engines.astrology.sunSign}</strong>
-                  <small>달 {detailedAnalysis.engines.astrology.moonSign}</small>
+                  <strong>ASC {detailedAnalysis.engines.astrology.ascendant.sign}</strong>
+                  <small>MC {detailedAnalysis.engines.astrology.midheaven.sign} · 태양 {detailedAnalysis.engines.astrology.sunSign}</small>
                 </article>
                 <article>
                   <span>수비학</span>
@@ -724,9 +724,25 @@ export default function Home() {
                 </article>
               </div>
 
+              <div className="detailed-angle-grid">
+                <span><small>ASC</small><b>{detailedAnalysis.engines.astrology.ascendant.sign} {detailedAnalysis.engines.astrology.ascendant.degreeInSign.toFixed(1)}°</b></span>
+                <span><small>MC</small><b>{detailedAnalysis.engines.astrology.midheaven.sign} {detailedAnalysis.engines.astrology.midheaven.degreeInSign.toFixed(1)}°</b></span>
+                <span><small>DSC</small><b>{detailedAnalysis.engines.astrology.descendant.sign}</b></span>
+                <span><small>IC</small><b>{detailedAnalysis.engines.astrology.imumCoeli.sign}</b></span>
+              </div>
+
+              <div className="house-strip">
+                {detailedAnalysis.engines.astrology.houses.map((house) => (
+                  <span key={house.house}>
+                    <small>{house.house}H</small>
+                    <b>{house.sign.replace("자리", "")}</b>
+                  </span>
+                ))}
+              </div>
+
               <div className="detailed-note">
                 <strong>이번 단계에서 추가된 것</strong>
-                <p>사주 시주와 실제 출생시각 기준 주요 행성 위치를 반영했어요. ASC · MC · 12 Houses는 다음 구현에서 추가됩니다.</p>
+                <p>사주 시주, 실제 출생시각 기준 주요 행성 위치, ASC, MC, 그리고 Whole Sign 기준 12 Houses를 반영했어요.</p>
               </div>
             </section>
           )}
@@ -758,8 +774,8 @@ export default function Home() {
 
                 <div className="detailed-sheet-preview">
                   <span>시주</span>
-                  <span>달 별자리</span>
-                  <span>정확한 행성 위치</span>
+                  <span>ASC · MC</span>
+                  <span>12 Houses</span>
                 </div>
 
                 {detailedError && <p className="form-error">{detailedError}</p>}
@@ -773,7 +789,7 @@ export default function Home() {
                   {detailedStatus === "loading" ? "상세 분석 중..." : "상세 분석 시작"}
                 </button>
 
-                <p className="detailed-sheet-foot">대한민국 주요 도시 기준 · ASC/MC/Houses는 다음 단계에서 추가</p>
+                <p className="detailed-sheet-foot">대한민국 주요 도시 기준 · Whole Sign House System</p>
               </section>
             </div>
           )}
