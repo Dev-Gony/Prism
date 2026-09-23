@@ -5696,3 +5696,26 @@ body{
     width:100%;
   }
 }
+
+
+/* Saved Detailed report Q&A */
+.archive-question-section{
+  border-bottom:0;
+}
+
+.archive-question-panel{
+  margin-top:0;
+}
+
+.archive-question-clear{
+  border:0;
+  background:transparent;
+  color:#9b4f38;
+  font-size:9px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.archive-question-clear:hover{
+  text-decoration:underline;
+}
