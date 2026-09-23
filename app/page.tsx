@@ -188,14 +188,6 @@ export default function Home() {
     }
   }
 
-  async function signOut() {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    setUser(null);
-    setSaveStatus("idle");
-    setSaveMessage("로그아웃했어요.");
-  }
-
   async function submit(event: FormEvent) {
     event.preventDefault();
     const y = Number(year);
@@ -309,9 +301,9 @@ export default function Home() {
           <div className="brand-line"><span className="round-icon peach">✦</span><strong>Prism ✦</strong><span className="tiny-pill lavender">나 알아보기 ✨</span></div>
           <button
             className="profile-btn"
-            aria-label={user ? "로그아웃" : "로그인 상태"}
-            title={user ? "로그아웃" : "로그인 전"}
-            onClick={user ? signOut : undefined}
+            aria-label={user ? "내 프리즘 도감" : "로그인 전"}
+            title={user ? "내 프리즘 도감" : "로그인 전"}
+            onClick={user ? () => { window.location.href = "/my/results"; } : undefined}
           >
             {user?.user_metadata?.avatar_url ? (
               <img src={String(user.user_metadata.avatar_url)} alt="" />
@@ -414,7 +406,12 @@ export default function Home() {
           </button>
         </div>
         {saveMessage && (
-          <p className={`save-message ${saveStatus}`}>{saveMessage}</p>
+          <p className={`save-message ${saveStatus}`}>
+            {saveMessage}
+            {user && saveStatus === "saved" && (
+              <> · <a href="/my/results">내 도감 보기</a></>
+            )}
+          </p>
         )}
 
         {authPromptOpen && (
