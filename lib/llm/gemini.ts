@@ -131,7 +131,7 @@ export async function createNarrative(
     return fallbackNarrative(cross);
   }
 
-  const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
+  const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash";
   const ai = new GoogleGenAI({ apiKey });
 
   const instruction = [
