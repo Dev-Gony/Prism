@@ -336,3 +336,26 @@ Applied:
 - [x] Editorial web fonts loaded before CSS rules
 
 Local visual/build validation still required after `git pull`.
+
+
+---
+
+## Saved Detailed Report Archive
+
+구현 완료:
+
+- [x] 저장된 Quick / Detailed 결과 상세 화면 분리 렌더링
+- [x] Detailed 저장 결과에서 출생시간 / 출생지역 / timezone 표시
+- [x] ASC / MC / DSC / IC 표시
+- [x] Whole Sign 12 Houses 표시
+- [x] 주요 행성별 sign / longitude / house 표시
+- [x] 시주 포함 사주 8자 표시
+- [x] Quick/Detailed 모두 Warm Editorial Insight 상세 화면 적용
+- [x] 당시 engine_versions / raw snapshot 확인용 evidence drawer 유지
+
+다음 우선순위:
+
+1. Detailed 계산 엔진 기준값 테스트 추가
+2. Quick ↔ Detailed 차이 비교 섹션 구현
+3. Detailed 전용 Gemini narrative 생성
+4. `npm run check` / `npm run build` 로컬 검증
