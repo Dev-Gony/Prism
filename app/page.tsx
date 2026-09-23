@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import type { QuickAnalysisResponse } from "@/lib/analysis/types";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -24,6 +25,7 @@ export default function Home() {
   const [day, setDay] = useState("12");
   const [error, setError] = useState("");
   const [loadingIndex, setLoadingIndex] = useState(0);
+  const [analysis, setAnalysis] = useState<QuickAnalysisResponse | null>(null);
 
   const birthday = useMemo(
     () => `${year || "----"}.${month.padStart(2, "0") || "--"}.${day.padStart(2, "0") || "--"}`,
@@ -37,12 +39,11 @@ export default function Home() {
       window.setTimeout(() => setLoadingIndex(1), 700),
       window.setTimeout(() => setLoadingIndex(2), 1450),
       window.setTimeout(() => setLoadingIndex(3), 2200),
-      window.setTimeout(() => setPhase("result"), 3200),
     ];
     return () => timers.forEach(window.clearTimeout);
   }, [phase]);
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     const y = Number(year);
     const m = Number(month);
@@ -60,13 +61,39 @@ export default function Home() {
       setError("생년월일을 다시 확인해 주세요.");
       return;
     }
+
     setError("");
+    setAnalysis(null);
     setPhase("loading");
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          date: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || "분석 요청에 실패했어요.");
+      }
+      setLoadingIndex(3);
+      setAnalysis(payload as QuickAnalysisResponse);
+      window.setTimeout(() => setPhase("result"), 450);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "분석 중 문제가 생겼어요.",
+      );
+      setPhase("landing");
+    }
   }
 
   if (phase === "loading") {
-    const progress = [28, 52, 78, 94][loadingIndex] ?? 94;
+    const progress = analysis ? 100 : ([28, 52, 78, 94][loadingIndex] ?? 94);
     return (
       <Shell>
         <header className="lab-header">
@@ -148,46 +175,60 @@ export default function Home() {
 
         <section className="summary toy-card">
           <span className="round-icon peach">▦</span>
-          <div><small>SUMMARY DIALOGUE 💭</small><p>“남의 말에 쉽게 흔들리지 않고 조용히 나만의 길을 걷는, <mark>따뜻하지만 단단한 사람</mark>이에요.”</p></div>
+          <div>
+            <small>SUMMARY DIALOGUE 💭 · {analysis?.narrative.generatedBy === "gemini" ? "Gemini" : "Rule Fallback"}</small>
+            <p>{analysis?.narrative.summary ?? "세 가지 관점을 한 문장으로 정리하고 있어요."}</p>
+          </div>
         </section>
 
         <SectionTitle icon="📚" title="3대 핵심 키워드 카드" sub="UI Mock Result" />
         <section className="keyword-list">
-          <Keyword tone="peach" emoji="🦁" title="당당하고 독립적인 나침반" pick="모디 & 스텔라 픽" text="누가 뭐라 해도 내 마음의 기준이 바로 설 때 움직이는 편. 주도권을 쥐었을 때 가장 든든하고 빛나는 타입으로 표현해요." tags={["#확고한주관", "#자기신뢰", "#자기결정"]} />
-          <Keyword tone="lavender" emoji="🔍" title="조용히 본질을 파고드는 깊은 눈" pick="피코 픽" text="겉핥기보다 ‘왜 그럴까?’를 오래 생각하는 편. 침묵 속에서도 핵심을 찾는 사색가 이미지예요." tags={["#본질탐구", "#통찰력", "#깊은대화"]} />
-          <Keyword tone="mint" emoji="🌿" title="가까운 사람과 만드는 단단한 숲" pick="3요정 만장일치" text="모두와 넓게 친하기보다 신뢰하는 사람과 깊게 연결되는 관계를 중요하게 여기는 모습으로 표현해요." tags={["#소수정예", "#깊은신뢰", "#안전한관계"]} />
+          {(analysis?.narrative.keywords ?? []).map((item, index) => (
+            <Keyword
+              key={item.title + index}
+              tone={["peach", "lavender", "mint"][index] ?? "peach"}
+              emoji={["🦁", "🔍", "🌿"][index] ?? "✨"}
+              title={item.title}
+              pick={index === 0 ? "교차분석 핵심" : "Prism Lens"}
+              text={item.description}
+              tags={item.tags}
+            />
+          ))}
         </section>
 
         <SectionTitle icon="🔮" title="세 요정의 교차 분석" sub="Prism 핵심 경험" />
         <section className="cross-list">
-          <CrossCard tone="peach" badge="비슷하게 보여요 · 96%" title="자기 주도성과 독립적 결단">
-            <Dialogue name="모디(사주)" tone="peach">스스로 기준을 세우고 움직이는 힘을 중요하게 봐요.</Dialogue>
-            <Dialogue name="스텔라(점성)" tone="lavender">자기 표현과 주체성을 강조하는 관점으로 읽어볼 수 있어요.</Dialogue>
-            <Dialogue name="피코(수비학)" tone="mint">혼자 탐구하고 스스로 납득하는 성향과 연결해서 볼 수 있어요.</Dialogue>
-            <Conclusion>세 관점 모두 ‘내가 납득해야 움직인다’는 방향에서 만나요.</Conclusion>
-          </CrossCard>
-
-          <CrossCard tone="lavender" badge="조금 다르게 보여요" title="관계를 맺는 법 & 방전 방지">
-            <Dialogue name="모디" tone="peach">관계를 오래 이어가고 챙기는 면을 강조해요.</Dialogue>
-            <Dialogue name="피코" tone="mint">반대로 혼자 정리하는 시간도 꼭 필요하다고 봐요.</Dialogue>
-            <Conclusion>모순이라기보다 ‘사람을 좋아하지만 혼자 충전도 필요한 사람’으로 함께 설명할 수 있어요.</Conclusion>
-          </CrossCard>
-
-          <CrossCard tone="mint" badge="서로 보완돼요" title="감각적 직관 + 꼼꼼한 정리력">
-            <Conclusion>한 체계가 직관을, 다른 체계가 검증과 정리를 강조할 때 서로 다른 강점으로 함께 보여줍니다.</Conclusion>
-          </CrossCard>
+          {(analysis?.narrative.crossHighlights ?? []).map((item, index) => {
+            const source = analysis?.cross.find((cross) => cross.trait === item.trait);
+            return (
+              <CrossCard
+                key={item.trait}
+                tone={["peach", "lavender", "mint"][index] ?? "peach"}
+                badge={item.label + (source ? ` · ${source.agreement}%` : "")}
+                title={item.title}
+              >
+                {source?.sources.map((entry) => (
+                  <Dialogue
+                    key={entry.source}
+                    name={entry.source === "saju" ? "모디(사주)" : entry.source === "astrology" ? "스텔라(점성)" : "피코(수비학)"}
+                    tone={entry.source === "saju" ? "peach" : entry.source === "astrology" ? "lavender" : "mint"}
+                  >
+                    {entry.evidence.join(" · ")}
+                  </Dialogue>
+                ))}
+                <Conclusion>{item.explanation}</Conclusion>
+              </CrossCard>
+            );
+          })}
         </section>
 
         <SectionTitle icon="📝" title="요정들의 5가지 관찰 일기" sub="읽기 쉬운 결과 요약" />
         <section className="diary-list">
-          {[
-            ["1. 타고난 결", "호기심 많은 조용한 항해사", "새로운 지식이나 세계를 마주할 때 안쪽에서 스파크가 튀는 타입."],
-            ["2. 슈퍼 파워", "복잡한 것을 명쾌하게 정리하는 힘", "어지러운 상황에서도 핵심과 순서를 찾아가는 장점을 강조합니다."],
-            ["3. 인연의 결", "서로의 영역을 존중하는 다정함", "너무 밀착하기보다 각자의 공간을 존중하는 관계를 편안하게 느끼는 모습."],
-            ["4. 일의 리듬", "이유와 의미가 납득되어야 달리는 엔진", "왜 하는지 이해했을 때 몰입도가 올라가는 방식으로 설명합니다."],
-            ["5. 충전 처방", "조용한 시간으로 머릿속 정리하기", "외부 자극을 줄이고 혼자 생각할 시간을 확보하는 식으로 풀어줍니다."],
-          ].map(([label, title, text], index) => (
-            <article className="diary-row" key={label}><span className={`diary-label tone-${["peach","lavender","mint","peach","lavender"][index]}`}>{label}</span><div><strong>{title}</strong><p>{text}</p></div></article>
+          {(analysis?.narrative.observations ?? []).map((item, index) => (
+            <article className="diary-row" key={item.label + index}>
+              <span className={`diary-label tone-${["peach","lavender","mint","peach","lavender"][index] ?? "peach"}`}>{item.label}</span>
+              <div><strong>{item.title}</strong><p>{item.description}</p></div>
+            </article>
           ))}
         </section>
 
@@ -200,7 +241,15 @@ export default function Home() {
           <button className="bubble-btn" onClick={() => setPhase("landing")}>← 처음으로</button>
           <button className="dark-btn" onClick={() => alert("저장 기능은 로그인 Spec 이후 구현합니다.")}>도감 저장하기</button>
         </div>
-        <p className="prototype-note">현재 화면은 UI Prototype이며 실제 분석 엔진 결과가 아닙니다.</p>
+        <section className="engine-proof">
+          <strong>이번 Quick Reading에서 실제 계산된 값</strong>
+          <div className="engine-proof-grid">
+            <span>사주 <b>{analysis?.engines.saju.pillars.map((item) => item.text).join(" · ")}</b></span>
+            <span>점성 <b>태양 {analysis?.engines.astrology.sunSign}</b></span>
+            <span>수비 <b>Life Path {analysis?.engines.numerology.lifePath}</b></span>
+          </div>
+        </section>
+        <p className="prototype-note">계산 엔진은 실제 값이며, 해석은 전통적·문화적 자기탐색을 위한 참고 정보입니다.</p>
       </Shell>
     );
   }
