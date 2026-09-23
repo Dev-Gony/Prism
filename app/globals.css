@@ -5091,3 +5091,173 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Layout collision fixes + calendar mode */
+.report-header-inner{
+  flex-wrap:nowrap;
+}
+
+.desktop-domain-legend{
+  min-width:0;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.report-layout{
+  width:min(calc(100% - 48px),1160px);
+  grid-template-columns:220px minmax(0,1fr);
+  gap:40px;
+}
+
+.report-anchor,
+.report-stream,
+.report-section,
+.cross-report-card,
+.lens-card,
+.essence-item>div,
+.evidence-row>p{
+  min-width:0;
+}
+
+.report-stream{
+  width:100%;
+}
+
+.report-meta-line,
+.section-heading-row,
+.cross-report-card-head,
+.report-actions{
+  flex-wrap:wrap;
+}
+
+.cross-report-card-head>span,
+.section-heading-row>span{
+  max-width:100%;
+}
+
+.evidence-row{
+  grid-template-columns:26px 54px minmax(0,1fr);
+}
+
+.evidence-row p,
+.editorial-callout p,
+.lens-card p,
+.observation-list p,
+.deep-report-copy p{
+  overflow-wrap:anywhere;
+}
+
+.lens-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+.deep-feature-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.report-actions{
+  align-items:center;
+}
+
+.report-primary-btn.compact{
+  max-width:100%;
+}
+
+.calendar-toggle{
+  gap:3px;
+}
+
+.calendar-toggle button{
+  min-width:44px;
+  padding:5px 10px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  color:#9a8d88;
+  font:600 11px/1.2 "Plus Jakarta Sans","Noto Sans KR",sans-serif;
+  cursor:pointer;
+}
+
+.calendar-toggle button.active{
+  background:#fff;
+  color:var(--editorial-primary);
+  box-shadow:0 1px 2px rgba(36,32,30,.06);
+}
+
+.lunar-options{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px solid rgba(146,70,44,.12);
+  border-radius:12px;
+  background:#fbf7f4;
+}
+
+.lunar-options label{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  color:#5f534f;
+  font-size:10px;
+  font-weight:700;
+}
+
+.lunar-options input{
+  accent-color:var(--editorial-primary);
+}
+
+.lunar-options small{
+  color:#8d7f79;
+  font-size:9px;
+  line-height:1.5;
+  text-align:right;
+}
+
+@media (max-width:1180px){
+  .report-layout{
+    grid-template-columns:1fr;
+    width:min(calc(100% - 40px),860px);
+    gap:0;
+  }
+
+  .report-anchor{
+    display:none;
+  }
+}
+
+@media (max-width:860px){
+  .desktop-domain-legend{
+    display:none;
+  }
+
+  .report-header-inner{
+    gap:12px;
+  }
+
+  .section-heading-row{
+    align-items:flex-start;
+  }
+
+  .cross-report-card-head{
+    align-items:flex-start;
+  }
+}
+
+@media (max-width:700px){
+  .lunar-options{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .lunar-options small{
+    text-align:left;
+  }
+
+  .lens-grid{
+    grid-template-columns:1fr;
+  }
+}
