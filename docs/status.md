@@ -108,7 +108,7 @@ Prism의 현재 개발 상태를 추적합니다.
 - [ ] npm install
 - [ ] npm run check
 - [ ] npm run build
-- [ ] /api/health 확인
+- [x] /api/health 확인 (Gemini/Supabase configured=true)
 - [ ] 실제 생년월일 Quick Reading 확인
 - [ ] GEMINI_API_KEY 설정 후 generatedBy=gemini 확인
 
@@ -171,3 +171,15 @@ Supabase live project 확인:
 - `auth.users` / `auth.identities(provider=google)` 생성 확인
 - 실제 Quick Result 저장 및 재조회
 - npm check / build 재검증
+
+
+---
+
+## Latest Local Verification
+
+- Supabase env health: verified
+- Gemini env health: verified
+- `/api/health`: Gemini configured=true / Supabase configured=true
+- Supabase live counts at this point: auth.users=0 / google identities=0 / analysis_results=0
+
+다음 검증은 실제 Google OAuth 로그인 1회와 분석 결과 저장이다.
