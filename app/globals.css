@@ -5019,3 +5019,75 @@ body{
     width:min(220px,calc(100vw - 36px));
   }
 }
+
+
+/* Detailed Gemini narrative */
+.detailed-narrative-block{
+  margin-top:16px;
+  padding:16px;
+  border:1px solid rgba(116,106,102,.16);
+  border-radius:14px;
+  background:#fff;
+}
+
+.detailed-narrative-head{
+  display:flex;
+  justify-content:flex-end;
+}
+
+.detailed-narrative-head span{
+  padding:5px 8px;
+  border-radius:999px;
+  background:#ece8f5;
+  color:#5f5680;
+  font-size:8px;
+  font-weight:700;
+}
+
+.detailed-narrative-block blockquote{
+  margin:10px 0 0;
+  padding-left:12px;
+  border-left:2px solid var(--editorial-secondary);
+  color:#4d423e;
+  font-family:"Noto Serif KR",serif;
+  font-size:13px;
+  line-height:1.75;
+}
+
+.detailed-narrative-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:14px;
+}
+
+.detailed-narrative-grid article{
+  padding:12px;
+  border-radius:10px;
+  background:#f7f3f0;
+}
+
+.detailed-narrative-grid small{
+  color:#8d7f79;
+  font-size:8px;
+}
+
+.detailed-narrative-grid strong{
+  display:block;
+  margin-top:4px;
+  color:#2f2926;
+  font-size:11px;
+}
+
+.detailed-narrative-grid p{
+  margin:6px 0 0;
+  color:#746a66;
+  font-size:9px;
+  line-height:1.6;
+}
+
+@media (max-width:700px){
+  .detailed-narrative-grid{
+    grid-template-columns:1fr;
+  }
+}
