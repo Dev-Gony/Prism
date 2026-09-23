@@ -1,6 +1,6 @@
 # 012 — Analysis Result Persistence
 
-- Status: Draft / Ready for implementation review
+- Status: Implemented / Pending local validation
 - Product area: Database / Saved Results
 - Priority: MVP support feature
 - Depends on: 011 Google Login
@@ -628,3 +628,16 @@ Migration 적용 직후:
 ## 20. 완료 후 검증 기록
 
 구현 전이므로 아직 없음.
+
+
+---
+
+## 구현 상태
+
+구현 코드는 GitHub `main`에 반영됨.
+
+아직 완료 처리하지 않은 이유:
+
+- 실제 localhost Google OAuth 성공 테스트가 필요함
+- 실제 사용자 session으로 RLS 저장/조회/삭제 테스트가 필요함
+- 로컬 `npm run check` / `npm run build` 재검증이 필요함
