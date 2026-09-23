@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import type { QuickAnalysisResponse } from "@/lib/analysis/types";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -40,6 +40,8 @@ export default function Home() {
 
 
   useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
     const supabase = createSupabaseBrowserClient();
     let active = true;
 
@@ -164,6 +166,13 @@ export default function Home() {
 
   async function startGoogleLogin() {
     if (!analysis) return;
+
+    if (!isSupabaseConfigured()) {
+      setAuthPromptOpen(false);
+      setSaveStatus("error");
+      setSaveMessage("Supabase 환경변수를 먼저 설정해 주세요.");
+      return;
+    }
 
     window.sessionStorage.setItem(
       "prism.pending-analysis.v1",
