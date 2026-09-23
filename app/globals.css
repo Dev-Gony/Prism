@@ -5316,3 +5316,77 @@ body{
   font-size:9px;
   line-height:1.6;
 }
+
+
+/* Searchable birthplace picker */
+.birthplace-search-field>input{
+  width:100%;
+  min-height:50px;
+  padding:0 13px;
+  border:1px solid var(--editorial-line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--editorial-text);
+  outline:none;
+}
+
+.birthplace-search-field>input:focus{
+  border-color:var(--editorial-primary);
+  box-shadow:0 0 0 3px rgba(146,70,44,.12);
+}
+
+.birthplace-search-results{
+  display:grid;
+  gap:6px;
+  max-height:240px;
+  margin-top:8px;
+  overflow:auto;
+  padding-right:2px;
+}
+
+.birthplace-search-results button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 11px;
+  border:1px solid var(--editorial-line);
+  border-radius:10px;
+  background:#fff;
+  color:var(--editorial-text);
+  text-align:left;
+  cursor:pointer;
+}
+
+.birthplace-search-results button:hover{
+  background:#faf7f5;
+}
+
+.birthplace-search-results button.selected{
+  border-color:rgba(146,70,44,.35);
+  background:#f7efeb;
+}
+
+.birthplace-search-results button span{
+  min-width:0;
+}
+
+.birthplace-search-results strong{
+  display:block;
+  font-size:10px;
+}
+
+.birthplace-search-results small{
+  display:block;
+  margin-top:2px;
+  color:#8b7d77;
+  font-size:8px;
+}
+
+.birthplace-search-results em{
+  flex:none;
+  color:#9a8d88;
+  font-size:8px;
+  font-style:normal;
+}
