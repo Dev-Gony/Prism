@@ -23,7 +23,7 @@ export default async function SavedResultsPage() {
   const { data, error } = await supabase
     .from("analysis_results")
     .select(
-      "id, analysis_type, birth_date, narrative, narrative_source, saju_result, astrology_result, numerology_result, cross_analysis, created_at",
+      "id, analysis_type, birth_date, birth_time, birth_place, input_snapshot, narrative, narrative_source, saju_result, astrology_result, numerology_result, cross_analysis, created_at",
     )
     .order("created_at", { ascending: false })
     .limit(20);
@@ -40,6 +40,8 @@ export default async function SavedResultsPage() {
     const cross = Array.isArray(row.cross_analysis) ? row.cross_analysis : [];
 
     const dayMaster = record(saju.dayMaster);
+    const inputSnapshot = record(row.input_snapshot);
+    const birthPlace = record(row.birth_place);
     const agreement =
       cross.length > 0
         ? Math.round(
@@ -73,6 +75,32 @@ export default async function SavedResultsPage() {
           ? `Life Path ${numerology.lifePath}`
           : "수비",
       agreement,
+      reanalysisInput: {
+        analysisType: String(row.analysis_type) === "detailed" ? "detailed" : "quick",
+        date:
+          typeof inputSnapshot.originalDate === "string"
+            ? inputSnapshot.originalDate
+            : String(row.birth_date),
+        calendarType:
+          inputSnapshot.calendarType === "lunar" ? "lunar" : "solar",
+        isLeapMonth: Boolean(inputSnapshot.isLeapMonth),
+        timeKnown:
+          typeof inputSnapshot.timeKnown === "boolean"
+            ? Boolean(inputSnapshot.timeKnown)
+            : typeof row.birth_time === "string",
+        time:
+          typeof inputSnapshot.time === "string"
+            ? inputSnapshot.time
+            : typeof row.birth_time === "string"
+              ? row.birth_time
+              : "12:00",
+        birthplaceId:
+          typeof inputSnapshot.birthplaceId === "string"
+            ? inputSnapshot.birthplaceId
+            : typeof birthPlace.id === "string"
+              ? String(birthPlace.id)
+              : "seoul",
+      },
     };
   });
 
