@@ -77,6 +77,11 @@ export default async function SavedResultDetailPage({
   const descendant = record(astrology.descendant);
   const imumCoeli = record(astrology.imumCoeli);
   const birthplace = record(data.birth_place);
+  const inputSnapshot = record(data.input_snapshot);
+  const timeKnown =
+    typeof inputSnapshot.timeKnown === "boolean"
+      ? Boolean(inputSnapshot.timeKnown)
+      : typeof data.birth_time === "string";
 
   const summary = text(narrative.summary, "요약이 없어요.");
   const lifePath = number(numerology.lifePath, 0);
@@ -128,15 +133,15 @@ export default async function SavedResultDetailPage({
           <div className="archive-section-heading">
             <div>
               <small>DETAILED FRAME</small>
-              <h2>출생시간과 위치까지 반영한 상세 프리즘</h2>
+              <h2>{timeKnown ? "출생시간과 위치까지 반영한 상세 프리즘" : "출생시간 없이 가능한 정보만 확장한 프리즘"}</h2>
             </div>
-            <span>Whole Sign Houses</span>
+            <span>{timeKnown ? "Whole Sign Houses" : "Time-independent mode"}</span>
           </div>
 
           <div className="archive-input-summary">
             <span>
               <small>출생시간</small>
-              <strong>{text(data.birth_time, "-")}</strong>
+              <strong>{timeKnown ? text(data.birth_time, "-") : "시간 미상"}</strong>
             </span>
             <span>
               <small>출생지역</small>
@@ -148,43 +153,51 @@ export default async function SavedResultDetailPage({
             </span>
           </div>
 
-          <div className="archive-angle-grid">
-            <article>
-              <small>ASC</small>
-              <strong>{formatAngle(ascendant)}</strong>
-              <p>겉으로 드러나는 접근 방식과 첫인상을 보는 기준점</p>
-            </article>
-            <article>
-              <small>MC</small>
-              <strong>{formatAngle(midheaven)}</strong>
-              <p>사회적 방향성과 바깥에서 드러나는 지향점을 보는 기준점</p>
-            </article>
-            <article>
-              <small>DSC</small>
-              <strong>{formatAngle(descendant)}</strong>
-              <p>타인과 관계를 맺는 축의 반대편 지점</p>
-            </article>
-            <article>
-              <small>IC</small>
-              <strong>{formatAngle(imumCoeli)}</strong>
-              <p>내면의 기반과 사적인 뿌리를 보는 축</p>
-            </article>
-          </div>
+          {timeKnown ? (
+            <div className="archive-angle-grid">
+              <article>
+                <small>ASC</small>
+                <strong>{formatAngle(ascendant)}</strong>
+                <p>겉으로 드러나는 접근 방식과 첫인상을 보는 기준점</p>
+              </article>
+              <article>
+                <small>MC</small>
+                <strong>{formatAngle(midheaven)}</strong>
+                <p>사회적 방향성과 바깥에서 드러나는 지향점을 보는 기준점</p>
+              </article>
+              <article>
+                <small>DSC</small>
+                <strong>{formatAngle(descendant)}</strong>
+                <p>타인과 관계를 맺는 축의 반대편 지점</p>
+              </article>
+              <article>
+                <small>IC</small>
+                <strong>{formatAngle(imumCoeli)}</strong>
+                <p>내면의 기반과 사적인 뿌리를 보는 축</p>
+              </article>
+            </div>
+          ) : (
+            <div className="archive-time-unknown">
+              출생시간이 없어 시주, Moon, ASC, MC, 12 Houses는 저장된 상세 리포트에서도 제외했어요.
+            </div>
+          )}
 
-          <div className="archive-house-section">
-            <div className="archive-subheading">
-              <h3>12 Houses</h3>
-              <span>ASC 기준 Whole Sign</span>
+          {timeKnown && (
+            <div className="archive-house-section">
+              <div className="archive-subheading">
+                <h3>12 Houses</h3>
+                <span>ASC 기준 Whole Sign</span>
+              </div>
+              <div className="archive-house-grid">
+                {houses.map((house) => (
+                  <span key={String(house.house)}>
+                    <small>{number(house.house)}H</small>
+                    <b>{text(house.sign, "-").replace("자리", "")}</b>
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="archive-house-grid">
-              {houses.map((house) => (
-                <span key={String(house.house)}>
-                  <small>{number(house.house)}H</small>
-                  <b>{text(house.sign, "-").replace("자리", "")}</b>
-                </span>
-              ))}
-            </div>
-          </div>
+          )}
 
           <div className="archive-planet-table">
             <div className="archive-subheading">
@@ -203,7 +216,7 @@ export default async function SavedResultDetailPage({
                   <strong>{text(body.body, "-")}</strong>
                   <span>{text(body.sign, "-")}</span>
                   <span>{number(body.longitude).toFixed(1)}°</span>
-                  <span>{number(body.house)}H</span>
+                  <span>{typeof body.house === "number" ? `${body.house}H` : "시간 필요"}</span>
                 </div>
               ))}
             </div>
@@ -237,12 +250,12 @@ export default async function SavedResultDetailPage({
             <div>
               <small>점성학 · Stella</small>
               <h3>
-                {isDetailed
+                {isDetailed && timeKnown
                   ? `ASC ${text(ascendant.sign, "-")}`
                   : `태양 ${text(astrology.sunSign, "-")}`}
               </h3>
               <p>
-                {isDetailed
+                {isDetailed && timeKnown
                   ? `태양 ${text(astrology.sunSign, "-")} · 달 ${text(astrology.moonSign, "-")} · MC ${text(midheaven.sign, "-")}`
                   : bodies.map((body) => `${text(body.body)} ${text(body.sign)}`).join(" · ")}
               </p>
