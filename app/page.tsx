@@ -39,6 +39,7 @@ export default function Home() {
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("");
+  const [narrativeState, setNarrativeState] = useState<"idle" | "loading" | "gemini" | "fallback">("idle");
 
   const birthday = useMemo(
     () => `${year || "----"}.${month.padStart(2, "0") || "--"}.${day.padStart(2, "0") || "--"}`,
@@ -222,6 +223,54 @@ export default function Home() {
     }
   }
 
+
+  async function enrichNarrative(result: QuickAnalysisResponse) {
+    setNarrativeState("loading");
+
+    try {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 12000);
+
+      const response = await fetch("/api/narrative", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          engines: result.engines,
+          cross: result.cross,
+        }),
+        signal: controller.signal,
+      });
+
+      window.clearTimeout(timeout);
+
+      if (!response.ok) {
+        setNarrativeState("fallback");
+        return;
+      }
+
+      const payload = (await response.json()) as {
+        narrative?: QuickAnalysisResponse["narrative"];
+      };
+
+      if (!payload.narrative) {
+        setNarrativeState("fallback");
+        return;
+      }
+
+      setAnalysis((current) =>
+        current ? { ...current, narrative: payload.narrative! } : current,
+      );
+      setNarrativeState(
+        payload.narrative.generatedBy === "gemini" ? "gemini" : "fallback",
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        console.warn("Gemini narrative timed out; keeping fallback narrative.");
+      }
+      setNarrativeState("fallback");
+    }
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     const y = Number(year);
@@ -258,9 +307,14 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(payload.error || "분석 요청에 실패했어요.");
       }
+      const quickResult = payload as QuickAnalysisResponse;
       setLoadingIndex(3);
-      setAnalysis(payload as QuickAnalysisResponse);
-      window.setTimeout(() => setPhase("result"), 450);
+      setAnalysis(quickResult);
+      setNarrativeState("loading");
+      window.setTimeout(() => {
+        setPhase("result");
+        void enrichNarrative(quickResult);
+      }, 250);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -395,7 +449,11 @@ export default function Home() {
       : 0;
     const leadKeyword = analysis?.narrative.keywords[0]?.title ?? "나만의 빛을 찾는 탐색자";
     const generatedLabel =
-      analysis?.narrative.generatedBy === "gemini" ? "Gemini 해석" : "Rule Fallback";
+      narrativeState === "loading"
+        ? "AI 해석 정리 중"
+        : analysis?.narrative.generatedBy === "gemini"
+          ? "Gemini 해석"
+          : "Rule Fallback";
 
     return (
       <Shell>
