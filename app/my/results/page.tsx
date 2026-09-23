@@ -62,7 +62,12 @@ export default async function SavedResultsPage() {
           ? `${dayMaster.korean}${dayMaster.element}`
           : "사주",
       astrologyLabel:
-        typeof astrology.sunSign === "string" ? String(astrology.sunSign) : "점성",
+        String(row.analysis_type) === "detailed" &&
+        record(astrology.ascendant).sign
+          ? `ASC ${String(record(astrology.ascendant).sign)}`
+          : typeof astrology.sunSign === "string"
+            ? String(astrology.sunSign)
+            : "점성",
       numerologyLabel:
         typeof numerology.lifePath === "number"
           ? `Life Path ${numerology.lifePath}`
