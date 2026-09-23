@@ -19,10 +19,22 @@ export async function POST(request: Request) {
       !body.engines?.astrology ||
       !body.engines?.numerology ||
       !Array.isArray(body.engines.saju.pillars) ||
-      body.engines.saju.pillars.length !== 4 ||
       !Array.isArray(body.engines.astrology.houses) ||
-      body.engines.astrology.houses.length !== 12 ||
-      !Array.isArray(body.cross)
+      !Array.isArray(body.cross) ||
+      (
+        body.engines.astrology.timeKnown &&
+        (
+          body.engines.saju.pillars.length !== 4 ||
+          body.engines.astrology.houses.length !== 12
+        )
+      ) ||
+      (
+        !body.engines.astrology.timeKnown &&
+        (
+          body.engines.saju.pillars.length !== 3 ||
+          body.engines.astrology.houses.length !== 0
+        )
+      )
     ) {
       return NextResponse.json(
         { error: "상세 해석에 필요한 계산 결과가 부족해요." },
