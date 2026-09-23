@@ -1,6 +1,6 @@
 # 011 — Google Login with Supabase Auth
 
-- Status: Draft / Ready for implementation review
+- Status: Implemented / Pending local validation
 - Product area: Authentication
 - Priority: MVP support feature
 - Related PRD: 로그인 없이 분석 가능, 결과 저장 시 로그인
@@ -458,3 +458,16 @@ Google Login 1회 성공 후 Supabase `auth.identities.provider = google` 확인
 - callback URL
 - OAuth 취소 케이스
 - production redirect 검증
+
+
+---
+
+## 구현 상태
+
+구현 코드는 GitHub `main`에 반영됨.
+
+아직 완료 처리하지 않은 이유:
+
+- 실제 localhost Google OAuth 성공 테스트가 필요함
+- 실제 사용자 session으로 RLS 저장/조회/삭제 테스트가 필요함
+- 로컬 `npm run check` / `npm run build` 재검증이 필요함
