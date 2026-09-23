@@ -186,7 +186,9 @@ async function generateNarrative(
 
   const task =
     mode === "detailed"
-      ? "아래 Detailed Reading 데이터를 바탕으로 출생시간과 위치를 반영한 깊이 있는 Prism 해석을 작성하세요."
+      ? detailedTimeKnown
+        ? "아래 Detailed Reading 데이터를 바탕으로 출생시간과 위치를 반영한 깊이 있는 Prism 해석을 작성하세요."
+        : "아래 Detailed-lite 데이터를 바탕으로 출생시간 없이 확인 가능한 정보만 사용해 Prism 해석을 작성하세요."
       : "아래 Quick Reading 데이터를 바탕으로 Prism의 세 관점이 함께 말하는 내용을 다정하고 간결하게 정리하세요.";
 
   const input = [
