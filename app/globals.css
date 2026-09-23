@@ -529,3 +529,310 @@ body{
 .saved-page{
   width:min(calc(100% - 32px),840px);
 }
+
+
+/* Readability pass v2 */
+:root{
+  --readable-body:#4f4340;
+  --readable-muted:#756765;
+}
+
+body{
+  color:var(--readable-body);
+}
+
+.intro p,
+.perspective p,
+.reassure p,
+.keyword p,
+.dialogue p,
+.conclusion,
+.diary-row p,
+.deep-title p,
+.loading-row small,
+.whisper p,
+.prototype-note,
+.privacy{
+  color:var(--readable-muted);
+}
+
+.intro p{
+  font-size:14px;
+  line-height:1.65;
+}
+
+.birthday-head h2{
+  font-size:20px;
+}
+
+.preset-block>small,
+.date-field>span,
+.privacy,
+.section-title small,
+.fairy-footer{
+  font-size:11px;
+}
+
+.preset-block button{
+  font-size:12px;
+}
+
+.date-field input{
+  font-size:20px;
+}
+
+.time-option b{
+  font-size:13px;
+}
+
+.time-option small{
+  font-size:11px;
+}
+
+.reassure strong{
+  font-size:14px;
+}
+
+.reassure p{
+  font-size:12px;
+  line-height:1.6;
+}
+
+.section-title h2{
+  font-size:20px;
+  line-height:1.35;
+}
+
+.perspective-title strong{
+  font-size:14px;
+}
+
+.perspective p{
+  font-size:12.5px;
+  line-height:1.65;
+}
+
+.summary p{
+  font-size:16px;
+  line-height:1.65;
+}
+
+.keyword-title strong,
+.cross-title strong{
+  font-size:14px;
+}
+
+.keyword p,
+.dialogue p,
+.conclusion,
+.diary-row p{
+  font-size:12px;
+  line-height:1.65;
+}
+
+.diary-row strong{
+  font-size:12.5px;
+}
+
+.loading-row strong{
+  font-size:13px;
+}
+
+.loading-row small{
+  font-size:11px;
+  line-height:1.5;
+}
+
+.whisper p{
+  font-size:13px;
+  line-height:1.65;
+}
+
+.engine-proof>strong{
+  font-size:12px;
+}
+
+.engine-proof-grid span{
+  font-size:11px;
+}
+
+@media (min-width:768px){
+  .prism-shell{
+    width:min(calc(100vw - 64px),580px);
+    max-width:580px;
+    padding:28px 30px 34px;
+    gap:28px;
+    border-radius:36px;
+  }
+
+  .intro h1{
+    font-size:30px;
+    line-height:1.3;
+  }
+
+  .intro p{
+    font-size:15px;
+    line-height:1.7;
+  }
+
+  .pet-pod{
+    padding:18px;
+  }
+
+  .pet-screen{
+    padding:18px;
+  }
+
+  .fairy-room{
+    height:220px;
+  }
+
+  .birthday-card{
+    padding:24px;
+  }
+
+  .birthday-head h2{
+    font-size:22px;
+  }
+
+  .preset-block>small{
+    font-size:12px;
+  }
+
+  .preset-block button{
+    font-size:12.5px;
+    padding:8px 12px;
+  }
+
+  .date-field>span{
+    font-size:11px;
+  }
+
+  .date-field>div{
+    padding-top:14px;
+    padding-bottom:14px;
+  }
+
+  .date-field input{
+    font-size:22px;
+  }
+
+  .time-option{
+    padding:14px;
+  }
+
+  .time-option b{
+    font-size:14px;
+  }
+
+  .time-option small{
+    font-size:11px;
+  }
+
+  .squishy{
+    height:56px;
+    min-height:56px;
+    font-size:14px;
+  }
+
+  .privacy{
+    font-size:11px;
+  }
+
+  .reassure{
+    padding:18px;
+  }
+
+  .reassure strong{
+    font-size:15px;
+  }
+
+  .reassure p{
+    font-size:13px;
+  }
+
+  .section-title h2{
+    font-size:22px;
+  }
+
+  .section-title small{
+    font-size:11px;
+  }
+
+  .perspective{
+    padding:18px;
+  }
+
+  .perspective-icon{
+    width:54px;
+    height:54px;
+    font-size:23px;
+  }
+
+  .perspective-title strong{
+    font-size:15px;
+  }
+
+  .perspective p{
+    font-size:13px;
+    line-height:1.7;
+  }
+
+  .loading-hero,
+  .terrarium,
+  .summary,
+  .keyword,
+  .cross-card,
+  .deep-card{
+    padding:20px;
+  }
+
+  .loading-hero h1{
+    font-size:30px;
+    line-height:1.3;
+  }
+
+  .loading-hero p{
+    font-size:14px;
+  }
+
+  .fairy-stage{
+    height:210px;
+  }
+
+  .loading-row{
+    padding:16px;
+  }
+
+  .loading-row strong{
+    font-size:14px;
+  }
+
+  .loading-row small{
+    font-size:12px;
+  }
+
+  .summary p{
+    font-size:17px;
+  }
+
+  .keyword-title strong,
+  .cross-title strong{
+    font-size:15px;
+  }
+
+  .keyword p,
+  .dialogue p,
+  .conclusion,
+  .diary-row p{
+    font-size:12.5px;
+  }
+
+  .diary-row strong{
+    font-size:13px;
+  }
+
+  .result-top{
+    max-width:580px;
+  }
+}
