@@ -63,3 +63,56 @@ export function normalizeQuickResults(
     ...emit("numerology",numberVector,()=>["Life Path "+numerology.lifePath,numerology.meaningKey]),
   ];
 }
+
+
+import type {
+  DetailedAstrologyResult,
+  DetailedSajuResult,
+} from "@/lib/analysis/detailed-types";
+
+export function normalizeDetailedResults(
+  saju: DetailedSajuResult,
+  astrology: DetailedAstrologyResult,
+  numerology: NumerologyQuickResult,
+): TraitScore[] {
+  const dominantElement = Object.entries(saju.elements).sort(
+    (a, b) => b[1] - a[1],
+  )[0]?.[0] ?? saju.dayMaster.element;
+
+  const day = SAJU_ELEMENT[saju.dayMaster.element] ?? SAJU_ELEMENT.토;
+  const dominant = SAJU_ELEMENT[dominantElement] ?? day;
+  const hourElement = saju.pillars[3]?.stemElement
+    ? SAJU_ELEMENT[saju.pillars[3].stemElement]
+    : day;
+
+  const sajuVector = Object.fromEntries(
+    TRAITS.map((trait) => [
+      trait,
+      Math.round(
+        day[trait] * 0.55 +
+          dominant[trait] * 0.25 +
+          hourElement[trait] * 0.2,
+      ),
+    ]),
+  ) as TraitVector;
+
+  const astroVector = ASTRO_ELEMENT[astrology.sunElement];
+  const numberVector = NUMEROLOGY[numerology.lifePath] ?? NUMEROLOGY[7];
+
+  return [
+    ...emit("saju", sajuVector, () => [
+      "일간 " + saju.dayMaster.korean + saju.dayMaster.element,
+      "시주 " + (saju.pillars[3]?.text ?? "-"),
+      "대표 오행 " + dominantElement,
+    ]),
+    ...emit("astrology", astroVector, () => [
+      "태양 " + astrology.sunSign,
+      "달 " + astrology.moonSign,
+      "출생시각 반영",
+    ]),
+    ...emit("numerology", numberVector, () => [
+      "Life Path " + numerology.lifePath,
+      numerology.meaningKey,
+    ]),
+  ];
+}
