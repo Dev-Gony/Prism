@@ -4,7 +4,7 @@ Prism의 현재 개발 상태를 추적합니다.
 
 ## Current Phase
 
-**Phase 2 — Local Technical Spike / Project Bootstrap**
+**Phase 2 — UI Prototype / Local Technical Spike**
 
 - [x] 제품 방향 정의
 - [x] MVP 범위 정의
@@ -15,11 +15,13 @@ Prism의 현재 개발 상태를 추적합니다.
 - [x] GitHub / 로컬 저장소 연결
 - [x] Next.js + TypeScript 프로젝트 초기 설정
 - [x] localhost Bootstrap 실행 확인
-- [ ] 확정 Stitch 디자인을 localhost에 반영
+- [x] Stitch HTML / DESIGN 소스 확보
+- [x] Landing → Loading → Quick Result React Prototype 구현
+- [ ] Prototype localhost 시각 검증
+- [ ] UI 피드백 반영
 - [ ] Local Technical Spike
-- [ ] Prototype localhost 피드백
 - [ ] Spec 작성
-- [ ] 기능 구현
+- [ ] 실제 엔진 기능 구현
 - [ ] Test / Validation
 - [ ] Deploy
 
@@ -41,6 +43,16 @@ Prism의 현재 개발 상태를 추적합니다.
 
 ---
 
+## Design Decisions
+
+- Direction: Tactile Soft-Pop + Digital Pet Nostalgia
+- Companion: 모디(사주) / 스텔라(점성) / 피코(수비학)
+- Mobile First / core shell max-width 480px
+- 상세 디자인 토큰: `docs/DESIGN_SYSTEM.md`
+- 현재 UI 결과 문구는 Mock이며 실제 분석 결과가 아님
+
+---
+
 ## Development Environment
 
 - Node.js: >= 22.9
@@ -53,9 +65,7 @@ Prism의 현재 개발 상태를 추적합니다.
 
 ## Specs
 
-아직 구현용 Spec은 작성하지 않습니다.
-
-확정 디자인의 localhost 확인과 Local Technical Spike 검토 후 아래 형식으로 추가합니다.
+실제 분석 엔진용 Spec은 Prototype localhost 검증과 Local Technical Spike 이후 작성합니다.
 
 - [ ] `001-quick-input.md`
 - [ ] `002-saju-quick-engine.md`
@@ -67,5 +77,3 @@ Prism의 현재 개발 상태를 추적합니다.
 - [ ] `008-detailed-input.md`
 - [ ] `009-detailed-analysis.md`
 - [ ] `010-ai-question.md`
-
-번호와 범위는 Local Technical Spike 이후 최종 확정합니다.
