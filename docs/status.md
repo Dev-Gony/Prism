@@ -383,3 +383,24 @@ Local visual/build validation still required after `git pull`.
 2. ASC / MC / House 기준값 테스트
 3. Production 회귀 테스트
 4. 모바일 UI 최종 점검
+
+
+---
+
+## Detailed Gemini Narrative
+
+구현 완료:
+
+- [x] Detailed 전용 Gemini narrative 함수
+- [x] Detailed 전용 API `POST /api/narrative/detailed`
+- [x] 시주 / Moon / ASC / MC / Houses / 행성 House 정보를 프롬프트 근거로 전달
+- [x] Quick과 동일하게 비동기 enrichment
+- [x] 15초 timeout 후 fallback 유지
+- [x] Detailed 결과 화면에 AI summary + 핵심 3개 노출
+- [x] 무료 티어/API 실패 시 계산 결과 화면은 막지 않음
+
+다음 우선순위:
+
+1. ASC / MC / Houses 기준값 테스트
+2. Production 회귀 테스트
+3. 모바일 최종 점검
