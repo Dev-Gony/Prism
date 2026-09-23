@@ -23,12 +23,13 @@ export async function GET() {
 
   try {
     const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
+    const interaction = await ai.interactions.create({
       model,
-      contents: 'Return {"ok":true} and nothing else.',
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
+      input: 'Return JSON with exactly one property named "ok" whose value is true.',
+      response_format: {
+        type: "text",
+        mime_type: "application/json",
+        schema: {
           type: "object",
           properties: {
             ok: { type: "boolean" },
@@ -38,7 +39,7 @@ export async function GET() {
       },
     });
 
-    const raw = response.text?.trim() ?? "";
+    const raw = interaction.output_text?.trim() ?? "";
     const parsed = JSON.parse(raw) as { ok?: boolean };
 
     return NextResponse.json({
