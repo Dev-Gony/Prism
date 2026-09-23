@@ -96,3 +96,40 @@ body{
     width:760px;
   }
 }
+
+.engine-proof{
+  padding:14px;
+  border-radius:18px;
+  background:var(--surface-mid);
+  border:1px solid #f3e8e1;
+}
+.engine-proof>strong{
+  display:block;
+  margin-bottom:9px;
+  font-size:11px;
+  color:var(--text);
+}
+.engine-proof-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:7px;
+}
+.engine-proof-grid span{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px 10px;
+  border-radius:12px;
+  background:#fff;
+  font-size:10px;
+  color:var(--muted);
+}
+.engine-proof-grid b{
+  color:var(--text);
+  text-align:right;
+}
+@media (min-width:900px){
+  .engine-proof-grid{grid-template-columns:repeat(3,1fr)}
+  .engine-proof-grid span{flex-direction:column;justify-content:flex-start}
+  .engine-proof-grid b{text-align:left}
+}
