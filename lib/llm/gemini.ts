@@ -32,10 +32,7 @@ const NARRATIVE_SCHEMA = {
         properties: {
           title: { type: "string" },
           description: { type: "string" },
-          tags: {
-            type: "array",
-            items: { type: "string" },
-          },
+          tags: { type: "array", items: { type: "string" } },
         },
         required: ["title", "description", "tags"],
       },
@@ -85,8 +82,8 @@ function isNarrative(
   value: unknown,
 ): value is Omit<AnalysisNarrative, "generatedBy" | "model"> {
   if (!value || typeof value !== "object") return false;
-
   const candidate = value as Record<string, unknown>;
+
   if (
     typeof candidate.summary !== "string" ||
     !Array.isArray(candidate.keywords) ||
@@ -96,19 +93,16 @@ function isNarrative(
     return false;
   }
 
-  if (
-    candidate.keywords.length < 3 ||
-    candidate.observations.length < 5 ||
-    candidate.crossHighlights.length < 3
-  ) {
-    return false;
-  }
-
-  return candidate.crossHighlights.every((item) => {
-    if (!item || typeof item !== "object") return false;
-    const trait = (item as { trait?: unknown }).trait;
-    return typeof trait === "string" && TRAIT_KEYS.includes(trait as TraitKey);
-  });
+  return (
+    candidate.keywords.length === 3 &&
+    candidate.observations.length === 5 &&
+    candidate.crossHighlights.length === 3 &&
+    candidate.crossHighlights.every((item) => {
+      if (!item || typeof item !== "object") return false;
+      const trait = (item as { trait?: unknown }).trait;
+      return typeof trait === "string" && TRAIT_KEYS.includes(trait as TraitKey);
+    })
+  );
 }
 
 function logFallback(reason: string, error?: unknown) {
@@ -140,44 +134,39 @@ export async function createNarrative(
   const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
   const ai = new GoogleGenAI({ apiKey });
 
-  const systemInstruction = [
-    "당신은 Prism의 설명 레이어다.",
-    "사주·점성술·수비학의 계산값을 새로 만들거나 수정하지 않는다.",
-    "제공된 구조화 데이터만 근거로 사용한다.",
-    "세 체계가 충돌하면 하나를 정답으로 고르지 않고 차이를 설명한다.",
-    "출생시간·출생지가 없는 Quick Reading의 한계를 존중한다.",
-    "미래 사건을 단정적으로 예언하지 않는다.",
-    "전문용어보다 쉬운 한국어 설명을 먼저 쓴다.",
-    "각 문장은 모바일 화면에서 읽기 좋게 짧게 작성한다.",
-    "사용자를 단정적으로 규정하지 말고 '보여요', '읽을 수 있어요'처럼 표현한다.",
-    "출력은 요청된 JSON schema를 정확히 따른다.",
+  const instruction = [
+    "당신은 Prism의 설명 레이어입니다.",
+    "사주·점성술·수비학 계산값을 새로 만들거나 수정하지 마세요.",
+    "제공된 구조화 데이터만 근거로 사용하세요.",
+    "세 체계가 다르게 보이면 하나를 정답으로 고르지 말고 차이를 설명하세요.",
+    "출생시간·출생지가 없는 Quick Reading의 한계를 존중하세요.",
+    "미래 사건을 단정적으로 예언하지 마세요.",
+    "전문용어보다 쉬운 한국어를 먼저 쓰세요.",
+    "사용자를 단정적으로 규정하지 말고 '보여요', '읽을 수 있어요'처럼 표현하세요.",
+    "모바일에서 읽기 좋게 각 문장을 짧게 쓰세요.",
   ].join("\n");
 
-  const prompt = {
-    task:
-      "Quick Reading 결과를 Prism의 세 요정이 함께 정리한 것처럼 다정하고 간결한 한국어로 설명해 주세요.",
-    style: {
-      summary: "2문장 이내",
-      keywordDescription: "각 2문장 이내",
-      observationDescription: "각 2문장 이내",
-      crossExplanation: "각 2문장 이내",
-    },
-    engines,
-    cross,
-  };
+  const input = [
+    instruction,
+    "",
+    "아래 Quick Reading 데이터를 Prism의 세 요정이 함께 정리한 것처럼 다정하고 간결하게 설명하세요.",
+    "summary는 2문장 이내, keyword/observation/cross explanation은 각각 2문장 이내로 작성하세요.",
+    "",
+    JSON.stringify({ engines, cross }),
+  ].join("\n");
 
   try {
-    const response = await ai.models.generateContent({
+    const interaction = await ai.interactions.create({
       model,
-      contents: JSON.stringify(prompt),
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: NARRATIVE_SCHEMA,
+      input,
+      response_format: {
+        type: "text",
+        mime_type: "application/json",
+        schema: NARRATIVE_SCHEMA,
       },
     });
 
-    const raw = response.text?.trim();
+    const raw = interaction.output_text?.trim();
 
     if (!raw) {
       logFallback("empty_response");
@@ -199,14 +188,11 @@ export async function createNarrative(
 
     return {
       ...parsed,
-      keywords: parsed.keywords.slice(0, 3),
-      observations: parsed.observations.slice(0, 5),
-      crossHighlights: parsed.crossHighlights.slice(0, 3),
       generatedBy: "gemini",
       model,
     };
   } catch (error) {
-    logFallback("generate_content_failed", error);
+    logFallback("interaction_failed", error);
     return fallbackNarrative(cross);
   }
 }
