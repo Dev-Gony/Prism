@@ -423,3 +423,21 @@ Local visual/build validation still required after `git pull`.
 - [x] 예시 날짜 선택 시 양력으로 명확히 복귀
 
 사용자 결정에 따라 계산 기준값 테스트와 전체 회귀 테스트는 기능 구현 후 일괄 진행.
+
+
+---
+
+## Unknown Birth Time
+
+구현 완료:
+
+- [x] Detailed Reading에서 "태어난 시간을 몰라요" 지원
+- [x] 시간 미상 시 사주 시주 제외
+- [x] 시간 미상 시 Moon / ASC / MC / DSC / IC / 12 Houses 제외
+- [x] 시간 미상 시 행성별 House 미계산
+- [x] 시간 비민감 행성은 정오 스냅샷 기준으로 유지
+- [x] Detailed-lite 결과/저장/API 지원
+- [x] Detailed Gemini가 누락된 시간 의존 값을 추측하지 않도록 프롬프트 분기
+- [x] 저장 결과 상세 화면에서도 "시간 미상" 상태 표현
+
+사용자 결정에 따라 전체 계산값 테스트와 회귀 테스트는 기능 구현 완료 후 일괄 진행.
