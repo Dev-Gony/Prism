@@ -156,15 +156,28 @@ async function generateNarrative(
     "모바일에서 읽기 좋게 각 문장을 짧게 쓰세요.",
   ];
 
+  const detailedTimeKnown =
+    mode === "detailed" &&
+    "astrology" in engines &&
+    Boolean((engines as DetailedEnginePayload).astrology.timeKnown);
+
   const modeInstruction =
     mode === "detailed"
-      ? [
-          "이 요청은 Detailed Reading입니다.",
-          "출생시간과 출생지역을 반영한 시주, Moon, ASC, MC, 12 Houses, 행성별 House 정보를 중요한 추가 근거로 활용하세요.",
-          "Quick Reading보다 무엇이 더 구체화되었는지 자연스럽게 드러내세요.",
-          "ASC·MC·House·시주 같은 전문용어는 먼저 일상적인 의미를 설명한 뒤 괄호나 짧은 보조 표현으로 전문용어를 붙이세요.",
-          "수비학 Life Path처럼 출생시간 추가로 바뀌지 않는 값은 억지로 변화한 것처럼 설명하지 마세요.",
-        ]
+      ? detailedTimeKnown
+        ? [
+            "이 요청은 Detailed Reading입니다.",
+            "출생시간과 출생지역을 반영한 시주, Moon, ASC, MC, 12 Houses, 행성별 House 정보를 중요한 추가 근거로 활용하세요.",
+            "Quick Reading보다 무엇이 더 구체화되었는지 자연스럽게 드러내세요.",
+            "ASC·MC·House·시주 같은 전문용어는 먼저 일상적인 의미를 설명한 뒤 괄호나 짧은 보조 표현으로 전문용어를 붙이세요.",
+            "수비학 Life Path처럼 출생시간 추가로 바뀌지 않는 값은 억지로 변화한 것처럼 설명하지 마세요.",
+          ]
+        : [
+            "이 요청은 출생시간을 모르는 Detailed-lite Reading입니다.",
+            "시주, Moon, ASC, MC, DSC, IC, Houses는 제공되지 않았으므로 절대 추측하지 마세요.",
+            "출생지역과 생년월일로 확장 가능한 정보만 설명하세요.",
+            "시간이 없어 알 수 없는 항목은 한계로 명확히 설명하고, 부족한 값을 있는 것처럼 말하지 마세요.",
+            "수비학 Life Path는 출생시간과 무관하므로 그대로 유지된다는 점을 존중하세요.",
+          ]
       : [
           "이 요청은 Quick Reading입니다.",
           "출생시간·출생지가 없는 분석의 한계를 존중하세요.",
