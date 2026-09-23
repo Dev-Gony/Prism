@@ -301,20 +301,30 @@ export default function Home() {
       return;
     }
 
-    window.sessionStorage.setItem(
-      "prism.pending-analysis.v1",
-      JSON.stringify({
-        createdAt: Date.now(),
-        kind: "quick",
-        analysis,
-      }),
+    // Preserve a pending Detailed snapshot instead of accidentally replacing it
+    // with the current Quick result right before OAuth.
+    if (!pendingRaw && analysis) {
+      window.sessionStorage.setItem(
+        "prism.pending-analysis.v1",
+        JSON.stringify({
+          createdAt: Date.now(),
+          kind: "quick",
+          analysis,
+        }),
+      );
+    }
+
+    const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+    const siteOrigin = (configuredSiteUrl || window.location.origin).replace(
+      /\/$/,
+      "",
     );
 
     const supabase = createSupabaseBrowserClient();
     const { error: signInError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/`,
+        redirectTo: `${siteOrigin}/auth/callback?next=/`,
       },
     });
 
