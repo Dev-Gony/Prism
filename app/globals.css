@@ -5261,3 +5261,58 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Unknown birth time */
+.unknown-time-option{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  margin-top:10px;
+  padding:11px 12px;
+  border:1px solid rgba(117,107,156,.16);
+  border-radius:11px;
+  background:#f8f6fb;
+  cursor:pointer;
+}
+
+.unknown-time-option input{
+  margin-top:2px;
+  accent-color:var(--editorial-secondary);
+}
+
+.unknown-time-option span{
+  min-width:0;
+}
+
+.unknown-time-option strong{
+  display:block;
+  color:#4f465f;
+  font-size:10px;
+}
+
+.unknown-time-option small{
+  display:block;
+  margin-top:3px;
+  color:#83798d;
+  font-size:9px;
+  line-height:1.5;
+}
+
+.editorial-modal-field input:disabled{
+  background:#f3efec;
+  color:#a1948f;
+  cursor:not-allowed;
+}
+
+.time-unknown-notice,
+.archive-time-unknown{
+  margin-top:10px;
+  padding:12px;
+  border:1px dashed rgba(117,107,156,.25);
+  border-radius:10px;
+  background:#f8f6fb;
+  color:#685f72;
+  font-size:9px;
+  line-height:1.6;
+}
