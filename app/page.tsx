@@ -3,6 +3,8 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import type { QuickAnalysisResponse } from "@/lib/analysis/types";
+import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
+import { BIRTHPLACES } from "@/lib/analysis/birthplaces";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 type Phase = "landing" | "loading" | "result";
@@ -40,6 +42,12 @@ export default function Home() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("");
   const [narrativeState, setNarrativeState] = useState<"idle" | "loading" | "gemini" | "fallback">("idle");
+  const [detailedOpen, setDetailedOpen] = useState(false);
+  const [birthTime, setBirthTime] = useState("12:00");
+  const [birthplaceId, setBirthplaceId] = useState("seoul");
+  const [detailedStatus, setDetailedStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [detailedError, setDetailedError] = useState("");
+  const [detailedAnalysis, setDetailedAnalysis] = useState<DetailedAnalysisResponse | null>(null);
 
   const birthday = useMemo(
     () => `${year || "----"}.${month.padStart(2, "0") || "--"}.${day.padStart(2, "0") || "--"}`,
@@ -268,6 +276,44 @@ export default function Home() {
         console.warn("Gemini narrative timed out; keeping fallback narrative.");
       }
       setNarrativeState("fallback");
+    }
+  }
+
+
+  async function runDetailedAnalysis() {
+    setDetailedStatus("loading");
+    setDetailedError("");
+
+    try {
+      const response = await fetch("/api/analyze/detailed", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          date: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
+          time: birthTime,
+          birthplaceId,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || "상세 분석에 실패했어요.");
+      }
+
+      setDetailedAnalysis(payload as DetailedAnalysisResponse);
+      setDetailedStatus("done");
+      setDetailedOpen(false);
+      window.setTimeout(() => {
+        document.getElementById("detailed-result")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 80);
+    } catch (error) {
+      setDetailedStatus("error");
+      setDetailedError(
+        error instanceof Error ? error.message : "상세 분석에 실패했어요.",
+      );
     }
   }
 
@@ -643,11 +689,94 @@ export default function Home() {
             <button
               className="squishy"
               type="button"
-              onClick={() => alert("Detailed Mode는 다음 구현 단계에서 연결합니다.")}
+              onClick={() => setDetailedOpen(true)}
             >
               🔓 상세 분석 잠금 해제 준비하기
             </button>
           </section>
+
+          {detailedAnalysis && (
+            <section id="detailed-result" className="detailed-result-card">
+              <div className="detailed-result-head">
+                <div>
+                  <small>DETAILED READING v1</small>
+                  <h2>출생시간을 반영한 두 번째 프리즘</h2>
+                  <p>{birthTime} · {BIRTHPLACES.find((place) => place.id === birthplaceId)?.label ?? birthplaceId}</p>
+                </div>
+                <span className="detailed-badge">확장 분석</span>
+              </div>
+
+              <div className="detailed-engine-grid">
+                <article>
+                  <span>사주</span>
+                  <strong>{detailedAnalysis.engines.saju.pillars.map((item) => item.text).join(" · ")}</strong>
+                  <small>시주 포함 8자</small>
+                </article>
+                <article>
+                  <span>점성</span>
+                  <strong>태양 {detailedAnalysis.engines.astrology.sunSign}</strong>
+                  <small>달 {detailedAnalysis.engines.astrology.moonSign}</small>
+                </article>
+                <article>
+                  <span>수비학</span>
+                  <strong>Life Path {detailedAnalysis.engines.numerology.lifePath}</strong>
+                  <small>{detailedAnalysis.engines.numerology.meaningKey}</small>
+                </article>
+              </div>
+
+              <div className="detailed-note">
+                <strong>이번 단계에서 추가된 것</strong>
+                <p>사주 시주와 실제 출생시각 기준 주요 행성 위치를 반영했어요. ASC · MC · 12 Houses는 다음 구현에서 추가됩니다.</p>
+              </div>
+            </section>
+          )}
+
+          {detailedOpen && (
+            <div className="auth-sheet-backdrop" role="presentation" onClick={() => setDetailedOpen(false)}>
+              <section className="detailed-sheet" role="dialog" aria-modal="true" aria-labelledby="detailed-title" onClick={(event) => event.stopPropagation()}>
+                <div className="detailed-sheet-head">
+                  <div>
+                    <small>DETAILED READING</small>
+                    <h2 id="detailed-title">태어난 시간과 지역을 더해볼게요.</h2>
+                  </div>
+                  <button type="button" onClick={() => setDetailedOpen(false)}>×</button>
+                </div>
+
+                <label className="detailed-field">
+                  <span>태어난 시간</span>
+                  <input type="time" value={birthTime} onChange={(event) => setBirthTime(event.target.value)} />
+                </label>
+
+                <label className="detailed-field">
+                  <span>태어난 지역</span>
+                  <select value={birthplaceId} onChange={(event) => setBirthplaceId(event.target.value)}>
+                    {BIRTHPLACES.map((place) => (
+                      <option key={place.id} value={place.id}>{place.label}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <div className="detailed-sheet-preview">
+                  <span>시주</span>
+                  <span>달 별자리</span>
+                  <span>정확한 행성 위치</span>
+                </div>
+
+                {detailedError && <p className="form-error">{detailedError}</p>}
+
+                <button
+                  className="dark-btn detailed-run-btn"
+                  type="button"
+                  disabled={detailedStatus === "loading"}
+                  onClick={runDetailedAnalysis}
+                >
+                  {detailedStatus === "loading" ? "상세 분석 중..." : "상세 분석 시작"}
+                </button>
+
+                <p className="detailed-sheet-foot">대한민국 주요 도시 기준 · ASC/MC/Houses는 다음 단계에서 추가</p>
+              </section>
+            </div>
+          )}
 
           <section className="result-actions">
             <button className="bubble-btn" onClick={() => setPhase("landing")}>← 처음으로</button>
