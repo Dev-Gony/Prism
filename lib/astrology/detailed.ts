@@ -74,25 +74,32 @@ export function calculateAstrologyDetailed(
   year: number,
   month: number,
   day: number,
-  hour: number,
-  minute: number,
+  hour: number | null,
+  minute: number | null,
   birthplace: Birthplace,
 ): DetailedAstrologyResult {
-  // Detailed v1 supports Korean birthplaces from 1990 onward.
-  // KST is UTC+9 for this supported range.
+  const timeKnown = hour !== null && minute !== null;
+  const effectiveHour = hour ?? 12;
+  const effectiveMinute = minute ?? 0;
+
+  // KST is UTC+9 for the supported Korean birthplace presets.
   const instant = new Date(
-    Date.UTC(year, month - 1, day, hour - 9, minute, 0),
+    Date.UTC(year, month - 1, day, effectiveHour - 9, effectiveMinute, 0),
   );
 
-  const chart = calculateWholeSignHouses(
-    instant,
-    birthplace.latitude,
-    birthplace.longitude,
-  );
+  const chart = timeKnown
+    ? calculateWholeSignHouses(
+        instant,
+        birthplace.latitude,
+        birthplace.longitude,
+      )
+    : null;
 
-  const bodies = (
-    ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"] as const
-  ).map((body) => {
+  const bodyNames = timeKnown
+    ? (["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"] as const)
+    : (["Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"] as const);
+
+  const bodies = bodyNames.map((body) => {
     const value = longitude(body, instant);
     const sign = signFromLongitude(value);
 
@@ -101,30 +108,38 @@ export function calculateAstrologyDetailed(
       longitude: Number(value.toFixed(4)),
       sign: sign.sign,
       element: sign.element,
-      house: houseForLongitude(value, chart.ascendant.longitude),
+      ...(chart
+        ? { house: houseForLongitude(value, chart.ascendant.longitude) }
+        : {}),
     };
   });
 
   const sun = bodies.find((body) => body.body === "Sun")!;
-  const moon = bodies.find((body) => body.body === "Moon")!;
+  const moon = timeKnown
+    ? bodies.find((body) => body.body === "Moon") ?? null
+    : null;
 
   return {
-    instantUtc: instant.toISOString(),
+    timeKnown,
+    instantUtc: timeKnown ? instant.toISOString() : null,
     birthplace: {
       ...birthplace,
     },
     bodies,
     sunSign: sun.sign,
-    moonSign: moon.sign,
+    moonSign: moon?.sign ?? null,
     sunElement: sun.element,
-    houseSystem: chart.system,
-    ascendant: chart.ascendant,
-    midheaven: chart.midheaven,
-    descendant: chart.descendant,
-    imumCoeli: chart.imumCoeli,
-    houses: chart.houses,
-    method:
-      "Astronomy Engine · 출생시각 KST→UTC 변환 · Sun/Moon/Mercury/Venus/Mars/Jupiter/Saturn ecliptic longitude · ASC/MC · Whole Sign 12 Houses",
-    pending: [],
+    houseSystem: chart?.system ?? null,
+    ascendant: chart?.ascendant ?? null,
+    midheaven: chart?.midheaven ?? null,
+    descendant: chart?.descendant ?? null,
+    imumCoeli: chart?.imumCoeli ?? null,
+    houses: chart?.houses ?? [],
+    method: timeKnown
+      ? "Astronomy Engine · 출생시각 KST→UTC 변환 · Sun/Moon/Mercury/Venus/Mars/Jupiter/Saturn · ASC/MC · Whole Sign 12 Houses"
+      : "Astronomy Engine · 출생시간 미상 · 정오 스냅샷으로 시간 비민감 행성만 계산 · Moon/ASC/MC/Houses 제외",
+    pending: timeKnown
+      ? []
+      : ["Moon", "ASC", "MC", "DSC", "IC", "12 Houses", "행성별 House"],
   };
 }
