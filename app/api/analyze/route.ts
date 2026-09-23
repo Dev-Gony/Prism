@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { AnalysisInputError, parseBirthDate } from "@/lib/analysis/input";
+import { AnalysisInputError } from "@/lib/analysis/input";
+import { normalizeBirthInput } from "@/lib/analysis/calendar";
 import { calculateSajuQuick } from "@/lib/saju/quick";
 import { calculateAstrologyQuick } from "@/lib/astrology/quick";
 import { calculateNumerologyQuick } from "@/lib/numerology/quick";
@@ -12,8 +13,16 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { date?: unknown };
-    const input = parseBirthDate(body.date);
+    const body = (await request.json()) as {
+      date?: unknown;
+      calendarType?: unknown;
+      isLeapMonth?: unknown;
+    };
+    const input = normalizeBirthInput(
+      body.date,
+      body.calendarType,
+      body.isLeapMonth,
+    );
 
     const saju = calculateSajuQuick(input.year, input.month, input.day);
     const astrology = calculateAstrologyQuick(input.year, input.month, input.day);
@@ -26,7 +35,12 @@ export async function POST(request: Request) {
     const narrative = fallbackNarrative(cross);
 
     const response: QuickAnalysisResponse = {
-      input: { date: input.date },
+      input: {
+        date: input.date,
+        calendarType: input.calendarType,
+        originalDate: input.originalDate,
+        isLeapMonth: input.isLeapMonth,
+      },
       engines: { saju, astrology, numerology },
       normalized,
       cross,
