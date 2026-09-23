@@ -441,3 +441,24 @@ Local visual/build validation still required after `git pull`.
 - [x] 저장 결과 상세 화면에서도 "시간 미상" 상태 표현
 
 사용자 결정에 따라 전체 계산값 테스트와 회귀 테스트는 기능 구현 완료 후 일괄 진행.
+
+
+---
+
+## Birthplace Search / Detailed AI Question
+
+구현 완료:
+
+- [x] 대한민국 주요 출생도시 preset 확장
+- [x] 출생지역 검색형 picker
+- [x] 지역명 / 광역단위 / alias 검색
+- [x] 선택 지역의 좌표 표시
+- [x] Detailed Reading 전용 AI 질문 API
+- [x] 현재 Detailed 계산 결과 안에서만 답하도록 Gemini 제약
+- [x] 300자 질문 제한
+- [x] Gemini 실패 시 fallback 답변
+- [x] 근거(evidence) 1~4개 표시
+- [x] 추천 질문 4개
+- [x] 세션 내 최근 질문 스레드 표시
+
+사용자 결정에 따라 계산값 테스트와 회귀 테스트는 기능 구현 완료 후 일괄 진행.
