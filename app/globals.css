@@ -452,3 +452,8 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+.save-message a{
+  color:inherit;
+  font-weight:800;
+}
