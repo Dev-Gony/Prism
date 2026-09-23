@@ -31,6 +31,19 @@ export type DetailedAstrologyBody = {
   longitude: number;
   sign: string;
   element: "fire" | "earth" | "air" | "water";
+  house: number;
+};
+
+export type DetailedChartAngle = {
+  longitude: number;
+  sign: string;
+  degreeInSign: number;
+};
+
+export type DetailedHouse = {
+  house: number;
+  longitude: number;
+  sign: string;
 };
 
 export type DetailedAstrologyResult = {
@@ -46,6 +59,12 @@ export type DetailedAstrologyResult = {
   sunSign: string;
   moonSign: string;
   sunElement: DetailedAstrologyBody["element"];
+  houseSystem: "whole-sign";
+  ascendant: DetailedChartAngle;
+  midheaven: DetailedChartAngle;
+  descendant: DetailedChartAngle;
+  imumCoeli: DetailedChartAngle;
+  houses: DetailedHouse[];
   method: string;
   pending: string[];
 };
