@@ -81,6 +81,7 @@ export default function Home() {
   const [detailedError, setDetailedError] = useState("");
   const [detailedSaveStatus, setDetailedSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [detailedSaveMessage, setDetailedSaveMessage] = useState("");
+  const [detailedNarrativeState, setDetailedNarrativeState] = useState<"idle" | "loading" | "gemini" | "fallback">("idle");
   const [detailedAnalysis, setDetailedAnalysis] =
     useState<DetailedAnalysisResponse | null>(null);
 
@@ -414,6 +415,59 @@ export default function Home() {
     }
   }
 
+  async function enrichDetailedNarrative(result: DetailedAnalysisResponse) {
+    setDetailedNarrativeState("loading");
+
+    let timeout = 0;
+
+    try {
+      const controller = new AbortController();
+      timeout = window.setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch("/api/narrative/detailed", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          engines: result.engines,
+          cross: result.cross,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        setDetailedNarrativeState("fallback");
+        return;
+      }
+
+      const payload = (await response.json()) as {
+        narrative?: DetailedAnalysisResponse["narrative"];
+      };
+
+      if (!payload.narrative) {
+        setDetailedNarrativeState("fallback");
+        return;
+      }
+
+      setDetailedAnalysis((current) =>
+        current ? { ...current, narrative: payload.narrative! } : current,
+      );
+
+      setDetailedNarrativeState(
+        payload.narrative.generatedBy === "gemini" ? "gemini" : "fallback",
+      );
+    } catch (requestError) {
+      if (
+        requestError instanceof DOMException &&
+        requestError.name === "AbortError"
+      ) {
+        console.warn("Detailed Gemini narrative timed out; keeping fallback.");
+      }
+      setDetailedNarrativeState("fallback");
+    } finally {
+      if (timeout) window.clearTimeout(timeout);
+    }
+  }
+
   async function runDetailedAnalysis() {
     setDetailedStatus("loading");
     setDetailedError("");
@@ -434,9 +488,12 @@ export default function Home() {
         throw new Error(payload.error || "상세 분석에 실패했어요.");
       }
 
-      setDetailedAnalysis(payload as DetailedAnalysisResponse);
+      const detailedResult = payload as DetailedAnalysisResponse;
+      setDetailedAnalysis(detailedResult);
+      setDetailedNarrativeState("loading");
       setDetailedStatus("done");
       setDetailedOpen(false);
+      void enrichDetailedNarrative(detailedResult);
 
       window.setTimeout(() => {
         document.getElementById("deep-report")?.scrollIntoView({
@@ -479,6 +536,7 @@ export default function Home() {
     setAnalysis(null);
     setDetailedAnalysis(null);
     setNarrativeState("idle");
+    setDetailedNarrativeState("idle");
     setPhase("loading");
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -843,6 +901,7 @@ export default function Home() {
                 <DetailedReport
                   quick={analysis}
                   data={detailedAnalysis}
+                  narrativeState={detailedNarrativeState}
                   saveStatus={detailedSaveStatus}
                   saveMessage={detailedSaveMessage}
                   onSave={saveDetailedAnalysis}
@@ -1209,12 +1268,14 @@ function LensCard({
 function DetailedReport({
   quick,
   data,
+  narrativeState,
   saveStatus,
   saveMessage,
   onSave,
 }: {
   quick: QuickAnalysisResponse;
   data: DetailedAnalysisResponse;
+  narrativeState: "idle" | "loading" | "gemini" | "fallback";
   saveStatus: "idle" | "saving" | "saved" | "error";
   saveMessage: string;
   onSave: () => void;
@@ -1251,6 +1312,29 @@ function DetailedReport({
           Houses
         </p>
       </div>
+
+      <section className="detailed-narrative-block">
+        <div className="detailed-narrative-head">
+          <span>
+            {narrativeState === "loading"
+              ? "AI 해석 정리 중"
+              : data.narrative.generatedBy === "gemini"
+                ? "Gemini Detailed"
+                : "규칙 기반 Detailed"}
+          </span>
+        </div>
+        <blockquote>{data.narrative.summary}</blockquote>
+
+        <div className="detailed-narrative-grid">
+          {data.narrative.keywords.slice(0, 3).map((item, index) => (
+            <article key={item.title + index}>
+              <small>{String(index + 1).padStart(2, "0")}</small>
+              <strong>{item.title}</strong>
+              <p>{item.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <div className="detailed-angle-row">
         <span>
