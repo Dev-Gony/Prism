@@ -1480,6 +1480,8 @@ function DetailedReport({
         </div>
       </section>
 
+      <DetailedQuestionPanel analysis={data} />
+
       <div className="detailed-report-actions">
         <button
           className="report-primary-btn compact"
@@ -1498,6 +1500,169 @@ function DetailedReport({
         )}
       </div>
     </div>
+  );
+}
+
+function DetailedQuestionPanel({
+  analysis,
+}: {
+  analysis: DetailedAnalysisResponse;
+}) {
+  const suggestions = [
+    "내 성향을 더 쉽게 설명해줘",
+    "일할 때 강점은 뭐야?",
+    "관계에서는 어떤 특징이 보여?",
+    "세 분석이 다르게 말하는 부분을 설명해줘",
+  ];
+
+  const [question, setQuestion] = useState("");
+  const [messages, setMessages] = useState<
+    Array<{
+      question: string;
+      answer: string;
+      evidence: string[];
+      generatedBy: "gemini" | "fallback";
+    }>
+  >([]);
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  async function ask(nextQuestion?: string) {
+    const value = (nextQuestion ?? question).trim();
+    if (!value || status === "loading") return;
+
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          question: value,
+          analysis,
+        }),
+        signal: controller.signal,
+      });
+
+      window.clearTimeout(timeout);
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "답변을 만들지 못했어요.");
+      }
+
+      setMessages((current) => [
+        ...current.slice(-4),
+        {
+          question: value,
+          answer: String(payload.answer ?? ""),
+          evidence: Array.isArray(payload.evidence)
+            ? payload.evidence.map(String)
+            : [],
+          generatedBy:
+            payload.generatedBy === "gemini" ? "gemini" : "fallback",
+        },
+      ]);
+      setQuestion("");
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      setMessage(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "답변이 오래 걸려 중단했어요. 계산 결과는 그대로 유지됩니다."
+          : error instanceof Error
+            ? error.message
+            : "답변을 만들지 못했어요.",
+      );
+    }
+  }
+
+  return (
+    <section className="detailed-question-panel">
+      <div className="detailed-question-head">
+        <div>
+          <small>ASK PRISM</small>
+          <h3>이 결과 안에서 더 물어보기</h3>
+        </div>
+        <span>Detailed only</span>
+      </div>
+
+      <p className="detailed-question-intro">
+        현재 계산 결과를 근거로만 답해요. 새로운 사주나 천체 값을 만들어내지는 않아요.
+      </p>
+
+      <div className="question-suggestions">
+        {suggestions.map((item) => (
+          <button
+            type="button"
+            key={item}
+            disabled={status === "loading"}
+            onClick={() => void ask(item)}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
+      {messages.length > 0 && (
+        <div className="question-thread">
+          {messages.map((item, index) => (
+            <article key={item.question + index}>
+              <div className="question-user">
+                <small>YOU</small>
+                <p>{item.question}</p>
+              </div>
+              <div className="question-answer">
+                <div>
+                  <small>PRISM</small>
+                  <span>{item.generatedBy === "gemini" ? "Gemini" : "Fallback"}</span>
+                </div>
+                <p>{item.answer}</p>
+                {item.evidence.length > 0 && (
+                  <ul>
+                    {item.evidence.map((evidence) => (
+                      <li key={evidence}>{evidence}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      <div className="question-composer">
+        <textarea
+          maxLength={300}
+          rows={3}
+          value={question}
+          placeholder="예: 세 분석이 다르게 말하는 부분을 쉽게 설명해줘"
+          onChange={(event) => setQuestion(event.target.value)}
+          onKeyDown={(event) => {
+            if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+              event.preventDefault();
+              void ask();
+            }
+          }}
+        />
+        <div>
+          <small>{question.length}/300 · Ctrl/⌘ + Enter</small>
+          <button
+            type="button"
+            disabled={!question.trim() || status === "loading"}
+            onClick={() => void ask()}
+          >
+            {status === "loading" ? "답변 정리 중..." : "질문하기"}
+          </button>
+        </div>
+      </div>
+
+      {message && <p className="question-error">{message}</p>}
+    </section>
   );
 }
 
