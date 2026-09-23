@@ -78,6 +78,7 @@ export default function Home() {
   const [birthTime, setBirthTime] = useState("12:00");
   const [birthTimeKnown, setBirthTimeKnown] = useState(true);
   const [birthplaceId, setBirthplaceId] = useState("seoul");
+  const [birthplaceQuery, setBirthplaceQuery] = useState("");
   const [detailedStatus, setDetailedStatus] = useState<
     "idle" | "loading" | "done" | "error"
   >("idle");
@@ -1001,11 +1002,16 @@ export default function Home() {
             birthTime={birthTime}
             birthTimeKnown={birthTimeKnown}
             birthplaceId={birthplaceId}
+            birthplaceQuery={birthplaceQuery}
             status={detailedStatus}
             error={detailedError}
             onBirthTime={setBirthTime}
             onBirthTimeKnown={setBirthTimeKnown}
-            onBirthplace={setBirthplaceId}
+            onBirthplace={(value) => {
+              setBirthplaceId(value);
+              setBirthplaceQuery("");
+            }}
+            onBirthplaceQuery={setBirthplaceQuery}
             onClose={() => setDetailedOpen(false)}
             onRun={runDetailedAnalysis}
           />
@@ -1570,22 +1576,26 @@ function DetailedModal({
   birthTime,
   birthTimeKnown,
   birthplaceId,
+  birthplaceQuery,
   status,
   error,
   onBirthTime,
   onBirthTimeKnown,
   onBirthplace,
+  onBirthplaceQuery,
   onClose,
   onRun,
 }: {
   birthTime: string;
   birthTimeKnown: boolean;
   birthplaceId: string;
+  birthplaceQuery: string;
   status: "idle" | "loading" | "done" | "error";
   error: string;
   onBirthTime: (value: string) => void;
   onBirthTimeKnown: (value: boolean) => void;
   onBirthplace: (value: string) => void;
+  onBirthplaceQuery: (value: string) => void;
   onClose: () => void;
   onRun: () => void;
 }) {
@@ -1631,19 +1641,44 @@ function DetailedModal({
           </span>
         </label>
 
-        <label className="editorial-modal-field">
+        <div className="editorial-modal-field birthplace-search-field">
           <span>태어난 지역</span>
-          <select
-            value={birthplaceId}
-            onChange={(event) => onBirthplace(event.target.value)}
-          >
-            {BIRTHPLACES.map((place) => (
-              <option key={place.id} value={place.id}>
-                {place.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <input
+            type="search"
+            placeholder="도시명 검색 · 예: 수원, 전주, 제주"
+            value={birthplaceQuery}
+            onChange={(event) => onBirthplaceQuery(event.target.value)}
+          />
+
+          <div className="birthplace-search-results">
+            {BIRTHPLACES.filter((place) => {
+              const query = birthplaceQuery.trim().toLowerCase();
+              if (!query) return place.id === birthplaceId || ["seoul","busan","daegu","incheon","gwangju","daejeon","ulsan","sejong","suwon","jeju"].includes(place.id);
+
+              return [place.label, place.region, ...(place.aliases ?? [])]
+                .join(" ")
+                .toLowerCase()
+                .includes(query);
+            })
+              .slice(0, 12)
+              .map((place) => (
+                <button
+                  type="button"
+                  key={place.id}
+                  className={place.id === birthplaceId ? "selected" : ""}
+                  onClick={() => onBirthplace(place.id)}
+                >
+                  <span>
+                    <strong>{place.label}</strong>
+                    <small>{place.region}</small>
+                  </span>
+                  <em>
+                    {place.latitude.toFixed(2)}°, {place.longitude.toFixed(2)}°
+                  </em>
+                </button>
+              ))}
+          </div>
+        </div>
 
         <div className="modal-feature-row">
           <span>시주</span>
