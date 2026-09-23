@@ -14,6 +14,7 @@ Prism의 현재 개발 상태를 추적합니다.
 - [x] Prototype 피드백 및 디자인 방향 확정
 - [x] GitHub / 로컬 저장소 연결
 - [x] Next.js + TypeScript 프로젝트 초기 설정
+- [x] localhost Bootstrap 실행 확인
 - [ ] 확정 Stitch 디자인을 localhost에 반영
 - [ ] Local Technical Spike
 - [ ] Prototype localhost 피드백
@@ -45,6 +46,7 @@ Prism의 현재 개발 상태를 추적합니다.
 - Node.js: >= 22.9
 - User local environment verified: Node 24.19.0 / npm 11.17.0
 - Framework scaffold: Next.js 16 + React 19 + TypeScript
+- Localhost bootstrap: verified on `http://localhost:3000`
 - Repository: `Dev-Gony/Prism`
 
 ---
