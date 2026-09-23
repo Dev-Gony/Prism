@@ -17,8 +17,9 @@ Prism의 현재 개발 상태를 추적합니다.
 - [x] localhost Bootstrap 실행 확인
 - [x] Stitch HTML / DESIGN 소스 확보
 - [x] Landing → Loading → Quick Result React Prototype 구현
-- [ ] Prototype localhost 시각 검증
-- [ ] UI 피드백 반영
+- [x] Prototype localhost 시각 검증
+- [x] 1차 UI 피드백 반영 (desktop scale / ambient canvas)
+- [ ] 2차 UI 시각 검증
 - [ ] Local Technical Spike
 - [ ] Spec 작성
 - [ ] 실제 엔진 기능 구현
@@ -77,3 +78,15 @@ Prism의 현재 개발 상태를 추적합니다.
 - [ ] `008-detailed-input.md`
 - [ ] `009-detailed-analysis.md`
 - [ ] `010-ai-question.md`
+
+
+---
+
+## Environment / Backend Preparation
+
+- `.env.example` 추가
+- 실제 키는 `.env.local`에만 저장
+- `.env*`는 Git에서 제외하며 `.env.example`만 예외
+- Gemini 실제 API 연결: 아직 미구현
+- Supabase 실제 SDK/프로젝트 연결: 아직 미구현
+- 로그인/결과 저장 구현 시 Supabase 연동 예정
