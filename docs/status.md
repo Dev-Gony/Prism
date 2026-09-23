@@ -404,3 +404,22 @@ Local visual/build validation still required after `git pull`.
 1. ASC / MC / Houses 기준값 테스트
 2. Production 회귀 테스트
 3. 모바일 최종 점검
+
+
+---
+
+## Calendar Input / Collision Fix
+
+구현 완료:
+
+- [x] Result desktop grid 충돌 방지
+- [x] Sidebar / report stream 중간 폭에서 겹치지 않도록 1180px 이전 단일 컬럼 전환
+- [x] Header legend / section heading / cross card flex wrap 안전 처리
+- [x] Evidence / Lens / CTA overflow 방지
+- [x] 양력 / 음력 토글 실제 동작
+- [x] 음력 입력을 lunar-javascript로 양력 변환 후 기존 계산 엔진에 전달
+- [x] 윤달 입력 옵션 추가
+- [x] Quick / Detailed 모두 calendar metadata 유지
+- [x] 예시 날짜 선택 시 양력으로 명확히 복귀
+
+사용자 결정에 따라 계산 기준값 테스트와 전체 회귀 테스트는 기능 구현 후 일괄 진행.
