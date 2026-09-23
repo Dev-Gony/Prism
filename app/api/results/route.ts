@@ -41,15 +41,24 @@ function isDetailedAnalysis(value: unknown): value is DetailedAnalysisResponse {
   return Boolean(
     hasSharedAnalysisShape(analysis) &&
       analysis.input &&
-      typeof analysis.input.time === "string" &&
-      /^([01]\d|2[0-3]):[0-5]\d$/.test(analysis.input.time) &&
       typeof analysis.input.birthplaceId === "string" &&
+      typeof analysis.input.timeKnown === "boolean" &&
+      (
+        (analysis.input.timeKnown &&
+          typeof analysis.input.time === "string" &&
+          /^([01]\d|2[0-3]):[0-5]\d$/.test(analysis.input.time)) ||
+        (!analysis.input.timeKnown && analysis.input.time === null)
+      ) &&
       analysis.engines?.saju &&
       Array.isArray(analysis.engines.saju.pillars) &&
-      analysis.engines.saju.pillars.length === 4 &&
+      (analysis.input.timeKnown
+        ? analysis.engines.saju.pillars.length === 4
+        : analysis.engines.saju.pillars.length === 3) &&
       analysis.engines?.astrology &&
       Array.isArray(analysis.engines.astrology.houses) &&
-      analysis.engines.astrology.houses.length === 12,
+      (analysis.input.timeKnown
+        ? analysis.engines.astrology.houses.length === 12
+        : analysis.engines.astrology.houses.length === 0),
   );
 }
 
