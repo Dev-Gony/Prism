@@ -98,6 +98,54 @@ export default function Home() {
   );
 
   useEffect(() => {
+    const raw = window.sessionStorage.getItem("prism.reanalysis-input.v1");
+    if (!raw) return;
+
+    try {
+      const payload = JSON.parse(raw) as {
+        createdAt?: number;
+        input?: {
+          analysisType?: "quick" | "detailed";
+          date?: string;
+          calendarType?: "solar" | "lunar";
+          isLeapMonth?: boolean;
+          timeKnown?: boolean;
+          time?: string;
+          birthplaceId?: string;
+        };
+      };
+
+      if (
+        typeof payload.createdAt !== "number" ||
+        Date.now() - payload.createdAt > 30 * 60 * 1000 ||
+        !payload.input?.date
+      ) {
+        window.sessionStorage.removeItem("prism.reanalysis-input.v1");
+        return;
+      }
+
+      const [nextYear, nextMonth, nextDay] = payload.input.date.split("-");
+      setYear(nextYear);
+      setMonth(nextMonth);
+      setDay(nextDay);
+      setCalendarType(payload.input.calendarType ?? "solar");
+      setIsLeapMonth(Boolean(payload.input.isLeapMonth));
+      setBirthTimeKnown(payload.input.timeKnown ?? true);
+      setBirthTime(payload.input.time || "12:00");
+      setBirthplaceId(payload.input.birthplaceId || "seoul");
+      setBirthplaceQuery("");
+
+      if (payload.input.analysisType === "detailed") {
+        setDetailedOpen(true);
+      }
+
+      window.sessionStorage.removeItem("prism.reanalysis-input.v1");
+    } catch {
+      window.sessionStorage.removeItem("prism.reanalysis-input.v1");
+    }
+  }, []);
+
+  useEffect(() => {
     if (!isSupabaseConfigured()) return;
 
     const supabase = createSupabaseBrowserClient();
