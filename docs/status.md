@@ -485,3 +485,26 @@ Local visual/build validation still required after `git pull`.
 2. 최근 분석 / 가장 높은 합의도 등 라이브러리 요약
 3. 공유용 결과 카드 생성
 4. 기능 구현 마감 후 일괄 Test / Validation
+
+
+---
+
+## Saved Detailed Q&A Continuation
+
+구현 완료:
+
+- [x] 저장된 Detailed 리포트 상세 화면에서 Ask Prism 재사용
+- [x] 저장된 snapshot을 그대로 질문 근거로 전달
+- [x] 질문 스레드 브라우저 localStorage 유지
+- [x] 리포트별 별도 질문 기록
+- [x] 최근 10개 질문/답변 유지
+- [x] 질문 기록 삭제 기능
+- [x] 기존 /api/ask 제약 및 fallback 재사용
+- [x] 저장된 계산값 자체는 수정하지 않음
+
+다음 기능 구현 후보:
+
+1. 라이브러리 요약 인사이트
+2. 공유용 결과 카드
+3. 저장된 Quick 리포트의 Detailed 업그레이드 진입
+4. 기능 구현 완료 후 일괄 Test / Validation
