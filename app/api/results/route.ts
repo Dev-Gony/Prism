@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { QuickAnalysisResponse } from "@/lib/analysis/types";
+import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 
 const MAX_BODY_BYTES = 256 * 1024;
 
-function isQuickAnalysis(value: unknown): value is QuickAnalysisResponse {
-  if (!value || typeof value !== "object") return false;
-  const analysis = value as Partial<QuickAnalysisResponse>;
+type PersistableAnalysis = QuickAnalysisResponse | DetailedAnalysisResponse;
 
+function hasSharedAnalysisShape(
+  analysis: Partial<PersistableAnalysis>,
+) {
   return Boolean(
     analysis.input &&
       typeof analysis.input.date === "string" &&
@@ -20,6 +22,34 @@ function isQuickAnalysis(value: unknown): value is QuickAnalysisResponse {
       analysis.narrative &&
       (analysis.narrative.generatedBy === "gemini" ||
         analysis.narrative.generatedBy === "fallback"),
+  );
+}
+
+function isQuickAnalysis(value: unknown): value is QuickAnalysisResponse {
+  if (!value || typeof value !== "object") return false;
+  const analysis = value as Partial<QuickAnalysisResponse>;
+
+  return hasSharedAnalysisShape(analysis) &&
+    analysis.input !== undefined &&
+    !("time" in analysis.input);
+}
+
+function isDetailedAnalysis(value: unknown): value is DetailedAnalysisResponse {
+  if (!value || typeof value !== "object") return false;
+  const analysis = value as Partial<DetailedAnalysisResponse>;
+
+  return Boolean(
+    hasSharedAnalysisShape(analysis) &&
+      analysis.input &&
+      typeof analysis.input.time === "string" &&
+      /^([01]\d|2[0-3]):[0-5]\d$/.test(analysis.input.time) &&
+      typeof analysis.input.birthplaceId === "string" &&
+      analysis.engines?.saju &&
+      Array.isArray(analysis.engines.saju.pillars) &&
+      analysis.engines.saju.pillars.length === 4 &&
+      analysis.engines?.astrology &&
+      Array.isArray(analysis.engines.astrology.houses) &&
+      analysis.engines.astrology.houses.length === 12,
   );
 }
 
@@ -41,7 +71,9 @@ export async function POST(request: Request) {
   }
 
   const analysis = (body as { analysis?: unknown })?.analysis;
-  if (!isQuickAnalysis(analysis)) {
+  const isDetailed = isDetailedAnalysis(analysis);
+
+  if (!isDetailed && !isQuickAnalysis(analysis)) {
     return NextResponse.json(
       { error: "저장할 분석 결과 형식이 올바르지 않아요." },
       { status: 400 },
@@ -59,14 +91,17 @@ export async function POST(request: Request) {
     .from("analysis_results")
     .insert({
       user_id: authData.user.id,
-      analysis_type: "quick",
+      analysis_type: isDetailed ? "detailed" : "quick",
       birth_date: analysis.input.date,
-      birth_time: null,
-      birth_place: null,
+      birth_time: isDetailed ? analysis.input.time : null,
+      birth_place: isDetailed
+        ? analysis.engines.astrology.birthplace
+        : null,
       input_snapshot: analysis.input,
       engine_versions: {
         saju: "lunar-javascript@1.7.7",
         astrology: "astronomy-engine@2.1.19",
+        houses: isDetailed ? "prism-whole-sign-v1" : null,
         numerology: "prism-numerology-v1",
         cross: "prism-cross-v1",
       },
