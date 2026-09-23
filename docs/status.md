@@ -20,7 +20,7 @@ Prism의 현재 개발 상태를 추적합니다.
 - [x] Prototype localhost 시각 검증
 - [x] 1차 UI 피드백 반영 (desktop scale / ambient canvas)
 - [ ] 2차 UI 시각 검증
-- [ ] Local Technical Spike
+- [x] Local Technical Spike 코드 작성
 - [ ] Spec 작성
 - [ ] 실제 엔진 기능 구현
 - [ ] Test / Validation
@@ -90,3 +90,19 @@ Prism의 현재 개발 상태를 추적합니다.
 - Gemini 실제 API 연결: 아직 미구현
 - Supabase 실제 SDK/프로젝트 연결: 아직 미구현
 - 로그인/결과 저장 구현 시 Supabase 연동 예정
+
+
+---
+
+## Validation Gate
+
+현재 GitHub 코드 작성은 완료했지만 로컬 의존성 설치 후 실제 검증은 아직 필요하다.
+
+- [ ] npm install
+- [ ] npm run check
+- [ ] npm run build
+- [ ] /api/health 확인
+- [ ] 실제 생년월일 Quick Reading 확인
+- [ ] GEMINI_API_KEY 설정 후 generatedBy=gemini 확인
+
+로컬 실행 검증 전에는 해당 항목을 PASS로 간주하지 않는다.
