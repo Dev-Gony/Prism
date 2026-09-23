@@ -276,3 +276,27 @@ Supabase live project 확인:
 4. Detailed 결과 전용 해석 UI
 5. 저장 스키마에서 analysis_type=detailed 지원
 6. 전체 UI를 새 Professional + Warm Prism 디자인으로 리디자인
+
+
+---
+
+## ASC / MC / Whole Sign Houses
+
+구현 완료:
+
+- [x] local apparent sidereal time 기반 RAMC
+- [x] ASC 계산
+- [x] MC 계산
+- [x] DSC / IC 계산
+- [x] Whole Sign 12 Houses
+- [x] 주요 행성별 house 배정
+- [x] Detailed Result에 각도/하우스 노출
+
+현재 house system은 Whole Sign으로 고정.
+다음 단계에서 필요하면 Placidus 선택지를 추가한다.
+
+남은 작업:
+- 기준 차트와 수치 교차검증
+- tests 추가
+- detailed 저장 지원
+- 새 Stitch 시안 반영
