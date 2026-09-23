@@ -21,7 +21,7 @@ Prism의 현재 개발 상태를 추적합니다.
 - [x] 1차 UI 피드백 반영 (desktop scale / ambient canvas)
 - [ ] 2차 UI 시각 검증
 - [x] Local Technical Spike 코드 작성
-- [ ] Spec 작성
+- [x] Google Login / Analysis Result Storage Spec 작성
 - [ ] 실제 엔진 기능 구현
 - [ ] Test / Validation
 - [ ] Deploy
@@ -78,6 +78,8 @@ Prism의 현재 개발 상태를 추적합니다.
 - [ ] `008-detailed-input.md`
 - [ ] `009-detailed-analysis.md`
 - [ ] `010-ai-question.md`
+- [x] `011-google-login.md`
+- [x] `012-analysis-result-storage.md`
 
 
 ---
@@ -106,3 +108,28 @@ Prism의 현재 개발 상태를 추적합니다.
 - [ ] GEMINI_API_KEY 설정 후 generatedBy=gemini 확인
 
 로컬 실행 검증 전에는 해당 항목을 PASS로 간주하지 않는다.
+
+
+---
+
+## Supabase / Google OAuth Verification
+
+Supabase live project 확인:
+
+- Project: Prism
+- Project status: ACTIVE_HEALTHY
+- Region: ap-northeast-1
+- Project API URL: 확인 완료
+- Publishable key: 활성 상태
+- public schema tables: 0
+- auth users: 0
+- Google identities: 0
+
+판정:
+
+- Supabase 프로젝트 자체는 정상 연결 준비 상태
+- DB 저장 테이블은 아직 생성되지 않음
+- 실제 Google OAuth 성공 여부는 아직 미검증
+- 현재 사용 가능한 관리 도구에서는 Google Provider의 enabled/client 설정을 직접 조회할 수 없어 Google Cloud ↔ Supabase Provider 설정 완료 여부를 확정하지 않음
+
+구현 및 실제 Google 로그인 1회 성공 후 auth.users / auth.identities로 재검증한다.
