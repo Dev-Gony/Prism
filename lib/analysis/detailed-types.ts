@@ -74,6 +74,9 @@ export type DetailedAnalysisResponse = {
     date: string;
     time: string;
     birthplaceId: string;
+    calendarType?: "solar" | "lunar";
+    originalDate?: string;
+    isLeapMonth?: boolean;
   };
   engines: {
     saju: DetailedSajuResult;
