@@ -60,6 +60,8 @@ export default function Home() {
   const [year, setYear] = useState("1998");
   const [month, setMonth] = useState("05");
   const [day, setDay] = useState("12");
+  const [calendarType, setCalendarType] = useState<"solar" | "lunar">("solar");
+  const [isLeapMonth, setIsLeapMonth] = useState(false);
   const [error, setError] = useState("");
   const [loadingIndex, setLoadingIndex] = useState(0);
   const [analysis, setAnalysis] = useState<QuickAnalysisResponse | null>(null);
@@ -131,11 +133,14 @@ export default function Home() {
         }
 
         pendingHandled = true;
-        const [pendingYear, pendingMonth, pendingDay] =
-          pending.analysis.input.date.split("-");
+        const sourceDate =
+          pending.analysis.input.originalDate ?? pending.analysis.input.date;
+        const [pendingYear, pendingMonth, pendingDay] = sourceDate.split("-");
         setYear(pendingYear);
         setMonth(pendingMonth);
         setDay(pendingDay);
+        setCalendarType(pending.analysis.input.calendarType ?? "solar");
+        setIsLeapMonth(Boolean(pending.analysis.input.isLeapMonth));
         setPhase("result");
 
         const isDetailedPending =
@@ -480,6 +485,8 @@ export default function Home() {
           date: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
           time: birthTime,
           birthplaceId,
+          calendarType,
+          isLeapMonth,
         }),
       });
 
@@ -548,6 +555,8 @@ export default function Home() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           date: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
+          calendarType,
+          isLeapMonth,
         }),
       });
 
@@ -743,7 +752,7 @@ export default function Home() {
           <article className="report-stream">
             <section className="report-intro">
               <div className="report-meta-line">
-                <span>{birthDate} · 나의 Prism Report</span>
+                <span>{birthDate} · {calendarType === "lunar" ? "음력 입력" : "양력 입력"} · 나의 Prism Report</span>
                 <span className={`narrative-badge ${analysis.narrative.generatedBy}`}>
                   {generatedLabel}
                 </span>
@@ -1058,11 +1067,26 @@ export default function Home() {
         <div className="input-card-head">
           <div>
             <h2>생년월일 입력</h2>
-            <p>정확한 교차 분석을 위한 기본 정보입니다.</p>
+            <p>{calendarType === "solar" ? "양력" : "음력"} 생년월일 기준으로 분석합니다.</p>
           </div>
-          <div className="calendar-toggle">
-            <b>양력</b>
-            <span>음력</span>
+          <div className="calendar-toggle" role="group" aria-label="달력 기준">
+            <button
+              type="button"
+              className={calendarType === "solar" ? "active" : ""}
+              onClick={() => {
+                setCalendarType("solar");
+                setIsLeapMonth(false);
+              }}
+            >
+              양력
+            </button>
+            <button
+              type="button"
+              className={calendarType === "lunar" ? "active" : ""}
+              onClick={() => setCalendarType("lunar")}
+            >
+              음력
+            </button>
           </div>
         </div>
 
@@ -1090,6 +1114,20 @@ export default function Home() {
           />
         </div>
 
+        {calendarType === "lunar" && (
+          <div className="lunar-options">
+            <label>
+              <input
+                type="checkbox"
+                checked={isLeapMonth}
+                onChange={(event) => setIsLeapMonth(event.target.checked)}
+              />
+              <span>윤달로 입력</span>
+            </label>
+            <small>음력 생년월일은 분석 전에 양력 날짜로 변환해 계산합니다.</small>
+          </div>
+        )}
+
         <div className="preset-row">
           <span>예시 선택:</span>
           {presetDates.map((preset) => (
@@ -1100,6 +1138,8 @@ export default function Home() {
                 setYear(preset.y);
                 setMonth(preset.m);
                 setDay(preset.d);
+                setCalendarType("solar");
+                setIsLeapMonth(false);
                 setError("");
               }}
             >
