@@ -104,7 +104,12 @@ export type AnalysisNarrative = {
 };
 
 export type QuickAnalysisResponse = {
-  input: { date: string };
+  input: {
+    date: string;
+    calendarType?: "solar" | "lunar";
+    originalDate?: string;
+    isLeapMonth?: boolean;
+  };
   engines: {
     saju: SajuQuickResult;
     astrology: AstrologyQuickResult;
