@@ -47,7 +47,7 @@ Quick Reading에서 생년월일 하나만으로 실제 계산 가능한 최소 
 
 ### Gemini
 - Server-only GEMINI_API_KEY
-- 기본 모델: gemini-3.8-flash
+- 기본 모델: gemini-3.5-flash
 - 계산된 데이터만 전달
 - JSON 응답을 해석 레이어로 사용
 - 키가 없거나 호출 실패 시 deterministic fallback narrative 사용
