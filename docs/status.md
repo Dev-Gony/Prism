@@ -220,3 +220,25 @@ Supabase live project 확인:
 1. Gemini fallback 원인 수정 및 `generatedBy=gemini` 검증
 2. `/my/results` 도감 UI 재설계
 3. Detailed Reading Spec/입력 화면 구현 시작
+
+
+---
+
+## Gemini / Library Follow-up
+
+- [x] Gemini structured output을 current Interactions API로 전환
+- [x] JSON schema 강제
+- [x] fallback reason server log 추가
+- [x] 개발 전용 `/api/health/gemini` probe 추가
+- [x] `/my/results` Prism 도감 UI 재설계
+- [x] 저장 결과 상세 화면 재설계
+
+로컬 확인 필요:
+
+1. `/api/health/gemini` → `ok: true`
+2. 새 Quick Reading → Result 상단 `Gemini 해석`
+3. 새 결과 저장 → `/my/results`에서 Gemini badge 확인
+4. `npm run check`
+5. `npm run build`
+
+기존 Fallback 저장 row는 immutable snapshot이므로 자동 변경하지 않는다.
