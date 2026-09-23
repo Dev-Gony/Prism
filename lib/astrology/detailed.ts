@@ -10,6 +10,10 @@ import type {
   DetailedAstrologyResult,
 } from "@/lib/analysis/detailed-types";
 import type { Birthplace } from "@/lib/analysis/birthplaces";
+import {
+  calculateWholeSignHouses,
+  houseForLongitude,
+} from "@/lib/astrology/houses";
 
 const SIGNS = [
   "양자리",
@@ -80,6 +84,12 @@ export function calculateAstrologyDetailed(
     Date.UTC(year, month - 1, day, hour - 9, minute, 0),
   );
 
+  const chart = calculateWholeSignHouses(
+    instant,
+    birthplace.latitude,
+    birthplace.longitude,
+  );
+
   const bodies = (
     ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"] as const
   ).map((body) => {
@@ -91,6 +101,7 @@ export function calculateAstrologyDetailed(
       longitude: Number(value.toFixed(4)),
       sign: sign.sign,
       element: sign.element,
+      house: houseForLongitude(value, chart.ascendant.longitude),
     };
   });
 
@@ -106,12 +117,14 @@ export function calculateAstrologyDetailed(
     sunSign: sun.sign,
     moonSign: moon.sign,
     sunElement: sun.element,
+    houseSystem: chart.system,
+    ascendant: chart.ascendant,
+    midheaven: chart.midheaven,
+    descendant: chart.descendant,
+    imumCoeli: chart.imumCoeli,
+    houses: chart.houses,
     method:
-      "Astronomy Engine · 출생시각 KST→UTC 변환 · Sun/Moon/Mercury/Venus/Mars/Jupiter/Saturn ecliptic longitude",
-    pending: [
-      "ASC 계산",
-      "MC 계산",
-      "House system 확정 및 12 Houses 계산",
-    ],
+      "Astronomy Engine · 출생시각 KST→UTC 변환 · Sun/Moon/Mercury/Venus/Mars/Jupiter/Saturn ecliptic longitude · ASC/MC · Whole Sign 12 Houses",
+    pending: [],
   };
 }
