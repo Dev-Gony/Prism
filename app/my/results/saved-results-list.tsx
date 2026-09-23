@@ -80,7 +80,12 @@ export default function SavedResultsList({
           {results.map((item, index) => (
             <article className="library-card" key={item.id}>
               <div className="library-card-top">
-                <span className="volume-number">VOL. {String(index + 1).padStart(2, "0")}</span>
+                <div className="library-card-kickers">
+                  <span className="volume-number">VOL. {String(index + 1).padStart(2, "0")}</span>
+                  <span className={`analysis-type-badge ${item.analysisType}`}>
+                    {item.analysisType === "detailed" ? "Detailed" : "Quick"}
+                  </span>
+                </div>
                 <span className={`source-badge ${item.narrativeSource === "gemini" ? "gemini" : "fallback"}`}>
                   {item.narrativeSource === "gemini" ? "✨ Gemini" : "🫧 Fallback"}
                 </span>
