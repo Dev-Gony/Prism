@@ -1,7 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import type { QuickAnalysisResponse } from "@/lib/analysis/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -26,11 +28,80 @@ export default function Home() {
   const [error, setError] = useState("");
   const [loadingIndex, setLoadingIndex] = useState(0);
   const [analysis, setAnalysis] = useState<QuickAnalysisResponse | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [authPromptOpen, setAuthPromptOpen] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveMessage, setSaveMessage] = useState("");
 
   const birthday = useMemo(
     () => `${year || "----"}.${month.padStart(2, "0") || "--"}.${day.padStart(2, "0") || "--"}`,
     [year, month, day],
   );
+
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    let active = true;
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (!active) return;
+      setUser(data.user ?? null);
+
+      if (!data.user) return;
+
+      const pendingRaw = window.sessionStorage.getItem("prism.pending-analysis.v1");
+      if (!pendingRaw) return;
+
+      try {
+        const pending = JSON.parse(pendingRaw) as {
+          createdAt: number;
+          analysis: QuickAnalysisResponse;
+        };
+
+        if (
+          !pending?.analysis ||
+          typeof pending.createdAt !== "number" ||
+          Date.now() - pending.createdAt > 30 * 60 * 1000
+        ) {
+          window.sessionStorage.removeItem("prism.pending-analysis.v1");
+          return;
+        }
+
+        setAnalysis(pending.analysis);
+        const [pendingYear, pendingMonth, pendingDay] = pending.analysis.input.date.split("-");
+        setYear(pendingYear);
+        setMonth(pendingMonth);
+        setDay(pendingDay);
+        setPhase("result");
+
+        saveAnalysisToServer(pending.analysis)
+          .then(() => {
+            window.sessionStorage.removeItem("prism.pending-analysis.v1");
+            setSaveStatus("saved");
+            setSaveMessage("내 프리즘 도감에 저장했어요 ✨");
+          })
+          .catch((pendingError) => {
+            setSaveStatus("error");
+            setSaveMessage(
+              pendingError instanceof Error
+                ? pendingError.message
+                : "저장하지 못했어요.",
+            );
+          });
+      } catch {
+        window.sessionStorage.removeItem("prism.pending-analysis.v1");
+      }
+    });
+
+    const { data: authSubscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) setUser(session?.user ?? null);
+    });
+
+    return () => {
+      active = false;
+      authSubscription.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     if (phase !== "loading") return;
@@ -42,6 +113,88 @@ export default function Home() {
     ];
     return () => timers.forEach(window.clearTimeout);
   }, [phase]);
+
+
+  async function saveAnalysisToServer(result: QuickAnalysisResponse) {
+    const response = await fetch("/api/results", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ analysis: result }),
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "분석 결과를 저장하지 못했어요.");
+    }
+
+    return payload as { id: string; saved: true };
+  }
+
+  async function saveCurrentAnalysis() {
+    if (!analysis) return;
+
+    setSaveMessage("");
+
+    if (!user) {
+      window.sessionStorage.setItem(
+        "prism.pending-analysis.v1",
+        JSON.stringify({
+          createdAt: Date.now(),
+          analysis,
+        }),
+      );
+      setAuthPromptOpen(true);
+      return;
+    }
+
+    try {
+      setSaveStatus("saving");
+      await saveAnalysisToServer(analysis);
+      setSaveStatus("saved");
+      setSaveMessage("내 프리즘 도감에 저장했어요 ✨");
+    } catch (saveError) {
+      setSaveStatus("error");
+      setSaveMessage(
+        saveError instanceof Error
+          ? saveError.message
+          : "분석 결과를 저장하지 못했어요.",
+      );
+    }
+  }
+
+  async function startGoogleLogin() {
+    if (!analysis) return;
+
+    window.sessionStorage.setItem(
+      "prism.pending-analysis.v1",
+      JSON.stringify({
+        createdAt: Date.now(),
+        analysis,
+      }),
+    );
+
+    const supabase = createSupabaseBrowserClient();
+    const { error: signInError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=/`,
+      },
+    });
+
+    if (signInError) {
+      setAuthPromptOpen(false);
+      setSaveStatus("error");
+      setSaveMessage("Google 로그인을 시작하지 못했어요.");
+    }
+  }
+
+  async function signOut() {
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    setUser(null);
+    setSaveStatus("idle");
+    setSaveMessage("로그아웃했어요.");
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -154,7 +307,16 @@ export default function Home() {
       <Shell>
         <header className="result-top">
           <div className="brand-line"><span className="round-icon peach">✦</span><strong>Prism ✦</strong><span className="tiny-pill lavender">나 알아보기 ✨</span></div>
-          <button className="profile-btn" aria-label="프로필">👤</button>
+          <button
+            className="profile-btn"
+            aria-label={user ? "로그아웃" : "로그인 상태"}
+            title={user ? "로그아웃" : "로그인 전"}
+            onClick={user ? signOut : undefined}
+          >
+            {user?.user_metadata?.avatar_url ? (
+              <img src={String(user.user_metadata.avatar_url)} alt="" />
+            ) : user ? "✓" : "👤"}
+          </button>
         </header>
 
         <section className="result-hero">
@@ -239,8 +401,39 @@ export default function Home() {
 
         <div className="prototype-actions">
           <button className="bubble-btn" onClick={() => setPhase("landing")}>← 처음으로</button>
-          <button className="dark-btn" onClick={() => alert("저장 기능은 로그인 Spec 이후 구현합니다.")}>도감 저장하기</button>
+          <button
+            className="dark-btn"
+            onClick={saveCurrentAnalysis}
+            disabled={saveStatus === "saving"}
+          >
+            {saveStatus === "saving"
+              ? "저장 중..."
+              : saveStatus === "saved"
+                ? "저장 완료 ✓"
+                : "도감 저장하기"}
+          </button>
         </div>
+        {saveMessage && (
+          <p className={`save-message ${saveStatus}`}>{saveMessage}</p>
+        )}
+
+        {authPromptOpen && (
+          <div className="auth-sheet-backdrop" role="presentation" onClick={() => setAuthPromptOpen(false)}>
+            <section className="auth-sheet toy-card" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={(event) => event.stopPropagation()}>
+              <span className="round-icon peach">🔐</span>
+              <h2 id="auth-title">이 결과를 계속 보관할까요?</h2>
+              <p>Google로 로그인하면 지금 보고 있는 분석을 그대로 내 프리즘 도감에 저장해요.</p>
+              <button className="google-login-btn" type="button" onClick={startGoogleLogin}>
+                <span>G</span>
+                Google로 계속하기
+              </button>
+              <button className="auth-later-btn" type="button" onClick={() => setAuthPromptOpen(false)}>
+                나중에 할게요
+              </button>
+            </section>
+          </div>
+        )}
+
         <section className="engine-proof">
           <strong>이번 Quick Reading에서 실제 계산된 값</strong>
           <div className="engine-proof-grid">
