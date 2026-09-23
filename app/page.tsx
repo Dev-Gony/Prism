@@ -585,7 +585,7 @@ export default function Home() {
           <article className="report-stream">
             <section className="report-intro">
               <div className="report-meta-line">
-                <span>1998.05.12 · 나의 Prism Report</span>
+                <span>{birthDate} · 나의 Prism Report</span>
                 <span className={`narrative-badge ${analysis.narrative.generatedBy}`}>
                   {generatedLabel}
                 </span>
@@ -703,7 +703,7 @@ export default function Home() {
                   title="점성학 (Astrology)"
                   subtitle="Stella · 서양 점성"
                   quote={`“태양 ${analysis.engines.astrology.sunSign}.”`}
-                  detail={analysis.engines.astrology.planets.map((planet) => `${planet.body} ${planet.sign}`).join(" · ")}
+                  detail={analysis.engines.astrology.bodies.map((planet) => `${planet.body} ${planet.sign}`).join(" · ")}
                 />
                 <LensCard
                   tone="numero"
