@@ -4770,3 +4770,252 @@ body{
     padding:9px 8px;
   }
 }
+
+
+/* Account menu + Quick/Detailed comparison */
+.landing-account-row{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:18px;
+}
+
+.user-account-menu{
+  position:relative;
+}
+
+.user-account-menu summary{
+  list-style:none;
+}
+
+.user-account-menu summary::-webkit-details-marker{
+  display:none;
+}
+
+.user-account-menu[open] .report-profile{
+  box-shadow:0 0 0 3px rgba(146,70,44,.12);
+}
+
+.user-account-popover{
+  position:absolute;
+  top:46px;
+  right:0;
+  z-index:80;
+  width:220px;
+  padding:12px;
+  border:1px solid var(--editorial-line);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 16px 40px rgba(36,32,30,.14);
+}
+
+.user-account-copy{
+  padding:4px 4px 10px;
+  border-bottom:1px solid #eee8e4;
+}
+
+.user-account-copy strong{
+  display:block;
+  color:var(--editorial-text);
+  font-size:11px;
+}
+
+.user-account-copy small{
+  display:block;
+  margin-top:3px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#8b7d77;
+  font-size:9px;
+}
+
+.user-account-popover a,
+.user-account-popover button{
+  width:100%;
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  margin-top:4px;
+  padding:0 8px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:#5f534f;
+  text-align:left;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.user-account-popover a:hover,
+.user-account-popover button:hover{
+  background:#f5f0ed;
+}
+
+.user-account-popover button{
+  color:#9b4f38;
+}
+
+.quick-detailed-compare{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid rgba(116,106,102,.16);
+  border-radius:14px;
+  background:#fff;
+}
+
+.compare-heading{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.compare-heading small{
+  color:var(--editorial-primary);
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+
+.compare-heading h3{
+  margin:4px 0 0;
+  font-family:"Noto Serif KR",serif;
+  font-size:17px;
+  line-height:1.45;
+  font-weight:500;
+}
+
+.compare-heading>span{
+  color:#8d7f79;
+  font-size:8px;
+}
+
+.compare-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:14px;
+}
+
+.compare-grid article{
+  padding:12px;
+  border-radius:10px;
+  background:#f7f3f0;
+}
+
+.compare-grid article:nth-child(1){border-top:2px solid var(--editorial-primary)}
+.compare-grid article:nth-child(2){border-top:2px solid var(--editorial-secondary)}
+.compare-grid article:nth-child(3){border-top:2px solid var(--editorial-tertiary)}
+
+.compare-grid small{
+  color:#8d7f79;
+  font-size:8px;
+  font-weight:700;
+}
+
+.compare-grid strong{
+  display:block;
+  margin-top:4px;
+  color:#2f2926;
+  font-size:11px;
+}
+
+.compare-grid p{
+  margin:6px 0 0;
+  color:#746a66;
+  font-size:9px;
+  line-height:1.6;
+}
+
+.agreement-delta-list{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid #eee8e4;
+}
+
+.agreement-delta-head,
+.agreement-delta-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.agreement-delta-head strong{
+  font-size:10px;
+}
+
+.agreement-delta-head small{
+  color:#938680;
+  font-size:8px;
+}
+
+.agreement-delta-row{
+  padding:8px 0;
+  border-bottom:1px solid #f1ece9;
+}
+
+.agreement-delta-row:last-child{
+  border-bottom:0;
+}
+
+.agreement-delta-row>span{
+  color:#5f534f;
+  font-size:10px;
+  font-weight:600;
+}
+
+.agreement-delta-values{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#8c7f79;
+  font-size:8px;
+}
+
+.agreement-delta-values strong{
+  color:#332d2a;
+  font-size:9px;
+}
+
+.agreement-delta-values em{
+  min-width:32px;
+  padding:3px 5px;
+  border-radius:999px;
+  text-align:center;
+  font-style:normal;
+  font-size:8px;
+  font-weight:700;
+}
+
+.agreement-delta-values em.up{
+  background:#e3efea;
+  color:#487563;
+}
+
+.agreement-delta-values em.down{
+  background:#f4e3dc;
+  color:#9a563f;
+}
+
+.agreement-delta-values em.same{
+  background:#f1ebe7;
+  color:#766963;
+}
+
+@media (max-width:700px){
+  .compare-heading{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .compare-grid{
+    grid-template-columns:1fr;
+  }
+
+  .user-account-popover{
+    width:min(220px,calc(100vw - 36px));
+  }
+}
