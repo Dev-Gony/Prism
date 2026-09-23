@@ -359,3 +359,27 @@ Local visual/build validation still required after `git pull`.
 2. Quick ↔ Detailed 차이 비교 섹션 구현
 3. Detailed 전용 Gemini narrative 생성
 4. `npm run check` / `npm run build` 로컬 검증
+
+
+---
+
+## Account / Comparison Follow-up
+
+구현 완료:
+
+- [x] 메인/결과 화면 사용자 계정 메뉴 추가
+- [x] 계정 메뉴에서 내 프리즘 도감 진입
+- [x] Supabase signOut 기반 로그아웃
+- [x] 로그아웃 시 pending analysis / 저장 상태 초기화
+- [x] Quick ↔ Detailed 비교 섹션 추가
+- [x] 시주 추가 여부 설명
+- [x] ASC / Moon / MC 추가 정보 설명
+- [x] Life Path 불변 설명
+- [x] Quick 대비 Detailed 교차 합의도 변화 표시
+
+다음 우선순위:
+
+1. Detailed 전용 Gemini narrative
+2. ASC / MC / House 기준값 테스트
+3. Production 회귀 테스트
+4. 모바일 UI 최종 점검
