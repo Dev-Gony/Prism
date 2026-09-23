@@ -242,3 +242,12 @@ Supabase live project 확인:
 5. `npm run build`
 
 기존 Fallback 저장 row는 immutable snapshot이므로 자동 변경하지 않는다.
+
+
+---
+
+## Gemini Model Change
+
+- [x] Default Gemini model changed to `gemini-3.5-flash`
+- Reason: lower-tier usage testing and user preference
+- Local `.env.local` must also use `GEMINI_MODEL=gemini-3.5-flash`
