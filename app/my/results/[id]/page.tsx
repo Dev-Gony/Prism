@@ -1,5 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
+import SavedDetailedQuestionPanel from "./saved-detailed-question-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +88,21 @@ export default async function SavedResultDetailPage({
   const summary = text(narrative.summary, "요약이 없어요.");
   const lifePath = number(numerology.lifePath, 0);
   const savedAt = new Date(String(data.created_at));
+
+  const detailedAnalysisSnapshot = isDetailed
+    ? ({
+        input: data.input_snapshot,
+        engines: {
+          saju: data.saju_result,
+          astrology: data.astrology_result,
+          numerology: data.numerology_result,
+        },
+        normalized: data.normalized_traits,
+        cross: data.cross_analysis,
+        narrative: data.narrative,
+        warnings: data.warnings,
+      } as DetailedAnalysisResponse)
+    : null;
 
   return (
     <main className="archive-report-page">
@@ -342,6 +359,13 @@ export default async function SavedResultDetailPage({
           ))}
         </ol>
       </section>
+
+      {detailedAnalysisSnapshot && (
+        <SavedDetailedQuestionPanel
+          reportId={String(data.id)}
+          analysis={detailedAnalysisSnapshot}
+        />
+      )}
 
       <details className="archive-evidence">
         <summary>계산 근거 원본 JSON 보기</summary>
