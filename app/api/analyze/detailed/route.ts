@@ -12,13 +12,17 @@ import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 
 export const runtime = "nodejs";
 
-function parseTime(raw: unknown) {
+function parseTime(raw: unknown, timeKnown: unknown) {
+  if (timeKnown === false || raw === null || raw === "") {
+    return { time: null, hour: null, minute: null, timeKnown: false };
+  }
+
   if (typeof raw !== "string" || !/^([01]\d|2[0-3]):[0-5]\d$/.test(raw)) {
     throw new AnalysisInputError("태어난 시간을 HH:MM 형식으로 입력해 주세요.");
   }
 
   const [hour, minute] = raw.split(":").map(Number);
-  return { time: raw, hour, minute };
+  return { time: raw, hour, minute, timeKnown: true };
 }
 
 export async function POST(request: Request) {
@@ -29,6 +33,7 @@ export async function POST(request: Request) {
       birthplaceId?: unknown;
       calendarType?: unknown;
       isLeapMonth?: unknown;
+      timeKnown?: unknown;
     };
 
     const input = normalizeBirthInput(
@@ -36,7 +41,7 @@ export async function POST(request: Request) {
       body.calendarType,
       body.isLeapMonth,
     );
-    const time = parseTime(body.time);
+    const time = parseTime(body.time, body.timeKnown);
 
     if (typeof body.birthplaceId !== "string") {
       throw new AnalysisInputError("태어난 지역을 선택해 주세요.");
@@ -73,6 +78,7 @@ export async function POST(request: Request) {
       input: {
         date: input.date,
         time: time.time,
+        timeKnown: time.timeKnown,
         birthplaceId: birthplace.id,
         calendarType: input.calendarType,
         originalDate: input.originalDate,
@@ -88,7 +94,9 @@ export async function POST(request: Request) {
       narrative,
       warnings: [
         "Detailed v1은 대한민국 주요 도시 출생지를 우선 지원합니다.",
-        "ASC·MC·12 Houses는 출생시간과 출생지역을 기준으로 계산합니다.",
+        time.timeKnown
+          ? "ASC·MC·12 Houses는 출생시간과 출생지역을 기준으로 계산합니다."
+          : "출생시간 미상으로 시주, Moon, ASC, MC, 12 Houses는 계산에서 제외했습니다.",
         "사주 계산은 진태양시 보정을 아직 적용하지 않습니다.",
         "해석은 전통적·문화적 자기탐색을 위한 참고 정보입니다.",
       ],
