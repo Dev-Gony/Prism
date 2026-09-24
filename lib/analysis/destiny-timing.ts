@@ -102,14 +102,18 @@ export function buildDestinyTiming(
 
   const strongestTransit = astrology.transits.aspects[0];
   if (strongestTransit) {
+    const transitBody = astrology.transits.bodies.find(
+      (body) => body.body === strongestTransit.transitBody,
+    );
+
     signals.push({
       source: "astrology",
       theme: astrologyTheme(strongestTransit.transitBody),
-      title: `${strongestTransit.transitBody} transit · ${strongestTransit.type}`,
+      title: `${strongestTransit.transitBody} transit · ${strongestTransit.type} · ${strongestTransit.phase}`,
       evidence: [
         `기준일 ${astrology.transits.asOfDate}`,
         `${strongestTransit.transitBody} → natal ${strongestTransit.natalPoint}`,
-        `orb ${strongestTransit.orb.toFixed(2)}° · ${strongestTransit.phase}`,
+        `orb ${strongestTransit.orb.toFixed(2)}° · ${strongestTransit.phase} · ${transitBody?.motion ?? "motion unavailable"}`,
       ],
     });
   } else {
@@ -123,6 +127,7 @@ export function buildDestinyTiming(
         title: `Jupiter transit · ${jupiter.sign}`,
         evidence: [
           `기준일 ${astrology.transits.asOfDate}`,
+          `${jupiter.motion} · ${jupiter.speedDegPerDay.toFixed(3)}°/day`,
           "주요 natal point와 허용 orb 내 major aspect 없음",
         ],
       });
