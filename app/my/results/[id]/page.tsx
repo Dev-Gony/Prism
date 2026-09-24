@@ -4,6 +4,7 @@ import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 import SavedDetailedQuestionPanel from "./saved-detailed-question-panel";
 import UpgradeDetailedLink from "./upgrade-detailed-link";
 import ShareReportCard from "./share-report-card";
+import ResultFeedback from "@/app/result-feedback";
 
 export const dynamic = "force-dynamic";
 
@@ -416,6 +417,11 @@ export default async function SavedResultDetailPage({
           analysis={detailedAnalysisSnapshot}
         />
       )}
+
+      <ResultFeedback
+        analysisType={isDetailed ? "detailed" : "quick"}
+        reportId={String(data.id)}
+      />
 
       <ShareReportCard
         birthDate={String(data.birth_date)}
