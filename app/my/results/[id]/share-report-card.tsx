@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics/client";
 
 type ShareCardProps = {
   birthDate: string;
@@ -205,6 +206,7 @@ export default function ShareReportCard({
           text: "여러 관점으로 본 나의 Prism Report",
           files: [file],
         });
+        void trackEvent("share_card_created", { method: "native-share" }, analysisType);
         setStatus("shared");
         setMessage("공유 카드를 열었어요.");
         return;
@@ -217,6 +219,7 @@ export default function ShareReportCard({
       anchor.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 
+      void trackEvent("share_card_created", { method: "download" }, analysisType);
       setStatus("saved");
       setMessage("공유 이미지를 저장했어요.");
     } catch (error) {
