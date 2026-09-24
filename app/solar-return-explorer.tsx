@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { trackEvent } from "@/lib/analytics/client";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 import { BIRTHPLACES } from "@/lib/analysis/birthplaces";
 import type { SolarReturnSnapshot } from "@/lib/astrology/solar-return";
@@ -25,7 +26,7 @@ export default function SolarReturnExplorer({
     try {
       return new Intl.DateTimeFormat("ko-KR", {
         timeZone:
-          snapshot.returnPlace?.timezone ||
+          snapshot.location?.timezone ||
           analysis.engines.astrology.birthplace.timezone ||
           "Asia/Seoul",
         year: "numeric",
@@ -61,6 +62,15 @@ export default function SolarReturnExplorer({
         throw new Error(payload.error || "Solar Return을 계산하지 못했어요.");
       }
 
+      void trackEvent(
+        "solar_return_calculated",
+        {
+          year: nextYear,
+          returnPlaceId,
+          hasLocation: Boolean(returnPlaceId),
+        },
+        "detailed",
+      );
       setYear(nextYear);
       setSnapshot(payload as SolarReturnSnapshot);
       setStatus("idle");
@@ -144,8 +154,8 @@ export default function SolarReturnExplorer({
               <small>EXACT RETURN</small>
               <strong>{localExactTime}</strong>
               <span>
-                {snapshot.returnPlace
-                  ? `${snapshot.returnPlace.label} · ${snapshot.returnPlace.timezone}`
+                {snapshot.location
+                  ? `${snapshot.location.label} · ${snapshot.location.timezone}`
                   : analysis.engines.astrology.birthplace.timezone}
               </span>
             </div>
@@ -160,22 +170,22 @@ export default function SolarReturnExplorer({
             </div>
           </div>
 
-          {snapshot.ascendant && snapshot.midheaven && (
+          {snapshot.angles?.ascendant && snapshot.angles?.midheaven && (
             <div className="solar-return-angles">
               <span>
                 <small>ASC</small>
-                <strong>{snapshot.ascendant.sign.replace("자리", "")}</strong>
-                <em>{snapshot.ascendant.degreeInSign.toFixed(2)}°</em>
+                <strong>{snapshot.angles?.ascendant.sign.replace("자리", "")}</strong>
+                <em>{snapshot.angles?.ascendant.degreeInSign.toFixed(2)}°</em>
               </span>
               <span>
                 <small>MC</small>
-                <strong>{snapshot.midheaven.sign.replace("자리", "")}</strong>
-                <em>{snapshot.midheaven.degreeInSign.toFixed(2)}°</em>
+                <strong>{snapshot.angles?.midheaven.sign.replace("자리", "")}</strong>
+                <em>{snapshot.angles?.midheaven.degreeInSign.toFixed(2)}°</em>
               </span>
               <span>
                 <small>HOUSE SYSTEM</small>
                 <strong>Whole Sign</strong>
-                <em>{snapshot.returnPlace?.label ?? "-"}</em>
+                <em>{snapshot.location?.label ?? "-"}</em>
               </span>
             </div>
           )}
@@ -201,6 +211,40 @@ export default function SolarReturnExplorer({
                   <strong>{house.sign.replace("자리", "")}</strong>
                 </span>
               ))}
+            </div>
+          )}
+
+          {snapshot.aspects.length > 0 && (
+            <div className="solar-return-aspects">
+              <div>
+                <small>RETURN ASPECTS</small>
+                <strong>Solar Return 내부 주요 각</strong>
+              </div>
+              <div className="solar-return-aspect-list">
+                {snapshot.aspects.slice(0, 8).map((aspect) => (
+                  <span key={aspect.bodyA + aspect.bodyB + aspect.type}>
+                    <b>{aspect.bodyA} × {aspect.bodyB}</b>
+                    <em>{aspect.type} · orb {aspect.orb.toFixed(2)}°</em>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {snapshot.natalAspects.length > 0 && (
+            <div className="solar-return-aspects natal-overlay">
+              <div>
+                <small>RETURN ↔ NATAL</small>
+                <strong>올해 차트가 natal chart와 만나는 지점</strong>
+              </div>
+              <div className="solar-return-aspect-list">
+                {snapshot.natalAspects.slice(0, 10).map((aspect) => (
+                  <span key={aspect.returnBody + aspect.natalPoint + aspect.type}>
+                    <b>{aspect.returnBody} → natal {aspect.natalPoint}</b>
+                    <em>{aspect.type} · orb {aspect.orb.toFixed(2)}°</em>
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
