@@ -721,3 +721,27 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. Numerology 이름 기반 선택 분석
 4. 대운 규칙 결정
 5. Destiny Timeline 월/분기 단위 확대
+
+
+---
+
+## Astrology Motion / Pattern Expansion
+
+구현 완료:
+
+- [x] 행성 일일 황경 속도 계산
+- [x] direct / retrograde / stationary 상태
+- [x] Natal aspect applying / separating / exact
+- [x] 별자리 3행성 이상 Stellium 탐지
+- [x] 1 / 4 / 7 / 10 House angular planet 강조
+- [x] Detailed UI에 motion / speed / pattern 표시
+- [x] 저장 Detailed 리포트에 aspect phase 표시
+- [x] Gemini Detailed narrative 근거에 motion / pattern 추가
+
+다음 심화 후보:
+
+1. 분기/월 단위 Destiny Timeline
+2. Transit applying/separating
+3. Solar Return
+4. Numerology 이름 기반 코어 넘버
+5. 대운 규칙 결정
