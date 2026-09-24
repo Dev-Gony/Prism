@@ -1604,6 +1604,65 @@ function DetailedReport({
           ) : (
             <p className="domain-depth-empty">현재 네 기둥에서 주요 합·충·형·파·해가 잡히지 않았어요.</p>
           )}
+
+          <div className="dayun-panel">
+            <div className="dayun-panel-head">
+              <div>
+                <small>DAEUN · 大運</small>
+                <strong>10년 대운 흐름</strong>
+              </div>
+              <span>
+                {data.engines.saju.daYun.available
+                  ? `${data.engines.saju.daYun.directionLabel} · 기산 ${data.engines.saju.daYun.startDateTime?.slice(0, 10)}`
+                  : "미계산"}
+              </span>
+            </div>
+
+            {data.engines.saju.daYun.available ? (
+              <>
+                <div className="dayun-start-rule">
+                  <span>
+                    <small>기산 오프셋</small>
+                    <b>
+                      {data.engines.saju.daYun.startOffset?.years}년{" "}
+                      {data.engines.saju.daYun.startOffset?.months}개월{" "}
+                      {data.engines.saju.daYun.startOffset?.days}일{" "}
+                      {data.engines.saju.daYun.startOffset?.hours}시간
+                    </b>
+                  </span>
+                  <span>
+                    <small>순역 기준</small>
+                    <b>
+                      {data.engines.saju.daYun.gender === "male"
+                        ? "남성 기준"
+                        : "여성 기준"} · {data.engines.saju.daYun.directionLabel}
+                    </b>
+                  </span>
+                </div>
+
+                <div className="dayun-period-grid">
+                  {data.engines.saju.daYun.periods.map((period) => (
+                    <article key={period.index}>
+                      <small>
+                        {period.startYear}–{period.endYear}
+                      </small>
+                      <strong>{period.ganZhi} · {period.korean}</strong>
+                      <span>{period.stemTenGod}</span>
+                      <em>{period.startAge}–{period.endAge}세</em>
+                    </article>
+                  ))}
+                </div>
+
+                <p className="dayun-method-note">
+                  {data.engines.saju.daYun.ruleLabel} · {data.engines.saju.daYun.ageBasis}
+                </p>
+              </>
+            ) : (
+              <p className="domain-depth-empty">
+                {data.engines.saju.daYun.pendingReason}
+              </p>
+            )}
+          </div>
         </article>
 
         <article className="domain-depth-card astro">
