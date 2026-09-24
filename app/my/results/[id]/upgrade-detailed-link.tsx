@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics/client";
 
 type UpgradeInput = {
   date: string;
@@ -17,6 +18,7 @@ export default function UpgradeDetailedLink({
   const router = useRouter();
 
   function upgrade() {
+    void trackEvent("upgrade_detailed", { source: "saved-quick-report" }, "quick");
     window.sessionStorage.setItem(
       "prism.reanalysis-input.v1",
       JSON.stringify({
