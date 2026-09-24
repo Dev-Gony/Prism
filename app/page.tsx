@@ -1120,9 +1120,9 @@ export default function Home() {
         <span className="landing-kicker"><i /> 인간 본질을 비추는 세 가지 빛</span>
         <h1>여러 관점으로 나를 보다.</h1>
         <p>
-          생년월일 하나로 사주, 점성술, 수비학을 함께 살펴보고
+          사주, 점성술, 수비학을 각각 깊이 계산한 뒤
           <br className="desktop-break" />
-          세 관점이 겹치는 부분과 다르게 말하는 부분을 이해해보세요.
+          세 전문 체계가 반복해서 말하는 패턴과 서로 다른 신호를 한 장의 운명 지도로 겹쳐봅니다.
         </p>
 
         <figure className="prism-photo">
@@ -1142,21 +1142,21 @@ export default function Home() {
             mark="炎"
             title="사주"
             companion="Modi"
-            description="타고난 기질과 에너지의 흐름을 오행과 십신으로 분석합니다."
+            description="사주 원국부터 오행, 십신, 지장간, 합·충·형·파·해까지 명리 구조를 깊게 읽습니다."
           />
           <DomainIntro
             tone="astro"
             mark="✦"
             title="점성술"
             companion="Stella"
-            description="관계, 표현, 감정의 미묘한 결을 천체 배치도를 통해 짚어냅니다."
+            description="10개 주요 천체, 상승궁, 하우스, 주요 각과 차트 구조를 전문 점성 차트 수준으로 계산합니다."
           />
           <DomainIntro
             tone="numero"
             mark="№"
             title="수비학"
             companion="Pico"
-            description="삶의 방향과 반복되는 숫자 패턴 속 고유한 생애 주기 리듬을 발견합니다."
+            description="Life Path를 넘어 Birthday, Attitude, Period, Pinnacle, Challenge까지 생애 수리 구조를 봅니다."
           />
         </div>
       </section>
@@ -1261,13 +1261,13 @@ export default function Home() {
 
       <section className="landing-manifesto">
         <h2>
-          하나의 해석이 아니라,
+          세 가지 간단한 테스트가 아니라,
           <br />
-          세 가지 관점을 함께 봅니다.
+          세 개의 전문 체계를 하나로 겹칩니다.
         </h2>
         <p>
-          선형적 운명론에 갇히지 않고, 서로 다른 체계가 마주칠 때 드러나는
-          나만의 입체적 서사를 기록합니다.
+          각 체계의 원본 계산과 전문 해석은 독립적으로 보존하고,
+          마지막에만 서로 겹쳐 반복되는 패턴과 시간의 흐름을 하나의 운명 지도로 정리합니다.
         </p>
 
         <div className="prism-diagram" aria-hidden="true">
