@@ -1506,6 +1506,116 @@ function DetailedReport({
         </div>
       )}
 
+      <section className="domain-depth-grid">
+        <article className="domain-depth-card saju">
+          <div className="domain-depth-head">
+            <small>SAJU DEPTH</small>
+            <h3>십신 · 지장간 · 지지 관계</h3>
+          </div>
+
+          <div className="domain-depth-stat-list">
+            {Object.entries(data.engines.saju.tenGodSummary)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 6)
+              .map(([label, count]) => (
+                <span key={label}>
+                  <b>{label}</b>
+                  <em>{count}</em>
+                </span>
+              ))}
+          </div>
+
+          <div className="domain-depth-evidence">
+            {data.engines.saju.pillars.map((pillar) => (
+              <div key={pillar.label}>
+                <strong>{pillar.label} {pillar.text}</strong>
+                <p>
+                  천간 {pillar.stemTenGod ?? "일간"}
+                  {pillar.hiddenStems?.length
+                    ? ` · 지장간 ${pillar.hiddenStems
+                        .map((item) => `${item.korean}(${item.tenGod})`)
+                        .join(" · ")}`
+                    : ""}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {data.engines.saju.branchRelations.length > 0 ? (
+            <div className="domain-relation-row">
+              {data.engines.saju.branchRelations.map((relation, index) => (
+                <span key={relation.type + relation.branches.join("") + index}>
+                  {relation.type} · {relation.labels.join("·")}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="domain-depth-empty">현재 네 기둥에서 주요 합·충·형·파·해가 잡히지 않았어요.</p>
+          )}
+        </article>
+
+        <article className="domain-depth-card astro">
+          <div className="domain-depth-head">
+            <small>ASTROLOGY DEPTH</small>
+            <h3>10 Planets · Major Aspects</h3>
+          </div>
+
+          <div className="planet-depth-grid">
+            {data.engines.astrology.bodies.map((body) => (
+              <span key={body.body}>
+                <small>{body.body}</small>
+                <b>{body.sign.replace("자리", "")}</b>
+                <em>{body.longitude.toFixed(1)}°{body.house ? ` · ${body.house}H` : ""}</em>
+              </span>
+            ))}
+          </div>
+
+          <div className="aspect-list">
+            {data.engines.astrology.aspects.slice(0, 8).map((aspect) => (
+              <div key={`${aspect.bodyA}-${aspect.bodyB}-${aspect.type}`}>
+                <strong>{aspect.bodyA} × {aspect.bodyB}</strong>
+                <span>{aspect.type}</span>
+                <em>orb {aspect.orb.toFixed(1)}°</em>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="domain-depth-card numero">
+          <div className="domain-depth-head">
+            <small>NUMEROLOGY DEPTH</small>
+            <h3>Core Numbers · Cycles</h3>
+          </div>
+
+          <div className="numerology-core-grid">
+            <span><small>Life Path</small><b>{data.engines.numerology.lifePath}</b></span>
+            <span><small>Birthday</small><b>{data.engines.numerology.birthdayNumber}</b></span>
+            <span><small>Attitude</small><b>{data.engines.numerology.attitudeNumber}</b></span>
+          </div>
+
+          <div className="numerology-cycle-block">
+            <strong>Period Cycles</strong>
+            <p>
+              {data.engines.numerology.periodCycles.first}
+              <b>→</b>
+              {data.engines.numerology.periodCycles.second}
+              <b>→</b>
+              {data.engines.numerology.periodCycles.third}
+            </p>
+          </div>
+
+          <div className="numerology-cycle-block">
+            <strong>Pinnacles</strong>
+            <p>{data.engines.numerology.pinnacles.join(" · ")}</p>
+          </div>
+
+          <div className="numerology-cycle-block">
+            <strong>Challenges</strong>
+            <p>{data.engines.numerology.challenges.join(" · ")}</p>
+          </div>
+        </article>
+      </section>
+
       <section className="quick-detailed-compare">
         <div className="compare-heading">
           <div>
