@@ -7,6 +7,7 @@ import ShareReportCard from "./share-report-card";
 import ResultFeedback from "@/app/result-feedback";
 import DestinyTimelineExplorer from "@/app/destiny-timeline-explorer";
 import SolarReturnExplorer from "@/app/solar-return-explorer";
+import NameNumerologyExplorer from "@/app/name-numerology-explorer";
 
 export const dynamic = "force-dynamic";
 
@@ -525,6 +526,10 @@ export default async function SavedResultDetailPage({
 
       {detailedAnalysisSnapshot && (
         <SolarReturnExplorer analysis={detailedAnalysisSnapshot} />
+      )}
+
+      {detailedAnalysisSnapshot && (
+        <NameNumerologyExplorer analysis={detailedAnalysisSnapshot} />
       )}
 
       {detailedAnalysisSnapshot && (
