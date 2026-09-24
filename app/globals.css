@@ -6953,3 +6953,77 @@ body{
     gap:4px;
   }
 }
+
+
+/* Archive destiny snapshot */
+.archive-destiny-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:14px;
+}
+
+.archive-destiny-grid article{
+  min-width:0;
+  padding:12px;
+  border:1px solid var(--editorial-line);
+  border-radius:11px;
+  background:#fff;
+}
+
+.archive-destiny-grid small{
+  color:#8d807b;
+  font-size:7px;
+  font-weight:800;
+  letter-spacing:.06em;
+}
+
+.archive-destiny-grid strong{
+  display:block;
+  margin-top:5px;
+  color:#332d2a;
+  font-size:10px;
+}
+
+.archive-destiny-grid p{
+  margin:6px 0 0;
+  color:#756963;
+  font-size:8px;
+  line-height:1.6;
+}
+
+.archive-destiny-convergence{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:12px;
+}
+
+.archive-destiny-convergence span{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 9px;
+  border-radius:999px;
+  background:#f1edf6;
+  color:#655a7a;
+  font-size:8px;
+}
+
+.archive-destiny-convergence em{
+  font-style:normal;
+  font-weight:800;
+}
+
+.archive-destiny-note{
+  margin:10px 0 0;
+  color:#81756f;
+  font-size:8px;
+  line-height:1.6;
+}
+
+@media (max-width:760px){
+  .archive-destiny-grid{
+    grid-template-columns:1fr;
+  }
+}
