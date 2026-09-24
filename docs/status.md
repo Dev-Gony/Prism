@@ -548,3 +548,24 @@ Local visual/build validation still required after `git pull`.
 - [x] 기존 Quick snapshot은 수정하지 않고 새 Detailed 분석으로 생성
 
 사용자 결정에 따라 전체 Test / Validation은 기능 구현 종료 후 일괄 진행.
+
+
+---
+
+## Share / Timeline / Paired Archive
+
+구현 완료:
+
+- [x] 저장된 Quick / Detailed 리포트 공유 이미지 카드 생성
+- [x] 공유 이미지에 이메일 / 계정 정보 제외
+- [x] Web Share API 지원 환경에서는 네이티브 공유
+- [x] 미지원 환경에서는 PNG 저장 fallback
+- [x] 라이브러리 카드 / 타임라인 보기 전환
+- [x] 최신순 / 합의도 높은순 정렬
+- [x] 월 단위 타임라인 그룹
+- [x] 타임라인에서도 재분석 / Detailed 확장 / 열기 / 삭제
+- [x] 같은 생년월일의 Quick / Detailed 저장본 자동 페어링
+- [x] Quick 대비 Detailed 평균 합의도 변화 표시
+- [x] 각 페어의 Quick / Detailed 저장 리포트 바로가기
+
+사용자 결정에 따라 전체 Test / Validation은 기능 구현 종료 후 일괄 진행.
