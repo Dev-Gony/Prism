@@ -282,18 +282,42 @@ export default async function SavedResultDetailPage({
                 <span>행성</span>
                 <span>별자리</span>
                 <span>황경</span>
-                <span>House</span>
+                <span>상태</span>
               </div>
               {bodies.map((body) => (
                 <div className="archive-table-row" key={text(body.body)}>
                   <strong>{text(body.body, "-")}</strong>
                   <span>{text(body.sign, "-")}</span>
                   <span>{number(body.longitude).toFixed(1)}°</span>
-                  <span>{typeof body.house === "number" ? `${body.house}H` : "시간 필요"}</span>
+                  <span>
+                    {typeof body.house === "number" ? `${body.house}H` : "시간 필요"}
+                    {text(body.motion) ? ` · ${text(body.motion)}` : ""}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
+
+          {Array.isArray(astrology.aspects) && astrology.aspects.length > 0 && (
+            <div className="archive-astrology-patterns">
+              <div className="archive-subheading">
+                <h3>Aspect & Motion</h3>
+                <span>저장 당시 natal snapshot</span>
+              </div>
+              <div className="archive-pattern-list">
+                {arrayOfRecords(astrology.aspects).slice(0, 8).map((aspect, index) => (
+                  <span key={text(aspect.bodyA) + text(aspect.bodyB) + index}>
+                    <b>{text(aspect.bodyA)} × {text(aspect.bodyB)}</b>
+                    <small>
+                      {text(aspect.type)}
+                      {text(aspect.phase) ? ` · ${text(aspect.phase)}` : ""}
+                      {typeof aspect.orb === "number" ? ` · orb ${number(aspect.orb).toFixed(1)}°` : ""}
+                    </small>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       )}
 
