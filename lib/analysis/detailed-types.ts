@@ -108,6 +108,8 @@ export type DetailedAstrologyBody = {
     | "fall"
     | "modern-ruler"
     | "peregrine";
+  speedDegPerDay: number;
+  motion: "direct" | "retrograde" | "stationary";
   house?: number;
 };
 
@@ -117,6 +119,7 @@ export type DetailedAstrologyAspect = {
   type: "conjunction" | "opposition" | "trine" | "square" | "sextile";
   angle: number;
   orb: number;
+  phase: "applying" | "separating" | "exact";
 };
 
 export type DetailedChartAngle = {
@@ -171,6 +174,17 @@ export type DetailedAstrologyResult = {
     rulerSign: string | null;
     rulerHouse: number | null;
   }>;
+  patterns: {
+    stelliums: Array<{
+      sign: string;
+      bodies: DetailedAstrologyBody["body"][];
+    }>;
+    angularBodies: Array<{
+      body: DetailedAstrologyBody["body"];
+      house: number;
+    }>;
+    retrogrades: DetailedAstrologyBody["body"][];
+  };
   transits: {
     asOfDate: string;
     bodies: Array<{
