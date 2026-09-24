@@ -2,9 +2,29 @@
 
 import { useMemo, useState } from "react";
 import { trackEvent } from "@/lib/analytics/client";
-import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
+import type {
+  DestinyTimingSummary,
+  DetailedAnalysisResponse,
+} from "@/lib/analysis/detailed-types";
 import { BIRTHPLACES } from "@/lib/analysis/birthplaces";
 import type { SolarReturnSnapshot } from "@/lib/astrology/solar-return";
+
+function dateInTimezone(iso: string, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date(iso));
+
+  const value = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  );
+
+  return `${value.year}-${value.month}-${value.day}`;
+}
 
 export default function SolarReturnExplorer({
   analysis,
@@ -17,6 +37,8 @@ export default function SolarReturnExplorer({
     analysis.engines.astrology.birthplace.id || "seoul",
   );
   const [snapshot, setSnapshot] = useState<SolarReturnSnapshot | null>(null);
+  const [yearTiming, setYearTiming] =
+    useState<DestinyTimingSummary | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState("");
 
@@ -62,6 +84,33 @@ export default function SolarReturnExplorer({
         throw new Error(payload.error || "Solar Return을 계산하지 못했어요.");
       }
 
+      const solarSnapshot = payload as SolarReturnSnapshot;
+      const timeZone =
+        solarSnapshot.location?.timezone ||
+        analysis.engines.astrology.birthplace.timezone ||
+        "Asia/Seoul";
+      const returnDate = dateInTimezone(solarSnapshot.exactUtc, timeZone);
+
+      try {
+        const timingResponse = await fetch("/api/destiny/timeline", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            analysis,
+            targetDate: returnDate,
+          }),
+        });
+        const timingPayload = await timingResponse.json();
+
+        if (timingResponse.ok && timingPayload?.timing) {
+          setYearTiming(timingPayload.timing as DestinyTimingSummary);
+        } else {
+          setYearTiming(null);
+        }
+      } catch {
+        setYearTiming(null);
+      }
+
       void trackEvent(
         "solar_return_calculated",
         {
@@ -72,7 +121,7 @@ export default function SolarReturnExplorer({
         "detailed",
       );
       setYear(nextYear);
-      setSnapshot(payload as SolarReturnSnapshot);
+      setSnapshot(solarSnapshot);
       setStatus("idle");
     } catch (error) {
       setStatus("error");
@@ -122,6 +171,7 @@ export default function SolarReturnExplorer({
           onChange={(event) => {
             setReturnPlaceId(event.target.value);
             setSnapshot(null);
+            setYearTiming(null);
             setMessage("");
           }}
         >
@@ -245,6 +295,51 @@ export default function SolarReturnExplorer({
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {yearTiming && (
+            <div className="solar-return-year-matrix">
+              <div>
+                <small>PRISM YEAR MATRIX</small>
+                <strong>{year}년의 세 체계 동시 신호</strong>
+              </div>
+
+              <div className="solar-return-year-matrix-grid">
+                <span>
+                  <small>Solar Return</small>
+                  <b>
+                    {snapshot.natalAspects[0]
+                      ? `${snapshot.natalAspects[0].returnBody} ${snapshot.natalAspects[0].type} natal ${snapshot.natalAspects[0].natalPoint}`
+                      : "강한 natal overlay 없음"}
+                  </b>
+                </span>
+                <span>
+                  <small>Saju / Numerology / Transit</small>
+                  <b>
+                    {yearTiming.convergences[0]
+                      ? `${yearTiming.convergences[0].label} · ${yearTiming.convergences[0].strength}%`
+                      : "세 체계가 서로 다른 영역을 강조"}
+                  </b>
+                </span>
+              </div>
+
+              {yearTiming.convergences.length > 0 && (
+                <div className="solar-return-year-tags">
+                  {yearTiming.convergences.slice(0, 3).map((item) => (
+                    <span key={item.theme}>
+                      {item.label}
+                      <b>{item.strength}%</b>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <p>
+                Solar Return 차트와 같은 날짜의 세운·월운·Transit·Personal
+                Cycle을 함께 본 연간 스냅샷이에요. 한 체계의 결과만으로
+                결론을 만들지 않습니다.
+              </p>
             </div>
           )}
 
