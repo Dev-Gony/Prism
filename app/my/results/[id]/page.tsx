@@ -83,6 +83,9 @@ export default async function SavedResultDetailPage({
   const imumCoeli = record(astrology.imumCoeli);
   const birthplace = record(data.birth_place);
   const inputSnapshot = record(data.input_snapshot);
+  const destinyTiming = record(data.destiny_timing);
+  const destinySignals = arrayOfRecords(destinyTiming.signals);
+  const destinyConvergences = arrayOfRecords(destinyTiming.convergences);
   const timeKnown =
     typeof inputSnapshot.timeKnown === "boolean"
       ? Boolean(inputSnapshot.timeKnown)
@@ -135,6 +138,7 @@ export default async function SavedResultDetailPage({
         normalized: data.normalized_traits,
         cross: data.cross_analysis,
         narrative: data.narrative,
+        destinyTiming: data.destiny_timing ?? undefined,
         warnings: data.warnings,
       } as DetailedAnalysisResponse)
     : null;
@@ -340,6 +344,49 @@ export default async function SavedResultDetailPage({
           </article>
         </div>
       </section>
+
+      {isDetailed && destinySignals.length > 0 && (
+        <section className="archive-section archive-destiny-now">
+          <div className="archive-section-heading">
+            <div>
+              <small>DESTINY NOW</small>
+              <h2>현재 시점의 세 체계 흐름</h2>
+            </div>
+            <span>{text(destinyTiming.asOfDate, "-")}</span>
+          </div>
+
+          <div className="archive-destiny-grid">
+            {destinySignals.map((signal, index) => (
+              <article key={text(signal.source) + index}>
+                <small>{text(signal.source, "signal").toUpperCase()}</small>
+                <strong>{text(signal.title, "현재 흐름")}</strong>
+                <p>
+                  {(Array.isArray(signal.evidence) ? signal.evidence : [])
+                    .map(String)
+                    .slice(0, 3)
+                    .join(" · ")}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          {destinyConvergences.length > 0 && (
+            <div className="archive-destiny-convergence">
+              {destinyConvergences.map((item, index) => (
+                <span key={text(item.theme) + index}>
+                  <b>{text(item.label, text(item.theme))}</b>
+                  <em>{number(item.strength)}%</em>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <p className="archive-destiny-note">
+            현재 시점의 전통적·문화적 해석 신호를 겹쳐 본 참고 정보이며,
+            특정 사건의 발생을 예측하거나 보장하지 않습니다.
+          </p>
+        </section>
+      )}
 
       <section className="archive-section">
         <div className="archive-section-heading">
