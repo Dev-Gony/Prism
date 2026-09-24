@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 import SavedDetailedQuestionPanel from "./saved-detailed-question-panel";
 import UpgradeDetailedLink from "./upgrade-detailed-link";
+import ShareReportCard from "./share-report-card";
 
 export const dynamic = "force-dynamic";
 
@@ -87,6 +88,22 @@ export default async function SavedResultDetailPage({
       : typeof data.birth_time === "string";
 
   const summary = text(narrative.summary, "요약이 없어요.");
+  const keywordTitles = keywords
+    .map((item) => text(item.title))
+    .filter(Boolean)
+    .slice(0, 3);
+  const crossItems = Array.isArray(data.cross_analysis)
+    ? data.cross_analysis
+    : [];
+  const averageAgreement =
+    crossItems.length > 0
+      ? Math.round(
+          crossItems.reduce((sum, item) => {
+            const value = record(item).agreement;
+            return sum + (typeof value === "number" ? value : 0);
+          }, 0) / crossItems.length,
+        )
+      : 0;
   const lifePath = number(numerology.lifePath, 0);
   const savedAt = new Date(String(data.created_at));
 
@@ -399,6 +416,23 @@ export default async function SavedResultDetailPage({
           analysis={detailedAnalysisSnapshot}
         />
       )}
+
+      <ShareReportCard
+        birthDate={String(data.birth_date)}
+        analysisType={isDetailed ? "detailed" : "quick"}
+        summary={summary}
+        keywords={keywordTitles}
+        sajuLabel={
+          text(dayMaster.korean, "사주") + text(dayMaster.element)
+        }
+        astrologyLabel={
+          isDetailed && timeKnown
+            ? `ASC ${text(ascendant.sign, "-")}`
+            : text(astrology.sunSign, "점성")
+        }
+        numerologyLabel={lifePath ? `Life Path ${lifePath}` : "수비"}
+        agreement={averageAgreement}
+      />
 
       <details className="archive-evidence">
         <summary>계산 근거 원본 JSON 보기</summary>
