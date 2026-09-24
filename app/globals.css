@@ -7680,3 +7680,216 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Solar Return explorer */
+.solar-return-explorer{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid rgba(175,117,94,.16);
+  border-radius:16px;
+  background:#fcfaf8;
+}
+
+.solar-return-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.solar-return-head small{
+  color:#9b705f;
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.solar-return-head h3{
+  margin:4px 0 0;
+  font-family:"Noto Serif KR",serif;
+  font-size:19px;
+  font-weight:500;
+}
+
+.solar-return-head p{
+  max-width:620px;
+  margin:7px 0 0;
+  color:#776c67;
+  font-size:9px;
+  line-height:1.6;
+}
+
+.solar-return-year{
+  flex:none;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:4px;
+  border-radius:999px;
+  background:#f4eeea;
+}
+
+.solar-return-year button{
+  width:30px;
+  height:30px;
+  border:0;
+  border-radius:50%;
+  background:#fff;
+  color:#725648;
+  cursor:pointer;
+}
+
+.solar-return-year strong{
+  min-width:46px;
+  text-align:center;
+  color:#4d3e37;
+  font-size:9px;
+}
+
+.solar-return-open{
+  width:100%;
+  min-height:44px;
+  margin-top:14px;
+  border:1px dashed rgba(175,117,94,.34);
+  border-radius:11px;
+  background:#fff;
+  color:#785c50;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.solar-return-result{
+  margin-top:14px;
+}
+
+.solar-return-exact{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+
+.solar-return-exact>div{
+  padding:11px;
+  border-radius:11px;
+  background:#fff;
+}
+
+.solar-return-exact small,
+.solar-return-exact strong,
+.solar-return-exact span{
+  display:block;
+}
+
+.solar-return-exact small{
+  color:#9b7d70;
+  font-size:7px;
+  font-weight:800;
+}
+
+.solar-return-exact strong{
+  margin-top:4px;
+  color:#3c312c;
+  font-size:10px;
+}
+
+.solar-return-exact span{
+  margin-top:3px;
+  color:#8b7d76;
+  font-size:7px;
+}
+
+.solar-return-bodies{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:6px;
+  margin-top:8px;
+}
+
+.solar-return-bodies>span{
+  min-width:0;
+  padding:9px 7px;
+  border-radius:9px;
+  background:#fff;
+  text-align:center;
+}
+
+.solar-return-bodies small,
+.solar-return-bodies strong,
+.solar-return-bodies em{
+  display:block;
+}
+
+.solar-return-bodies small{
+  color:#9a8278;
+  font-size:7px;
+  font-weight:800;
+}
+
+.solar-return-bodies strong{
+  margin-top:3px;
+  color:#41352f;
+  font-size:9px;
+}
+
+.solar-return-bodies em{
+  margin-top:2px;
+  color:#8e7e76;
+  font-size:7px;
+  font-style:normal;
+}
+
+.solar-return-note,
+.solar-return-disclaimer{
+  margin:9px 0 0;
+  color:#81736c;
+  font-size:8px;
+  line-height:1.6;
+}
+
+.solar-return-actions{
+  display:flex;
+  gap:6px;
+  margin-top:9px;
+}
+
+.solar-return-actions button{
+  flex:1;
+  min-height:34px;
+  border:1px solid #eadfd9;
+  border-radius:999px;
+  background:#fff;
+  color:#725b50;
+  font-size:8px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.solar-return-year button:disabled,
+.solar-return-open:disabled,
+.solar-return-actions button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.solar-return-error{
+  margin:9px 0 0;
+  color:#a33d3d;
+  font-size:8px;
+  font-weight:700;
+}
+
+@media (max-width:640px){
+  .solar-return-head{
+    flex-direction:column;
+  }
+
+  .solar-return-year{
+    align-self:flex-start;
+  }
+
+  .solar-return-bodies{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
