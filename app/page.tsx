@@ -13,6 +13,7 @@ import { trackEvent } from "@/lib/analytics/client";
 import ResultFeedback from "@/app/result-feedback";
 import DestinyTimelineExplorer from "@/app/destiny-timeline-explorer";
 import SolarReturnExplorer from "@/app/solar-return-explorer";
+import NameNumerologyExplorer from "@/app/name-numerology-explorer";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -1829,6 +1830,8 @@ function DetailedReport({
       <DestinyTimelineExplorer analysis={data} />
 
       <SolarReturnExplorer analysis={data} />
+
+      <NameNumerologyExplorer analysis={data} />
 
       <section className="quick-detailed-compare">
         <div className="compare-heading">
