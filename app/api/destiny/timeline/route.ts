@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { buildDestinyTimeline } from "@/lib/analysis/destiny-timeline";
+import { buildDestinyTimeline, buildDestinyTimingAtDate } from "@/lib/analysis/destiny-timeline";
+import { parseDateParts } from "@/lib/analysis/asof";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 
 export const runtime = "nodejs";
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     analysis?: unknown;
     yearsBefore?: unknown;
     yearsAfter?: unknown;
+    targetDate?: unknown;
   };
 
   try {
@@ -59,6 +61,16 @@ export async function POST(request: Request) {
       : 5;
 
   try {
+    if (typeof body.targetDate === "string" && body.targetDate.trim()) {
+      const targetDate = body.targetDate.trim();
+      parseDateParts(targetDate);
+
+      return NextResponse.json({
+        targetDate,
+        timing: buildDestinyTimingAtDate(body.analysis, targetDate),
+      });
+    }
+
     const timeline = buildDestinyTimeline(
       body.analysis,
       yearsBefore,
