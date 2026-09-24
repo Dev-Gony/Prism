@@ -77,6 +77,18 @@ export type DetailedSajuResult = {
       natalLabel: string;
     }>;
   };
+  monthlyFlow: {
+    asOfDate: string;
+    pillar: string;
+    korean: string;
+    stemTenGod: string;
+    branchRelations: Array<{
+      type: "합" | "충" | "형" | "파" | "해";
+      natalBranch: string;
+      monthlyBranch: string;
+      natalLabel: string;
+    }>;
+  };
   branchRelations: Array<{
     type: "합" | "충" | "형" | "파" | "해";
     branches: string[];
@@ -197,6 +209,7 @@ export type DetailedAstrologyResult = {
       natalPoint: DetailedAstrologyBody["body"] | "ASC" | "MC";
       type: DetailedAstrologyAspect["type"];
       orb: number;
+      phase: "applying" | "separating" | "exact";
     }>;
   };
   method: string;
