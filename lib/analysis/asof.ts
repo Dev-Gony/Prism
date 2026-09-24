@@ -16,3 +16,39 @@ export function kstDateString(date = new Date()) {
     parts.day,
   ).padStart(2, "0")}`;
 }
+
+
+export function parseDateParts(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new Error("기준일은 YYYY-MM-DD 형식이어야 합니다.");
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+  const probe = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    probe.getUTCFullYear() !== year ||
+    probe.getUTCMonth() + 1 !== month ||
+    probe.getUTCDate() !== day
+  ) {
+    throw new Error("존재하지 않는 기준일입니다.");
+  }
+
+  return { year, month, day };
+}
+
+export function toKstNoonInstant(value: string) {
+  const { year, month, day } = parseDateParts(value);
+  return new Date(Date.UTC(year, month - 1, day, 3, 0, 0));
+}
+
+export function addYearsClamped(value: string, years: number) {
+  const { year, month, day } = parseDateParts(value);
+  const targetYear = year + years;
+  const maxDay = new Date(Date.UTC(targetYear, month, 0)).getUTCDate();
+  const nextDay = Math.min(day, maxDay);
+
+  return `${targetYear}-${String(month).padStart(2, "0")}-${String(
+    nextDay,
+  ).padStart(2, "0")}`;
+}
