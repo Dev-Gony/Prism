@@ -298,11 +298,23 @@ export function calculateAstrologyTransits(
       const match = nearestAspect(distance);
       if (!match) return;
 
+      const future = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      const futureTransit = longitude(transit.body, future);
+      const futureDistance = angularDistance(futureTransit, natal.longitude);
+      const futureOrb = Math.abs(futureDistance - match.angle);
+      const phase =
+        match.orbDistance <= 0.1
+          ? "exact"
+          : futureOrb < match.orbDistance
+            ? "applying"
+            : "separating";
+
       aspects.push({
         transitBody: transit.body,
         natalPoint: natal.point,
         type: match.type,
         orb: Number(match.orbDistance.toFixed(2)),
+        phase,
       });
     });
   });
