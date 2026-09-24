@@ -600,3 +600,40 @@ Local visual/build validation still required after `git pull`.
 2. Quick 완료 → Detailed 진입률 확인
 3. Helpful 비율을 Gemini/Fallback, Quick/Detailed로 나눠 비교
 4. 데이터 기반으로 첫 UI/카피 실험 진행
+
+
+---
+
+## Expert Engine Depth Expansion
+
+제품 방향 재정의:
+
+Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
+**각 체계를 단일 전문 서비스 수준으로 깊게 계산한 뒤 마지막에 교차 분석하는 통합 운명 분석 서비스**를 목표로 한다.
+
+이번 구현:
+
+- [x] Saju: 천간 십신
+- [x] Saju: 지장간 및 지장간 십신
+- [x] Saju: 합 / 충 / 형 / 파 / 해 탐지
+- [x] Astrology: Uranus / Neptune / Pluto 추가
+- [x] Astrology: Sun~Pluto 10 Planets
+- [x] Astrology: conjunction / sextile / square / trine / opposition
+- [x] Astrology: aspect orb 계산
+- [x] Numerology: Birthday Number
+- [x] Numerology: Attitude Number
+- [x] Numerology: 3 Period Cycles
+- [x] Numerology: 4 Pinnacles
+- [x] Numerology: 4 Challenges
+- [x] Detailed UI에 각 전문 엔진의 심층 근거 노출
+- [x] `docs/DOMAIN_DEPTH_ROADMAP.md` 작성
+
+다음 심화 순서:
+
+1. 사주 월령 / 통근 / 투간 / 일간 강약
+2. Astrology modality / chart ruler / house rulers / dignity
+3. Numerology Personal Year / Month / Day
+4. 사주 대운 / 세운 설계
+5. Astrology Transit
+6. 세 체계 시간축 Cross-System Alignment
+7. 최종 "나의 운명 지도" UI
