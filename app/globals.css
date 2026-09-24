@@ -6669,3 +6669,119 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Expert engine phase 2 */
+.saju-strength-panel,
+.astrology-structure-row{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin-top:12px;
+}
+
+.astrology-structure-row{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+.saju-strength-panel>div,
+.astrology-structure-row>span{
+  padding:9px;
+  border-radius:9px;
+  background:#faf7f5;
+}
+
+.saju-strength-panel small,
+.astrology-structure-row small{
+  display:block;
+  color:#8c807b;
+  font-size:7px;
+  font-weight:800;
+}
+
+.saju-strength-panel strong,
+.astrology-structure-row b{
+  display:block;
+  margin-top:4px;
+  color:#332d2a;
+  font-size:10px;
+}
+
+.saju-strength-panel span,
+.astrology-structure-row em{
+  display:block;
+  margin-top:3px;
+  color:#8c807b;
+  font-size:8px;
+  font-style:normal;
+}
+
+.saju-strength-factors{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+
+.saju-strength-factors span{
+  padding:5px 7px;
+  border-radius:999px;
+  background:#f5ece7;
+  color:#815a4c;
+  font-size:8px;
+}
+
+.numerology-current-cycle{
+  margin-top:10px;
+  padding:10px;
+  border:1px solid rgba(91,132,114,.16);
+  border-radius:10px;
+  background:#f4f8f6;
+}
+
+.numerology-current-cycle>small{
+  color:#5b8472;
+  font-size:7px;
+  font-weight:800;
+  letter-spacing:.05em;
+}
+
+.numerology-current-cycle>div{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  margin-top:8px;
+}
+
+.numerology-current-cycle span{
+  padding:8px 6px;
+  border-radius:8px;
+  background:#fff;
+  text-align:center;
+}
+
+.numerology-current-cycle b,
+.numerology-current-cycle em{
+  display:block;
+}
+
+.numerology-current-cycle b{
+  font-family:"Noto Serif KR",serif;
+  font-size:16px;
+  font-weight:500;
+  color:#355b4c;
+}
+
+.numerology-current-cycle em{
+  margin-top:2px;
+  color:#788a82;
+  font-size:7px;
+  font-style:normal;
+}
+
+@media (max-width:640px){
+  .saju-strength-panel,
+  .astrology-structure-row{
+    grid-template-columns:1fr;
+  }
+}
