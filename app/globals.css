@@ -6785,3 +6785,171 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Current destiny map */
+.destiny-now-section{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid rgba(146,70,44,.16);
+  border-radius:16px;
+  background:linear-gradient(145deg,#fffaf7 0%,#faf8fc 52%,#f5faf7 100%);
+}
+
+.destiny-now-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.destiny-now-head small{
+  color:var(--editorial-primary);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.destiny-now-head h3{
+  margin:4px 0 0;
+  font-family:"Noto Serif KR",serif;
+  font-size:19px;
+  font-weight:500;
+}
+
+.destiny-now-head>span{
+  color:#8e817c;
+  font-size:8px;
+}
+
+.destiny-signal-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:14px;
+}
+
+.destiny-signal-grid article{
+  min-width:0;
+  padding:13px;
+  border-radius:11px;
+  background:#fff;
+}
+
+.destiny-signal-grid article.saju{border-top:3px solid var(--editorial-primary)}
+.destiny-signal-grid article.astrology{border-top:3px solid var(--editorial-secondary)}
+.destiny-signal-grid article.numerology{border-top:3px solid var(--editorial-tertiary)}
+
+.destiny-signal-grid article>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.destiny-signal-grid small{
+  color:#8b7e79;
+  font-size:7px;
+  font-weight:800;
+}
+
+.destiny-signal-grid article>div span{
+  padding:4px 6px;
+  border-radius:999px;
+  background:#f5f0ed;
+  color:#695d58;
+  font-size:7px;
+  font-weight:700;
+}
+
+.destiny-signal-grid strong{
+  display:block;
+  margin-top:8px;
+  color:#332d2a;
+  font-size:11px;
+}
+
+.destiny-signal-grid ul{
+  margin:8px 0 0;
+  padding-left:15px;
+  color:#766a65;
+  font-size:8px;
+  line-height:1.55;
+}
+
+.destiny-convergence{
+  margin-top:12px;
+  padding:12px;
+  border-radius:11px;
+  background:#fff;
+}
+
+.destiny-convergence>small{
+  color:#8c807b;
+  font-size:7px;
+  font-weight:800;
+  letter-spacing:.06em;
+}
+
+.destiny-convergence>div{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  gap:10px;
+  align-items:center;
+  padding:9px 0;
+  border-bottom:1px solid #eee8e4;
+}
+
+.destiny-convergence>div:last-child{
+  border-bottom:0;
+}
+
+.destiny-convergence span{
+  color:#413834;
+  font-size:10px;
+  font-weight:700;
+}
+
+.destiny-convergence strong{
+  color:#7a6f6a;
+  font-size:8px;
+}
+
+.destiny-convergence em{
+  min-width:38px;
+  padding:4px 6px;
+  border-radius:999px;
+  background:#ece8f5;
+  color:#655a7a;
+  text-align:center;
+  font-size:8px;
+  font-style:normal;
+  font-weight:800;
+}
+
+.destiny-convergence p,
+.destiny-now-note{
+  color:#786d68;
+  font-size:8px;
+  line-height:1.6;
+}
+
+.destiny-now-note{
+  margin:10px 0 0;
+}
+
+@media (max-width:760px){
+  .destiny-now-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .destiny-signal-grid{
+    grid-template-columns:1fr;
+  }
+
+  .destiny-convergence>div{
+    grid-template-columns:1fr;
+    gap:4px;
+  }
+}
