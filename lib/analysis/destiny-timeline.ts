@@ -1,4 +1,4 @@
-import { calculateSajuAnnualFlow } from "@/lib/saju/detailed";
+import { calculateSajuAnnualFlow, calculateSajuMonthlyFlow } from "@/lib/saju/detailed";
 import { calculateAstrologyTransits } from "@/lib/astrology/detailed";
 import { calculateNumerologyDetailed } from "@/lib/numerology/detailed";
 import { addMonthsClamped, addYearsClamped, kstDateString } from "@/lib/analysis/asof";
@@ -33,6 +33,11 @@ export function buildDestinyTimingAtDate(
   const saju = {
     ...analysis.engines.saju,
     annualFlow: calculateSajuAnnualFlow(
+      analysis.engines.saju.pillars,
+      analysis.engines.saju.dayMaster.character,
+      asOfDate,
+    ),
+    monthlyFlow: calculateSajuMonthlyFlow(
       analysis.engines.saju.pillars,
       analysis.engines.saju.dayMaster.character,
       asOfDate,
