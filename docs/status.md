@@ -637,3 +637,60 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 5. Astrology Transit
 6. 세 체계 시간축 Cross-System Alignment
 7. 최종 "나의 운명 지도" UI
+
+
+---
+
+## Destiny Intelligence v1
+
+전문 엔진 깊이 확장과 현재 시점 시간축 교차를 구현.
+
+### Saju Expert v2
+
+- [x] 월령
+- [x] 통근 단서
+- [x] 투간
+- [x] 일간 강약 휴리스틱
+- [x] 현재 세운 연주
+- [x] 세운 천간 십신
+- [x] 세운 지지 ↔ 원국 합충형파해
+
+주의:
+- 강약 점수는 Prism 휴리스틱이며 정통 명리의 단일 확정 판정으로 표현하지 않음
+- 대운은 성별/음양 순역 및 기산 학파 결정이 필요하므로 아직 임의 계산하지 않음
+
+### Astrology Expert v2
+
+- [x] 10 Planets
+- [x] Elements balance
+- [x] Modalities balance
+- [x] Chart Ruler
+- [x] House Rulers
+- [x] 기본 dignity 상태
+- [x] Jupiter / Saturn / Uranus / Neptune / Pluto 현재 transit 위치
+- [x] Transit ↔ Natal 주요 각 + orb
+
+### Numerology Expert v2
+
+- [x] Personal Year
+- [x] Personal Month
+- [x] Personal Day
+- [x] 기준일 snapshot 저장
+
+### Prism Destiny Timing
+
+- [x] 세운 / Transit / Personal Cycle 신호를 공통 theme으로 변환
+- [x] 2개 이상 체계가 같은 theme을 강조할 때 convergence 생성
+- [x] Detailed 결과에 DESTINY NOW 섹션
+- [x] 저장 Detailed snapshot에 destiny_timing 보존
+- [x] DB `analysis_results.destiny_timing` 컬럼 추가
+- [x] 저장 리포트에서도 당시 Destiny Now snapshot 표시
+- [x] 특정 사건 예언/보장이 아니라 시기적 강조점으로 표현
+
+다음 구현 축:
+
+1. Destiny Timeline 날짜 탐색
+2. 대운 규칙 결정 전까지 세운 다년도 탐색 우선
+3. Astrology transit 패턴 확장
+4. 이름 기반 Numerology 선택 입력
+5. 장기 운명 지도 UI
