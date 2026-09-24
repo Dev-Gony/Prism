@@ -12,7 +12,8 @@ export type ProductEventName =
   | "feedback_submitted"
   | "destiny_timeline_opened"
   | "destiny_date_inspected"
-  | "solar_return_calculated";
+  | "solar_return_calculated"
+  | "name_numerology_calculated";
 
 const SESSION_KEY = "prism.analytics-session.v1";
 
