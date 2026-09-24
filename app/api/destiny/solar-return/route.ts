@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { calculateSolarReturn } from "@/lib/astrology/solar-return";
+import { getBirthplace } from "@/lib/analysis/birthplaces";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 
 export const runtime = "nodejs";
@@ -28,7 +29,11 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { analysis?: unknown; year?: unknown };
+  let body: {
+    analysis?: unknown;
+    year?: unknown;
+    returnPlaceId?: unknown;
+  };
 
   try {
     body = JSON.parse(raw);
@@ -55,8 +60,26 @@ export async function POST(request: Request) {
     );
   }
 
+  const returnPlace =
+    typeof body.returnPlaceId === "string" && body.returnPlaceId.trim()
+      ? getBirthplace(body.returnPlaceId.trim())
+      : null;
+
+  if (
+    typeof body.returnPlaceId === "string" &&
+    body.returnPlaceId.trim() &&
+    !returnPlace
+  ) {
+    return NextResponse.json(
+      { error: "선택한 Solar Return 장소를 찾지 못했어요." },
+      { status: 400 },
+    );
+  }
+
   try {
-    return NextResponse.json(calculateSolarReturn(body.analysis, year));
+    return NextResponse.json(
+      calculateSolarReturn(body.analysis, year, returnPlace),
+    );
   } catch (error) {
     console.error("Prism solar return failed", error);
     return NextResponse.json(
