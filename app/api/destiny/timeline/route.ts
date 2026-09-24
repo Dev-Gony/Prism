@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { buildDestinyTimeline, buildDestinyTimingAtDate } from "@/lib/analysis/destiny-timeline";
+import { buildDestinyTimeline, buildDestinyTimelineByResolution, buildDestinyTimingAtDate } from "@/lib/analysis/destiny-timeline";
 import { parseDateParts } from "@/lib/analysis/asof";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 
@@ -36,6 +36,8 @@ export async function POST(request: Request) {
     yearsBefore?: unknown;
     yearsAfter?: unknown;
     targetDate?: unknown;
+    resolution?: unknown;
+    count?: unknown;
   };
 
   try {
@@ -69,6 +71,32 @@ export async function POST(request: Request) {
         targetDate,
         timing: buildDestinyTimingAtDate(body.analysis, targetDate),
       });
+    }
+
+    const resolution =
+      body.resolution === "month" || body.resolution === "quarter"
+        ? body.resolution
+        : body.resolution === "year"
+          ? "year"
+          : null;
+
+    if (resolution) {
+      const count =
+        typeof body.count === "number"
+          ? Math.max(1, Math.min(24, Math.floor(body.count)))
+          : resolution === "quarter"
+            ? 8
+            : resolution === "month"
+              ? 12
+              : yearsAfter;
+
+      return NextResponse.json(
+        buildDestinyTimelineByResolution(
+          body.analysis,
+          resolution,
+          count,
+        ),
+      );
     }
 
     const timeline = buildDestinyTimeline(
