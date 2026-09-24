@@ -7893,3 +7893,121 @@ body{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
+
+
+/* Solar Return location extension */
+.solar-return-place{
+  display:block;
+  margin-top:12px;
+}
+
+.solar-return-place>span,
+.solar-return-place>small{
+  display:block;
+}
+
+.solar-return-place>span{
+  margin-bottom:6px;
+  color:#7f6b61;
+  font-size:8px;
+  font-weight:800;
+}
+
+.solar-return-place select{
+  width:100%;
+  min-height:40px;
+  padding:0 11px;
+  border:1px solid #eadfd9;
+  border-radius:10px;
+  background:#fff;
+  color:#4f413b;
+  font-size:9px;
+}
+
+.solar-return-place>small{
+  margin-top:5px;
+  color:#95857d;
+  font-size:7px;
+  line-height:1.5;
+}
+
+.solar-return-angles{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  margin-top:8px;
+}
+
+.solar-return-angles>span{
+  min-width:0;
+  padding:10px;
+  border-radius:10px;
+  background:#f6f0ec;
+}
+
+.solar-return-angles small,
+.solar-return-angles strong,
+.solar-return-angles em{
+  display:block;
+}
+
+.solar-return-angles small{
+  color:#9a7c6f;
+  font-size:7px;
+  font-weight:800;
+}
+
+.solar-return-angles strong{
+  margin-top:3px;
+  color:#44362f;
+  font-size:9px;
+}
+
+.solar-return-angles em{
+  margin-top:2px;
+  color:#8e7b72;
+  font-size:7px;
+  font-style:normal;
+}
+
+.solar-return-houses{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:5px;
+  margin-top:8px;
+}
+
+.solar-return-houses>span{
+  min-width:0;
+  padding:7px 5px;
+  border-radius:8px;
+  background:#fff;
+  text-align:center;
+}
+
+.solar-return-houses small,
+.solar-return-houses strong{
+  display:block;
+}
+
+.solar-return-houses small{
+  color:#9b8276;
+  font-size:6px;
+  font-weight:800;
+}
+
+.solar-return-houses strong{
+  margin-top:2px;
+  color:#51443e;
+  font-size:7px;
+}
+
+@media (max-width:640px){
+  .solar-return-angles{
+    grid-template-columns:1fr;
+  }
+
+  .solar-return-houses{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
