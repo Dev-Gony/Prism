@@ -209,12 +209,14 @@ function nearestAspect(distance: number) {
     .sort((a, b) => a.orbDistance - b.orbDistance)[0];
 }
 
-function calculateCurrentTransits(
+export function calculateAstrologyTransits(
   natalBodies: DetailedAstrologyBody[],
   ascendant: DetailedAstrologyResult["ascendant"],
   midheaven: DetailedAstrologyResult["midheaven"],
+  asOfDate = kstDateString(),
 ): DetailedAstrologyResult["transits"] {
-  const now = new Date();
+  const [year, month, day] = asOfDate.split("-").map(Number);
+  const now = new Date(Date.UTC(year, month - 1, day, 3, 0, 0));
   const transitBodies = (
     ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"] as const
   ).map((body) => {
@@ -259,7 +261,7 @@ function calculateCurrentTransits(
   });
 
   return {
-    asOfDate: kstDateString(),
+    asOfDate,
     bodies: transitBodies,
     aspects: aspects.sort((a, b) => a.orb - b.orb),
   };
@@ -396,7 +398,7 @@ export function calculateAstrologyDetailed(
     balance,
     chartRuler,
     houseRulers,
-    transits: calculateCurrentTransits(
+    transits: calculateAstrologyTransits(
       bodies,
       chart?.ascendant ?? null,
       chart?.midheaven ?? null,
