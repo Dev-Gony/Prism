@@ -8,6 +8,7 @@ import { calculateNumerologyDetailed } from "@/lib/numerology/detailed";
 import { normalizeDetailedResults } from "@/lib/analysis/normalize";
 import { crossAnalyze } from "@/lib/analysis/cross";
 import { fallbackNarrative } from "@/lib/analysis/fallback";
+import { buildDestinyTiming } from "@/lib/analysis/destiny-timing";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 
 export const runtime = "nodejs";
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
     const normalized = normalizeDetailedResults(saju, astrology, numerology);
     const cross = crossAnalyze(normalized);
     const narrative = fallbackNarrative(cross);
+    const destinyTiming = buildDestinyTiming(saju, astrology, numerology);
 
     const response: DetailedAnalysisResponse = {
       input: {
@@ -92,6 +94,7 @@ export async function POST(request: Request) {
       normalized,
       cross,
       narrative,
+      destinyTiming,
       warnings: [
         "Detailed v1은 대한민국 주요 도시 출생지를 우선 지원합니다.",
         time.timeKnown
