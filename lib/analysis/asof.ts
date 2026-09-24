@@ -52,3 +52,20 @@ export function addYearsClamped(value: string, years: number) {
     nextDay,
   ).padStart(2, "0")}`;
 }
+
+
+export function addMonthsClamped(value: string, monthsToAdd: number) {
+  const { year, month, day } = parseDateParts(value);
+  const baseIndex = year * 12 + (month - 1) + monthsToAdd;
+  const targetYear = Math.floor(baseIndex / 12);
+  const targetMonthIndex = ((baseIndex % 12) + 12) % 12;
+  const targetMonth = targetMonthIndex + 1;
+  const maxDay = new Date(
+    Date.UTC(targetYear, targetMonth, 0),
+  ).getUTCDate();
+  const nextDay = Math.min(day, maxDay);
+
+  return `${targetYear}-${String(targetMonth).padStart(2, "0")}-${String(
+    nextDay,
+  ).padStart(2, "0")}`;
+}
