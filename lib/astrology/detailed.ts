@@ -6,6 +6,7 @@ import {
   SunPosition,
 } from "astronomy-engine";
 import type {
+  DetailedAstrologyAspect,
   DetailedAstrologyBody,
   DetailedAstrologyResult,
 } from "@/lib/analysis/detailed-types";
@@ -31,18 +32,20 @@ const SIGNS = [
 ] as const;
 
 const ELEMENTS: DetailedAstrologyBody["element"][] = [
-  "fire",
-  "earth",
-  "air",
-  "water",
-  "fire",
-  "earth",
-  "air",
-  "water",
-  "fire",
-  "earth",
-  "air",
-  "water",
+  "fire","earth","air","water","fire","earth",
+  "air","water","fire","earth","air","water",
+];
+
+const ASPECTS: Array<{
+  type: DetailedAstrologyAspect["type"];
+  angle: number;
+  orb: number;
+}> = [
+  { type: "conjunction", angle: 0, orb: 8 },
+  { type: "sextile", angle: 60, orb: 4 },
+  { type: "square", angle: 90, orb: 6 },
+  { type: "trine", angle: 120, orb: 6 },
+  { type: "opposition", angle: 180, orb: 8 },
 ];
 
 function signFromLongitude(longitude: number) {
@@ -65,9 +68,51 @@ function longitude(body: DetailedAstrologyBody["body"], date: Date) {
     Mars: Body.Mars,
     Jupiter: Body.Jupiter,
     Saturn: Body.Saturn,
+    Uranus: Body.Uranus,
+    Neptune: Body.Neptune,
+    Pluto: Body.Pluto,
   }[body];
 
   return Ecliptic(GeoVector(target, date, true)).elon;
+}
+
+function angularDistance(a: number, b: number) {
+  const diff = Math.abs(a - b) % 360;
+  return diff > 180 ? 360 - diff : diff;
+}
+
+function calculateAspects(
+  bodies: DetailedAstrologyBody[],
+): DetailedAstrologyAspect[] {
+  const aspects: DetailedAstrologyAspect[] = [];
+
+  for (let i = 0; i < bodies.length; i += 1) {
+    for (let j = i + 1; j < bodies.length; j += 1) {
+      const bodyA = bodies[i];
+      const bodyB = bodies[j];
+      const distance = angularDistance(bodyA.longitude, bodyB.longitude);
+
+      const match = ASPECTS
+        .map((aspect) => ({
+          ...aspect,
+          orbDistance: Math.abs(distance - aspect.angle),
+        }))
+        .filter((aspect) => aspect.orbDistance <= aspect.orb)
+        .sort((a, b) => a.orbDistance - b.orbDistance)[0];
+
+      if (!match) continue;
+
+      aspects.push({
+        bodyA: bodyA.body,
+        bodyB: bodyB.body,
+        type: match.type,
+        angle: Number(distance.toFixed(2)),
+        orb: Number(match.orbDistance.toFixed(2)),
+      });
+    }
+  }
+
+  return aspects.sort((a, b) => a.orb - b.orb);
 }
 
 export function calculateAstrologyDetailed(
@@ -82,7 +127,6 @@ export function calculateAstrologyDetailed(
   const effectiveHour = hour ?? 12;
   const effectiveMinute = minute ?? 0;
 
-  // KST is UTC+9 for the supported Korean birthplace presets.
   const instant = new Date(
     Date.UTC(year, month - 1, day, effectiveHour - 9, effectiveMinute, 0),
   );
@@ -95,9 +139,30 @@ export function calculateAstrologyDetailed(
       )
     : null;
 
-  const bodyNames = timeKnown
-    ? (["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"] as const)
-    : (["Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"] as const);
+  const bodyNames: DetailedAstrologyBody["body"][] = timeKnown
+    ? [
+        "Sun",
+        "Moon",
+        "Mercury",
+        "Venus",
+        "Mars",
+        "Jupiter",
+        "Saturn",
+        "Uranus",
+        "Neptune",
+        "Pluto",
+      ]
+    : [
+        "Sun",
+        "Mercury",
+        "Venus",
+        "Mars",
+        "Jupiter",
+        "Saturn",
+        "Uranus",
+        "Neptune",
+        "Pluto",
+      ];
 
   const bodies = bodyNames.map((body) => {
     const value = longitude(body, instant);
@@ -122,9 +187,7 @@ export function calculateAstrologyDetailed(
   return {
     timeKnown,
     instantUtc: timeKnown ? instant.toISOString() : null,
-    birthplace: {
-      ...birthplace,
-    },
+    birthplace: { ...birthplace },
     bodies,
     sunSign: sun.sign,
     moonSign: moon?.sign ?? null,
@@ -135,9 +198,10 @@ export function calculateAstrologyDetailed(
     descendant: chart?.descendant ?? null,
     imumCoeli: chart?.imumCoeli ?? null,
     houses: chart?.houses ?? [],
+    aspects: calculateAspects(bodies),
     method: timeKnown
-      ? "Astronomy Engine · 출생시각 KST→UTC 변환 · Sun/Moon/Mercury/Venus/Mars/Jupiter/Saturn · ASC/MC · Whole Sign 12 Houses"
-      : "Astronomy Engine · 출생시간 미상 · 정오 스냅샷으로 시간 비민감 행성만 계산 · Moon/ASC/MC/Houses 제외",
+      ? "Astronomy Engine · Sun~Pluto 황경 · 출생시각/지역 반영 · ASC/MC · Whole Sign 12 Houses · 주요 5개 각(conjunction/sextile/square/trine/opposition)"
+      : "Astronomy Engine · 출생시간 미상 · 정오 스냅샷 · Moon/ASC/MC/Houses 제외 · Sun~Pluto 시간 비민감 배치 및 주요 각 계산",
     pending: timeKnown
       ? []
       : ["Moon", "ASC", "MC", "DSC", "IC", "12 Houses", "행성별 House"],
