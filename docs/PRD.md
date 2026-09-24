@@ -1,3 +1,27 @@
+# Prism PRD
+
+## North Star — Expert Depth + Destiny Intelligence
+
+Prism의 장기 목표는 사주, 서양 점성술, 수비학을 얕게 결합하는 서비스가 아니다.
+
+각 체계를 **독립된 전문 앱 수준으로 깊게 계산**하고, 그 방대한 원본 데이터를 한 사람 기준으로 마지막에 교차 분석한다.
+
+핵심 제품 정의:
+
+> 세 개의 전문 체계, 수백 개의 신호. 그 모든 데이터가 가리키는 나의 운명.
+
+제품 구조:
+
+1. Saju Expert Engine
+2. Astrology Expert Engine
+3. Numerology Expert Engine
+4. Cross-System Synthesis
+5. Destiny Timing Map
+
+Prism은 특정 사건을 단정적으로 예언하지 않는다. 대신 각 전통 체계가 현재와 장기 흐름에서 무엇을 강조하는지 근거와 함께 겹쳐 보여준다.
+
+---
+
 # Prism MVP PRD v0.1
 
 > 사주·서양 점성술·수비학을 하나의 사용자 경험으로 통합해, 전문 지식이 없는 사용자도 자신의 성향을 쉽게 이해하도록 돕는 한국어 자기이해 서비스 MVP.
