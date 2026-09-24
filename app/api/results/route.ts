@@ -108,10 +108,16 @@ export async function POST(request: Request) {
         : null,
       input_snapshot: analysis.input,
       engine_versions: {
-        saju: "lunar-javascript@1.7.7",
-        astrology: "astronomy-engine@2.1.19",
+        saju: isDetailed
+          ? "prism-saju-expert-v2+lunar-javascript@1.7.7"
+          : "lunar-javascript@1.7.7",
+        astrology: isDetailed
+          ? "prism-astrology-expert-v2+astronomy-engine@2.1.19"
+          : "astronomy-engine@2.1.19",
         houses: isDetailed ? "prism-whole-sign-v1" : null,
-        numerology: "prism-numerology-v1",
+        numerology: isDetailed
+          ? "prism-numerology-expert-v2"
+          : "prism-numerology-v1",
         cross: "prism-cross-v1",
       },
       saju_result: analysis.engines.saju,
