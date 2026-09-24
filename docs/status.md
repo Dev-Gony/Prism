@@ -794,3 +794,27 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. Numerology 이름 기반 코어 넘버
 4. 대운 규칙 결정 및 구현
 5. 장기 타임라인 저장 / 비교
+
+
+---
+
+## Transit Monthly Exact Window
+
+구현 완료:
+
+- [x] 월간 Timeline 선택 시 해당 달 전체를 일 단위로 Transit 재계산
+- [x] Transit body × Natal point × aspect 조합별 최소 orb 날짜 탐색
+- [x] orb 1° 이내만 정밀 구간으로 채택
+- [x] 최대 3개 정밀 구간 표시
+- [x] exact-window에 applying / separating / exact 표시
+- [x] direct / retrograde / stationary 및 일일 속도 표시
+- [x] 연 / 분기 Timeline에는 추가 스캔을 수행하지 않도록 계산 범위 제한
+- [x] 특정 사건 발생일이 아니라 천문 계산상 aspect 근접 시점으로만 표현
+
+다음 심화 후보:
+
+1. Solar Return
+2. Numerology 이름 기반 코어 넘버
+3. 대운 규칙 결정 및 구현
+4. 장기 타임라인 저장 / 비교
+5. 기능 마감 후 계산 기준값 / 회귀 테스트 일괄 수행
