@@ -569,3 +569,34 @@ Local visual/build validation still required after `git pull`.
 - [x] 각 페어의 Quick / Detailed 저장 리포트 바로가기
 
 사용자 결정에 따라 전체 Test / Validation은 기능 구현 종료 후 일괄 진행.
+
+
+---
+
+## Product Data Loop
+
+우리팔자 사례에서 얻은 제품 운영 관점을 Prism에 반영.
+
+구현 완료:
+
+- [x] Supabase `product_events` 이벤트 테이블
+- [x] Supabase `product_feedback` 피드백 테이블
+- [x] 익명 session_id 기반 퍼널 추적
+- [x] 로그인 시 user_id 연결
+- [x] Landing / Quick start / Quick complete 이벤트
+- [x] Detailed open / complete 이벤트
+- [x] Save click / save success 이벤트
+- [x] Ask Prism / 공유 카드 / Quick→Detailed 업그레이드 이벤트
+- [x] Quick / Detailed 결과 Helpful / Not helpful 피드백
+- [x] 아쉬운 이유 500자 수집
+- [x] 이벤트/피드백 insert-only RLS
+- [x] 분석·피드백 수집 실패가 핵심 분석 기능을 막지 않도록 분리
+- [x] `docs/DATA_LOOP.md`에 핵심 퍼널, 가설, 운영 SQL, 의사결정 규칙 문서화
+- [x] Supabase performance advisor의 신규 RLS/initplan 및 FK index 이슈 수정
+
+다음 단계:
+
+1. 실제 사용자 유입 후 1차 퍼널 baseline 수집
+2. Quick 완료 → Detailed 진입률 확인
+3. Helpful 비율을 Gemini/Fallback, Quick/Detailed로 나눠 비교
+4. 데이터 기반으로 첫 UI/카피 실험 진행
