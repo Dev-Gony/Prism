@@ -3,7 +3,10 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import type { QuickAnalysisResponse } from "@/lib/analysis/types";
-import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
+import type {
+  DaYunGender,
+  DetailedAnalysisResponse,
+} from "@/lib/analysis/detailed-types";
 import { BIRTHPLACES } from "@/lib/analysis/birthplaces";
 import {
   createSupabaseBrowserClient,
@@ -94,6 +97,7 @@ export default function Home() {
   const [detailedOpen, setDetailedOpen] = useState(false);
   const [birthTime, setBirthTime] = useState("12:00");
   const [birthTimeKnown, setBirthTimeKnown] = useState(true);
+  const [yunGender, setYunGender] = useState<DaYunGender | null>(null);
   const [birthplaceId, setBirthplaceId] = useState("seoul");
   const [birthplaceQuery, setBirthplaceQuery] = useState("");
   const [detailedStatus, setDetailedStatus] = useState<
@@ -133,6 +137,7 @@ export default function Home() {
           timeKnown?: boolean;
           time?: string;
           birthplaceId?: string;
+          yunGender?: DaYunGender | null;
         };
       };
 
@@ -156,6 +161,7 @@ export default function Home() {
         typeof payload.input.time === "string" ? payload.input.time : "12:00",
       );
       setBirthplaceId(payload.input.birthplaceId || "seoul");
+      setYunGender(payload.input.yunGender ?? null);
       setBirthplaceQuery("");
 
       if (payload.input.analysisType === "detailed") {
@@ -575,6 +581,7 @@ export default function Home() {
           time: birthTimeKnown ? birthTime : null,
           timeKnown: birthTimeKnown,
           birthplaceId,
+          yunGender,
           calendarType,
           isLeapMonth,
         }),
@@ -590,6 +597,8 @@ export default function Home() {
         birthplaceId,
         timeKnown: birthTimeKnown,
         narrativeSource: detailedResult.narrative.generatedBy,
+        daYunAvailable: detailedResult.engines.saju.daYun.available,
+        daYunDirection: detailedResult.engines.saju.daYun.directionLabel,
       }, "detailed");
       setDetailedAnalysis(detailedResult);
       setDetailedNarrativeState("loading");
@@ -1106,6 +1115,7 @@ export default function Home() {
             birthTimeKnown={birthTimeKnown}
             birthplaceId={birthplaceId}
             birthplaceQuery={birthplaceQuery}
+            yunGender={yunGender}
             status={detailedStatus}
             error={detailedError}
             onBirthTime={setBirthTime}
@@ -1115,6 +1125,7 @@ export default function Home() {
               setBirthplaceQuery("");
             }}
             onBirthplaceQuery={setBirthplaceQuery}
+            onYunGender={setYunGender}
             onClose={() => setDetailedOpen(false)}
             onRun={runDetailedAnalysis}
           />
@@ -2163,12 +2174,14 @@ function DetailedModal({
   birthTimeKnown,
   birthplaceId,
   birthplaceQuery,
+  yunGender,
   status,
   error,
   onBirthTime,
   onBirthTimeKnown,
   onBirthplace,
   onBirthplaceQuery,
+  onYunGender,
   onClose,
   onRun,
 }: {
@@ -2176,12 +2189,14 @@ function DetailedModal({
   birthTimeKnown: boolean;
   birthplaceId: string;
   birthplaceQuery: string;
+  yunGender: DaYunGender | null;
   status: "idle" | "loading" | "done" | "error";
   error: string;
   onBirthTime: (value: string) => void;
   onBirthTimeKnown: (value: boolean) => void;
   onBirthplace: (value: string) => void;
   onBirthplaceQuery: (value: string) => void;
+  onYunGender: (value: DaYunGender | null) => void;
   onClose: () => void;
   onRun: () => void;
 }) {
@@ -2266,10 +2281,40 @@ function DetailedModal({
           </div>
         </div>
 
+        <div className="dayun-basis-field">
+          <div>
+            <span>대운 순역 계산 기준</span>
+            <small>
+              전통 명리의 양남음녀 순행·음남양녀 역행 규칙에 필요한 계산값입니다.
+              성정체성을 추정하지 않으며 선택하지 않으면 대운은 계산하지 않습니다.
+            </small>
+          </div>
+          <div className="dayun-basis-options">
+            <button
+              type="button"
+              className={yunGender === "male" ? "selected" : ""}
+              onClick={() => onYunGender(yunGender === "male" ? null : "male")}
+            >
+              남성 기준
+            </button>
+            <button
+              type="button"
+              className={yunGender === "female" ? "selected" : ""}
+              onClick={() => onYunGender(yunGender === "female" ? null : "female")}
+            >
+              여성 기준
+            </button>
+          </div>
+          {!birthTimeKnown && (
+            <p>출생시간 미상인 경우 정확한 기산점을 만들 수 없어 대운은 제외됩니다.</p>
+          )}
+        </div>
+
         <div className="modal-feature-row">
           <span>시주</span>
           <span>ASC · MC</span>
           <span>12 Houses</span>
+          <span>대운</span>
         </div>
 
         {error && <p className="editorial-form-error">{error}</p>}
