@@ -31,6 +31,7 @@ type SavedResult = {
 
 type Filter = "all" | "quick" | "detailed";
 type ViewMode = "cards" | "timeline";
+type SortMode = "latest" | "agreement";
 
 export default function SavedResultsList({
   initialResults,
@@ -44,6 +45,7 @@ export default function SavedResultsList({
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
+  const [sortMode, setSortMode] = useState<SortMode>("latest");
 
   const counts = useMemo(
     () => ({
@@ -101,7 +103,7 @@ export default function SavedResultsList({
   const visibleResults = useMemo(() => {
     const keyword = query.trim().toLowerCase();
 
-    return results.filter((item) => {
+    const filtered = results.filter((item) => {
       if (filter !== "all" && item.analysisType !== filter) return false;
       if (!keyword) return true;
 
@@ -117,7 +119,18 @@ export default function SavedResultsList({
 
       return haystack.includes(keyword);
     });
-  }, [results, filter, query]);
+
+    return [...filtered].sort((a, b) => {
+      if (sortMode === "agreement") {
+        return (
+          b.agreement - a.agreement ||
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, [results, filter, query, sortMode]);
 
   const timelineGroups = useMemo(() => {
     const groups = new Map<string, SavedResult[]>();
@@ -294,6 +307,17 @@ export default function SavedResultsList({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
+        </label>
+
+        <label className="library-sort">
+          <span>정렬</span>
+          <select
+            value={sortMode}
+            onChange={(event) => setSortMode(event.target.value as SortMode)}
+          >
+            <option value="latest">최신순</option>
+            <option value="agreement">합의도 높은순</option>
+          </select>
         </label>
 
         <div className="library-view-toggle" role="group" aria-label="보기 방식">
