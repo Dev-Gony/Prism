@@ -11,6 +11,7 @@ import {
 } from "@/lib/supabase/client";
 import { trackEvent } from "@/lib/analytics/client";
 import ResultFeedback from "@/app/result-feedback";
+import DestinyTimelineExplorer from "@/app/destiny-timeline-explorer";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -1769,6 +1770,8 @@ function DetailedReport({
           </p>
         </section>
       )}
+
+      <DestinyTimelineExplorer analysis={data} />
 
       <section className="quick-detailed-compare">
         <div className="compare-heading">
