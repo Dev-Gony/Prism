@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 import SavedDetailedQuestionPanel from "./saved-detailed-question-panel";
+import UpgradeDetailedLink from "./upgrade-detailed-link";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +90,22 @@ export default async function SavedResultDetailPage({
   const lifePath = number(numerology.lifePath, 0);
   const savedAt = new Date(String(data.created_at));
 
+  const quickUpgradeInput = !isDetailed
+    ? {
+        date:
+          typeof inputSnapshot.originalDate === "string"
+            ? inputSnapshot.originalDate
+            : String(data.birth_date),
+        calendarType:
+          inputSnapshot.calendarType === "lunar" ? "lunar" as const : "solar" as const,
+        isLeapMonth: Boolean(inputSnapshot.isLeapMonth),
+        birthplaceId:
+          typeof inputSnapshot.birthplaceId === "string"
+            ? inputSnapshot.birthplaceId
+            : "seoul",
+      }
+    : null;
+
   const detailedAnalysisSnapshot = isDetailed
     ? ({
         input: data.input_snapshot,
@@ -155,12 +172,9 @@ export default async function SavedResultDetailPage({
               Houses까지 확장할 수 있어요.
             </p>
           </div>
-          <a
-            href={`/?upgrade=detailed&from=${encodeURIComponent(String(data.id))}`}
-            className="archive-upgrade-link"
-          >
-            Detailed 입력으로 이동
-          </a>
+          {quickUpgradeInput && (
+            <UpgradeDetailedLink input={quickUpgradeInput} />
+          )}
         </section>
       )}
 
