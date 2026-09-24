@@ -7449,3 +7449,66 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Destiny timeline resolution */
+.destiny-range-stack{
+  display:flex;
+  align-items:flex-end;
+  flex-direction:column;
+  gap:6px;
+}
+
+.destiny-resolution-actions{
+  display:flex;
+  gap:5px;
+  padding:3px;
+  border:1px solid var(--editorial-line);
+  border-radius:999px;
+  background:#f3f0f6;
+}
+
+.destiny-resolution-actions button{
+  min-height:29px;
+  padding:0 10px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  color:#7b7185;
+  font-size:8px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.destiny-resolution-actions button.active{
+  background:#fff;
+  color:#554b68;
+  box-shadow:0 1px 3px rgba(52,45,61,.08);
+}
+
+.destiny-resolution-actions button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.destiny-resolution-note{
+  margin-top:8px;
+  color:#8a7f79;
+  font-size:8px;
+  line-height:1.5;
+}
+
+@media (max-width:760px){
+  .destiny-range-stack{
+    width:100%;
+    align-items:stretch;
+  }
+
+  .destiny-resolution-actions{
+    width:100%;
+  }
+
+  .destiny-resolution-actions button{
+    flex:1;
+  }
+}
