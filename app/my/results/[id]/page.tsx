@@ -6,6 +6,7 @@ import UpgradeDetailedLink from "./upgrade-detailed-link";
 import ShareReportCard from "./share-report-card";
 import ResultFeedback from "@/app/result-feedback";
 import DestinyTimelineExplorer from "@/app/destiny-timeline-explorer";
+import SolarReturnExplorer from "@/app/solar-return-explorer";
 
 export const dynamic = "force-dynamic";
 
@@ -520,6 +521,10 @@ export default async function SavedResultDetailPage({
 
       {detailedAnalysisSnapshot && (
         <DestinyTimelineExplorer analysis={detailedAnalysisSnapshot} />
+      )}
+
+      {detailedAnalysisSnapshot && (
+        <SolarReturnExplorer analysis={detailedAnalysisSnapshot} />
       )}
 
       {detailedAnalysisSnapshot && (
