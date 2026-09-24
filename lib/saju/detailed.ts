@@ -451,12 +451,166 @@ export function calculateSajuMonthlyFlow(
   };
 }
 
+function chinaCivilToKst(value: string) {
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
+  );
+
+  if (!match) return value;
+
+  const [, year, month, day, hour, minute, second] = match;
+  const instant = new Date(
+    Date.UTC(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour) + 1,
+      Number(minute),
+      Number(second),
+    ),
+  );
+
+  return [
+    `${instant.getUTCFullYear()}-${String(
+      instant.getUTCMonth() + 1,
+    ).padStart(2, "0")}-${String(instant.getUTCDate()).padStart(2, "0")}`,
+    `${String(instant.getUTCHours()).padStart(2, "0")}:${String(
+      instant.getUTCMinutes(),
+    ).padStart(2, "0")}:${String(instant.getUTCSeconds()).padStart(2, "0")}`,
+  ].join(" ");
+}
+
+function calculateDaYun(
+  pillars: DetailedSajuResult["pillars"],
+  dayStem: string,
+  year: number,
+  month: number,
+  day: number,
+  hour: number | null,
+  minute: number | null,
+  gender: "male" | "female" | null,
+): DetailedSajuResult["daYun"] {
+  const unavailable = (pendingReason: string): DetailedSajuResult["daYun"] => ({
+    available: false,
+    pendingReason,
+    gender,
+    genderCode: gender === "male" ? 1 : gender === "female" ? 0 : null,
+    sect: 2,
+    forward: null,
+    directionLabel: null,
+    ruleLabel:
+      "연간 음양 × 남/여 기준 순역 · 절기(節)까지의 실제 분 차이를 3일=1년 비율로 환산하는 minute-based sect 2",
+    ageBasis: "세는나이(연도 기준)",
+    startOffset: null,
+    startDateTime: null,
+    periods: [],
+  });
+
+  if (hour === null || minute === null) {
+    return unavailable(
+      "정확한 기산점 계산에는 출생시간이 필요합니다. 임의 시각을 넣지 않습니다.",
+    );
+  }
+
+  if (!gender) {
+    return unavailable(
+      "전통 대운 순역 계산의 남/여 기준값이 필요합니다. 임의로 추정하지 않습니다.",
+    );
+  }
+
+  // lunar-javascript의 절기 계산 기준시(UTC+8)에 맞추기 위해
+  // 한국 표준시(UTC+9) 출생시각을 1시간 이전의 civil time으로 변환한다.
+  // 계산된 기산 시각은 다시 KST civil time으로 환산해 저장한다.
+  const chinaTime = new Date(
+    Date.UTC(year, month - 1, day, hour - 1, minute, 0),
+  );
+  const solar = Solar.fromYmdHms(
+    chinaTime.getUTCFullYear(),
+    chinaTime.getUTCMonth() + 1,
+    chinaTime.getUTCDate(),
+    chinaTime.getUTCHours(),
+    chinaTime.getUTCMinutes(),
+    0,
+  );
+  const eightChar = solar.getLunar().getEightChar();
+  eightChar.setSect(1);
+
+  const genderCode = gender === "male" ? 1 : 0;
+  const yun = eightChar.getYun(genderCode, 2);
+  const startSolar = yun.getStartSolar();
+  const periods = yun
+    .getDaYun(11)
+    .filter((item) => item.getIndex() >= 1)
+    .map((item) => {
+      const ganZhi = item.getGanZhi();
+      const [stem, branch] = [...ganZhi];
+      const branchHidden = hiddenStems[branch] ?? [];
+      const index = item.getIndex();
+      const start = startSolar.nextYear((index - 1) * 10);
+      const endExclusive = startSolar.nextYear(index * 10);
+
+      return {
+        index,
+        ganZhi,
+        korean:
+          stemKo[stems.indexOf(stem)] +
+          branchKo[branches.indexOf(branch)],
+        stem,
+        branch,
+        stemTenGod: tenGod(dayStem, stem),
+        branchTenGod: branchHidden[0]
+          ? tenGod(dayStem, branchHidden[0])
+          : null,
+        startYear: item.getStartYear(),
+        endYear: item.getEndYear(),
+        startAge: item.getStartAge(),
+        endAge: item.getEndAge(),
+        startDateTime: chinaCivilToKst(start.toYmdHms()),
+        endDateTimeExclusive: chinaCivilToKst(endExclusive.toYmdHms()),
+        xun: item.getXun(),
+        xunKong: item.getXunKong(),
+        branchRelations: pillars.flatMap((pillar) =>
+          detectBranchRelations([pillar.branch, branch])
+            .filter((relation) => relation.branches.includes(branch))
+            .map((relation) => ({
+              type: relation.type,
+              natalBranch: pillar.branch,
+              daYunBranch: branch,
+              natalLabel: pillar.label,
+            })),
+        ),
+      };
+    });
+
+  return {
+    available: true,
+    pendingReason: null,
+    gender,
+    genderCode,
+    sect: 2,
+    forward: yun.isForward(),
+    directionLabel: yun.isForward() ? "순행" : "역행",
+    ruleLabel:
+      "연간 음양 × 남/여 기준 순역 · 절기(節)까지의 실제 분 차이를 3일=1년 비율로 환산하는 minute-based sect 2",
+    ageBasis: "세는나이(연도 기준)",
+    startOffset: {
+      years: yun.getStartYear(),
+      months: yun.getStartMonth(),
+      days: yun.getStartDay(),
+      hours: yun.getStartHour(),
+    },
+    startDateTime: chinaCivilToKst(startSolar.toYmdHms()),
+    periods,
+  };
+}
+
 export function calculateSajuDetailed(
   year: number,
   month: number,
   day: number,
   hour: number | null,
   minute: number | null,
+  yunGender: "male" | "female" | null = null,
 ): DetailedSajuResult {
   const effectiveHour = hour ?? 12;
   const effectiveMinute = minute ?? 0;
@@ -540,13 +694,25 @@ export function calculateSajuDetailed(
     tenGodSummary,
     ...expertProfile,
     annualFlow: calculateSajuAnnualFlow(pillars, dayStem),
+    daYun: calculateDaYun(
+      pillars,
+      dayStem,
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      yunGender,
+    ),
     monthlyFlow: calculateSajuMonthlyFlow(pillars, dayStem),
     branchRelations: detectBranchRelations(
       pillars.map((item) => item.branch),
     ),
     method:
       hour === null
-        ? "양력 · 한국 표준시(UTC+9) · 출생시간 미상 · 시주 제외 · 천간 십신/지장간/월령/통근/투간/강약 휴리스틱/지지 관계 포함 · 진태양시 보정 없음"
-        : "양력 · 한국 표준시(UTC+9) · 출생시각 반영 · 23시 일자 변경 · 천간 십신/지장간/지지 관계 포함 · 진태양시 보정 없음",
+        ? "양력 · 한국 표준시(UTC+9) · 출생시간 미상 · 시주/대운 기산 제외 · 천간 십신/지장간/월령/통근/투간/강약 휴리스틱/지지 관계 포함 · 진태양시 보정 없음"
+        : yunGender
+          ? "양력 · 한국 표준시(UTC+9) · 출생시각 반영 · 23시 일자 변경 · 천간 십신/지장간/지지 관계 · 대운 순역 및 minute-based sect 2 기산 포함 · 진태양시 보정 없음"
+          : "양력 · 한국 표준시(UTC+9) · 출생시각 반영 · 대운 남/여 기준 미입력으로 대운 제외 · 23시 일자 변경 · 천간 십신/지장간/지지 관계 포함 · 진태양시 보정 없음",
   };
 }
