@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       calendarType?: unknown;
       isLeapMonth?: unknown;
       timeKnown?: unknown;
+      yunGender?: unknown;
     };
 
     const input = normalizeBirthInput(
@@ -43,6 +44,10 @@ export async function POST(request: Request) {
       body.isLeapMonth,
     );
     const time = parseTime(body.time, body.timeKnown);
+    const yunGender =
+      body.yunGender === "male" || body.yunGender === "female"
+        ? body.yunGender
+        : null;
 
     if (typeof body.birthplaceId !== "string") {
       throw new AnalysisInputError("태어난 지역을 선택해 주세요.");
@@ -59,6 +64,7 @@ export async function POST(request: Request) {
       input.day,
       time.hour,
       time.minute,
+      yunGender,
     );
 
     const astrology = calculateAstrologyDetailed(
@@ -85,6 +91,7 @@ export async function POST(request: Request) {
         calendarType: input.calendarType,
         originalDate: input.originalDate,
         isLeapMonth: input.isLeapMonth,
+        yunGender,
       },
       engines: {
         saju,
@@ -101,6 +108,9 @@ export async function POST(request: Request) {
           ? "ASC·MC·12 Houses는 출생시간과 출생지역을 기준으로 계산합니다."
           : "출생시간 미상으로 시주, Moon, ASC, MC, 12 Houses는 계산에서 제외했습니다.",
         "사주 계산은 진태양시 보정을 아직 적용하지 않습니다.",
+        saju.daYun.available
+          ? "대운은 연간 음양×남/여 순역 규칙과 절기까지의 실제 분 차이를 사용하는 minute-based sect 2 방식으로 계산합니다."
+          : `대운 미계산: ${saju.daYun.pendingReason}`,
         "해석은 전통적·문화적 자기탐색을 위한 참고 정보입니다.",
       ],
     };
