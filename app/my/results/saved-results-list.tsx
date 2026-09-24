@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { trackEvent } from "@/lib/analytics/client";
 
 type ReanalysisInput = {
   analysisType: "quick" | "detailed";
@@ -221,6 +222,10 @@ export default function SavedResultsList({
   }
 
   function upgradeToDetailed(item: SavedResult) {
+    void trackEvent("upgrade_detailed", {
+      source: "library-card-or-timeline",
+      reportId: item.id,
+    }, "quick");
     window.sessionStorage.setItem(
       "prism.reanalysis-input.v1",
       JSON.stringify({
