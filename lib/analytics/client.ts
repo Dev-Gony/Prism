@@ -9,7 +9,9 @@ export type ProductEventName =
   | "ask_prism_used"
   | "share_card_created"
   | "upgrade_detailed"
-  | "feedback_submitted";
+  | "feedback_submitted"
+  | "destiny_timeline_opened"
+  | "destiny_date_inspected";
 
 const SESSION_KEY = "prism.analytics-session.v1";
 
