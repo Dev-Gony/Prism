@@ -56,6 +56,12 @@ export default function DestinyTimelineExplorer({
 }) {
   const [timeline, setTimeline] = useState<TimelinePayload | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [compareStart, setCompareStart] = useState("");
+  const [compareEnd, setCompareEnd] = useState("");
+  const [comparison, setComparison] = useState<{
+    start: DestinyTimingSummary;
+    end: DestinyTimingSummary;
+  } | null>(null);
   const [selectedTiming, setSelectedTiming] =
     useState<DestinyTimingSummary | null>(analysis.destinyTiming ?? null);
   const [selectedLabel, setSelectedLabel] = useState(
@@ -160,6 +166,42 @@ export default function DestinyTimelineExplorer({
       setStatus("error");
       setMessage(
         error instanceof Error ? error.message : "운명 지도를 계산하지 못했어요.",
+      );
+    }
+  }
+
+  async function compareDates() {
+    if (!compareStart || !compareEnd) return;
+
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      const [startPayload, endPayload] = await Promise.all([
+        request({ targetDate: compareStart }),
+        request({ targetDate: compareEnd }),
+      ]);
+
+      setComparison({
+        start: startPayload.timing as DestinyTimingSummary,
+        end: endPayload.timing as DestinyTimingSummary,
+      });
+
+      void trackEvent(
+        "destiny_date_inspected",
+        {
+          mode: "compare",
+          startDate: compareStart,
+          endDate: compareEnd,
+        },
+        "detailed",
+      );
+
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      setMessage(
+        error instanceof Error ? error.message : "두 시점을 비교하지 못했어요.",
       );
     }
   }
@@ -375,6 +417,82 @@ export default function DestinyTimelineExplorer({
             >
               이 날짜 분석
             </button>
+          </div>
+
+          <div className="destiny-date-compare">
+            <div className="destiny-date-compare-head">
+              <div>
+                <small>COMPARE TWO MOMENTS</small>
+                <strong>두 시점의 운명 신호 비교</strong>
+              </div>
+              <span>변화 방향 보기</span>
+            </div>
+
+            <div className="destiny-date-compare-inputs">
+              <label>
+                <span>시작</span>
+                <input
+                  type="date"
+                  value={compareStart}
+                  min="1990-01-01"
+                  max={maxDate}
+                  onChange={(event) => {
+                    setCompareStart(event.target.value);
+                    setComparison(null);
+                  }}
+                />
+              </label>
+              <label>
+                <span>비교</span>
+                <input
+                  type="date"
+                  value={compareEnd}
+                  min="1990-01-01"
+                  max={maxDate}
+                  onChange={(event) => {
+                    setCompareEnd(event.target.value);
+                    setComparison(null);
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                disabled={!compareStart || !compareEnd || status === "loading"}
+                onClick={() => void compareDates()}
+              >
+                두 시점 비교
+              </button>
+            </div>
+
+            {comparison && (
+              <div className="destiny-date-compare-result">
+                <article>
+                  <small>{comparison.start.asOfDate}</small>
+                  <strong>
+                    {comparison.start.convergences[0]?.label ?? "독립 신호"}
+                  </strong>
+                  <span>
+                    {comparison.start.convergences[0]
+                      ? comparison.start.convergences[0].strength + "% 겹침"
+                      : "동일 테마 수렴 없음"}
+                  </span>
+                </article>
+
+                <div className="destiny-date-compare-arrow">→</div>
+
+                <article>
+                  <small>{comparison.end.asOfDate}</small>
+                  <strong>
+                    {comparison.end.convergences[0]?.label ?? "독립 신호"}
+                  </strong>
+                  <span>
+                    {comparison.end.convergences[0]
+                      ? comparison.end.convergences[0].strength + "% 겹침"
+                      : "동일 테마 수렴 없음"}
+                  </span>
+                </article>
+              </div>
+            )}
           </div>
         </>
       )}
