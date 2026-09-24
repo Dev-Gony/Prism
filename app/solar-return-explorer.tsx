@@ -100,7 +100,7 @@ export default function SolarReturnExplorer({
           disabled={status === "loading"}
           onClick={() => void calculate()}
         >
-          {status === "loading" ? "태양 복귀 시각 계산 중..." : \`\${year} Solar Return 계산\`}
+          {status === "loading" ? "태양 복귀 시각 계산 중..." : `${year} Solar Return 계산`}
         </button>
       )}
 
