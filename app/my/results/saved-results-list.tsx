@@ -100,6 +100,42 @@ export default function SavedResultsList({
     };
   }, [results]);
 
+  const pairedComparisons = useMemo(() => {
+    const byDate = new Map<
+      string,
+      { quick?: SavedResult; detailed?: SavedResult }
+    >();
+
+    [...results]
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .forEach((item) => {
+        const pair = byDate.get(item.birthDate) ?? {};
+
+        if (item.analysisType === "quick" && !pair.quick) {
+          pair.quick = item;
+        }
+
+        if (item.analysisType === "detailed" && !pair.detailed) {
+          pair.detailed = item;
+        }
+
+        byDate.set(item.birthDate, pair);
+      });
+
+    return [...byDate.entries()]
+      .filter(([, pair]) => pair.quick && pair.detailed)
+      .map(([birthDate, pair]) => ({
+        birthDate,
+        quick: pair.quick!,
+        detailed: pair.detailed!,
+        agreementDelta: pair.detailed!.agreement - pair.quick!.agreement,
+      }))
+      .slice(0, 4);
+  }, [results]);
+
   const visibleResults = useMemo(() => {
     const keyword = query.trim().toLowerCase();
 
@@ -281,6 +317,45 @@ export default function SavedResultsList({
         </section>
       )}
 
+      {pairedComparisons.length > 0 && (
+        <section className="library-pair-board">
+          <div className="library-insight-head">
+            <div>
+              <small>QUICK → DETAILED</small>
+              <h2>같은 생년월일의 확장 기록</h2>
+            </div>
+            <span>{pairedComparisons.length}개 비교 가능</span>
+          </div>
+
+          <div className="library-pair-list">
+            {pairedComparisons.map((pair) => (
+              <article key={pair.birthDate}>
+                <div>
+                  <small>생년월일</small>
+                  <strong>{pair.birthDate.replaceAll("-", ".")}</strong>
+                </div>
+
+                <div className="library-pair-score">
+                  <span>Quick {pair.quick.agreement}%</span>
+                  <b>→</b>
+                  <span>Detailed {pair.detailed.agreement}%</span>
+                  <em className={pair.agreementDelta > 0 ? "up" : pair.agreementDelta < 0 ? "down" : "same"}>
+                    {pair.agreementDelta > 0
+                      ? `+${pair.agreementDelta}`
+                      : pair.agreementDelta}
+                  </em>
+                </div>
+
+                <div className="library-pair-actions">
+                  <a href={`/my/results/${pair.quick.id}`}>Quick 보기</a>
+                  <a href={`/my/results/${pair.detailed.id}`}>Detailed 보기</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="library-controls">
         <div className="library-filter-tabs" role="tablist" aria-label="분석 유형">
           {([
@@ -394,6 +469,14 @@ export default function SavedResultsList({
                           다시 분석
                         </button>
                         <a href={`/my/results/${item.id}`}>리포트 열기</a>
+                        <button
+                          type="button"
+                          className="timeline-delete-btn"
+                          disabled={deletingId === item.id}
+                          onClick={() => removeResult(item.id)}
+                        >
+                          {deletingId === item.id ? "정리 중" : "삭제"}
+                        </button>
                       </div>
                     </div>
                   </article>
