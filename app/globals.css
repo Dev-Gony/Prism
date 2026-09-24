@@ -7512,3 +7512,68 @@ body{
     flex:1;
   }
 }
+
+
+/* Destiny timeline convergence highlights */
+.destiny-highlight-strip{
+  margin-top:10px;
+  padding:10px;
+  border-radius:11px;
+  background:#f7f3fa;
+}
+
+.destiny-highlight-strip>small{
+  color:#766a86;
+  font-size:7px;
+  font-weight:800;
+  letter-spacing:.06em;
+}
+
+.destiny-highlight-strip>div{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  margin-top:7px;
+}
+
+.destiny-highlight-strip button{
+  min-width:0;
+  padding:9px;
+  border:1px solid rgba(117,107,156,.14);
+  border-radius:9px;
+  background:#fff;
+  text-align:left;
+  cursor:pointer;
+}
+
+.destiny-highlight-strip span,
+.destiny-highlight-strip strong,
+.destiny-highlight-strip em{
+  display:block;
+}
+
+.destiny-highlight-strip span{
+  color:#8d8398;
+  font-size:7px;
+  font-weight:800;
+}
+
+.destiny-highlight-strip strong{
+  margin-top:4px;
+  color:#43394f;
+  font-size:9px;
+}
+
+.destiny-highlight-strip em{
+  margin-top:3px;
+  color:#6b5e7f;
+  font-size:8px;
+  font-style:normal;
+  font-weight:800;
+}
+
+@media (max-width:640px){
+  .destiny-highlight-strip>div{
+    grid-template-columns:1fr;
+  }
+}
