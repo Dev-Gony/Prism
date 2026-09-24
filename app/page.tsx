@@ -30,6 +30,18 @@ const TRAIT_LABELS: Record<string, string> = {
   care: "돌봄과 배려",
 };
 
+const DESTINY_THEME_LABELS: Record<string, string> = {
+  self: "자기 방향",
+  expression: "표현과 생산",
+  relationships: "관계와 조율",
+  resources: "자원과 성취",
+  responsibility: "책임과 구조",
+  learning: "학습과 성찰",
+  expansion: "확장과 기회",
+  change: "변화와 전환",
+  transformation: "정리와 재구성",
+};
+
 const loadingSteps = [
   {
     key: "saju",
@@ -1699,6 +1711,64 @@ function DetailedReport({
           </div>
         </article>
       </section>
+
+      {data.destinyTiming && (
+        <section className="destiny-now-section">
+          <div className="destiny-now-head">
+            <div>
+              <small>DESTINY NOW · {data.destinyTiming.asOfDate}</small>
+              <h3>지금 세 체계가 강조하는 흐름</h3>
+            </div>
+            <span>현재 시점 스냅샷</span>
+          </div>
+
+          <div className="destiny-signal-grid">
+            {data.destinyTiming.signals.map((signal) => (
+              <article className={signal.source} key={signal.source + signal.title}>
+                <div>
+                  <small>
+                    {signal.source === "saju"
+                      ? "SAJU"
+                      : signal.source === "astrology"
+                        ? "ASTROLOGY"
+                        : "NUMEROLOGY"}
+                  </small>
+                  <span>{DESTINY_THEME_LABELS[signal.theme] ?? signal.theme}</span>
+                </div>
+                <strong>{signal.title}</strong>
+                <ul>
+                  {signal.evidence.slice(0, 3).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+
+          <div className="destiny-convergence">
+            <small>CROSS-SYSTEM TIMING</small>
+            {data.destinyTiming.convergences.length > 0 ? (
+              data.destinyTiming.convergences.map((item) => (
+                <div key={item.theme}>
+                  <span>{item.label}</span>
+                  <strong>{item.sources.length}개 체계 동시 강조</strong>
+                  <em>{item.strength}%</em>
+                </div>
+              ))
+            ) : (
+              <p>
+                지금은 세 체계가 서로 다른 영역을 강조해요. 하나의 방향으로
+                억지로 합치지 않고 각각의 신호를 그대로 보여줍니다.
+              </p>
+            )}
+          </div>
+
+          <p className="destiny-now-note">
+            현재 시점의 전통적·문화적 해석 신호를 겹쳐 본 참고 정보이며,
+            특정 사건의 발생을 예측하거나 보장하지 않습니다.
+          </p>
+        </section>
+      )}
 
       <section className="quick-detailed-compare">
         <div className="compare-heading">
