@@ -7,6 +7,17 @@ import type {
   DetailedAnalysisResponse,
 } from "@/lib/analysis/detailed-types";
 
+type TransitExactWindow = {
+  date: string;
+  transitBody: "Jupiter" | "Saturn" | "Uranus" | "Neptune" | "Pluto";
+  natalPoint: string;
+  type: string;
+  orb: number;
+  phase: "applying" | "separating" | "exact";
+  motion: "direct" | "retrograde" | "stationary";
+  speedDegPerDay: number;
+};
+
 type TimelinePoint = {
   asOfDate: string;
   year: number;
@@ -15,6 +26,7 @@ type TimelinePoint = {
   timing: DestinyTimingSummary;
   dominantTheme: string | null;
   convergenceStrength: number;
+  transitWindows?: TransitExactWindow[];
 };
 
 type TimelineResolution = "year" | "quarter" | "month";
@@ -72,6 +84,12 @@ export default function DestinyTimelineExplorer({
       )
       .slice(0, 3);
   }, [timeline]);
+
+  const selectedPoint = useMemo(
+    () =>
+      timeline?.points.find((point) => point.asOfDate === selectedLabel) ?? null,
+    [timeline, selectedLabel],
+  );
 
   async function request(body: Record<string, unknown>) {
     const response = await fetch("/api/destiny/timeline", {
@@ -295,6 +313,49 @@ export default function DestinyTimelineExplorer({
                 ? "분기 보기는 3개월 간격의 동일 기준일 스냅샷입니다."
                 : "월간 보기는 매달 같은 일자의 세 체계 신호를 비교합니다."}
           </div>
+
+          {timeline.resolution === "month" &&
+            selectedPoint?.transitWindows &&
+            selectedPoint.transitWindows.length > 0 && (
+              <div className="destiny-transit-windows">
+                <div className="destiny-transit-window-head">
+                  <div>
+                    <small>TRANSIT EXACT WINDOW</small>
+                    <strong>{selectedPoint.label} 정밀 구간</strong>
+                  </div>
+                  <span>orb 1° 이내</span>
+                </div>
+                <div className="destiny-transit-window-grid">
+                  {selectedPoint.transitWindows.map((window) => (
+                    <article
+                      key={[
+                        window.date,
+                        window.transitBody,
+                        window.natalPoint,
+                        window.type,
+                      ].join("-")}
+                    >
+                      <small>{window.date}</small>
+                      <strong>
+                        {window.transitBody} → {window.natalPoint}
+                      </strong>
+                      <span>
+                        {window.type} · {window.phase} · {window.motion}
+                      </span>
+                      <em>
+                        orb {window.orb.toFixed(2)}° ·{" "}
+                        {window.speedDegPerDay.toFixed(3)}°/d
+                      </em>
+                    </article>
+                  ))}
+                </div>
+                <p>
+                  월 전체를 일 단위로 계산해 각 조합의 orb가 가장 작아지는
+                  날짜만 표시합니다. 1° 안으로 들어오지 않으면 정밀 구간으로
+                  표시하지 않습니다.
+                </p>
+              </div>
+            )}
 
           <div className="destiny-date-probe">
             <label>
