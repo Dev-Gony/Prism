@@ -36,6 +36,75 @@ const ELEMENTS: DetailedAstrologyBody["element"][] = [
   "air","water","fire","earth","air","water",
 ];
 
+const MODALITIES: DetailedAstrologyBody["modality"][] = [
+  "cardinal","fixed","mutable","cardinal","fixed","mutable",
+  "cardinal","fixed","mutable","cardinal","fixed","mutable",
+];
+
+const SIGN_RULERS: Record<
+  string,
+  { primary: DetailedAstrologyBody["body"]; coRuler?: DetailedAstrologyBody["body"] }
+> = {
+  양자리: { primary: "Mars" },
+  황소자리: { primary: "Venus" },
+  쌍둥이자리: { primary: "Mercury" },
+  게자리: { primary: "Moon" },
+  사자자리: { primary: "Sun" },
+  처녀자리: { primary: "Mercury" },
+  천칭자리: { primary: "Venus" },
+  전갈자리: { primary: "Mars", coRuler: "Pluto" },
+  사수자리: { primary: "Jupiter" },
+  염소자리: { primary: "Saturn" },
+  물병자리: { primary: "Saturn", coRuler: "Uranus" },
+  물고기자리: { primary: "Jupiter", coRuler: "Neptune" },
+};
+
+const DOMICILES: Partial<Record<DetailedAstrologyBody["body"], string[]>> = {
+  Sun: ["사자자리"],
+  Moon: ["게자리"],
+  Mercury: ["쌍둥이자리", "처녀자리"],
+  Venus: ["황소자리", "천칭자리"],
+  Mars: ["양자리", "전갈자리"],
+  Jupiter: ["사수자리", "물고기자리"],
+  Saturn: ["염소자리", "물병자리"],
+};
+
+const EXALTATIONS: Partial<Record<DetailedAstrologyBody["body"], string>> = {
+  Sun: "양자리",
+  Moon: "황소자리",
+  Mercury: "처녀자리",
+  Venus: "물고기자리",
+  Mars: "염소자리",
+  Jupiter: "게자리",
+  Saturn: "천칭자리",
+};
+
+const DETRIMENTS: Partial<Record<DetailedAstrologyBody["body"], string[]>> = {
+  Sun: ["물병자리"],
+  Moon: ["염소자리"],
+  Mercury: ["사수자리", "물고기자리"],
+  Venus: ["양자리", "전갈자리"],
+  Mars: ["황소자리", "천칭자리"],
+  Jupiter: ["쌍둥이자리", "처녀자리"],
+  Saturn: ["게자리", "사자자리"],
+};
+
+const FALLS: Partial<Record<DetailedAstrologyBody["body"], string>> = {
+  Sun: "천칭자리",
+  Moon: "전갈자리",
+  Mercury: "물고기자리",
+  Venus: "처녀자리",
+  Mars: "게자리",
+  Jupiter: "염소자리",
+  Saturn: "양자리",
+};
+
+const MODERN_DOMICILES: Partial<Record<DetailedAstrologyBody["body"], string>> = {
+  Uranus: "물병자리",
+  Neptune: "물고기자리",
+  Pluto: "전갈자리",
+};
+
 const ASPECTS: Array<{
   type: DetailedAstrologyAspect["type"];
   angle: number;
@@ -55,6 +124,7 @@ function signFromLongitude(longitude: number) {
   return {
     sign: SIGNS[index],
     element: ELEMENTS[index],
+    modality: MODALITIES[index],
   };
 }
 
@@ -74,6 +144,18 @@ function longitude(body: DetailedAstrologyBody["body"], date: Date) {
   }[body];
 
   return Ecliptic(GeoVector(target, date, true)).elon;
+}
+
+function dignityFor(
+  body: DetailedAstrologyBody["body"],
+  sign: string,
+): DetailedAstrologyBody["dignity"] {
+  if (DOMICILES[body]?.includes(sign)) return "domicile";
+  if (EXALTATIONS[body] === sign) return "exaltation";
+  if (DETRIMENTS[body]?.includes(sign)) return "detriment";
+  if (FALLS[body] === sign) return "fall";
+  if (MODERN_DOMICILES[body] === sign) return "modern-ruler";
+  return "peregrine";
 }
 
 function angularDistance(a: number, b: number) {
@@ -173,6 +255,8 @@ export function calculateAstrologyDetailed(
       longitude: Number(value.toFixed(4)),
       sign: sign.sign,
       element: sign.element,
+      modality: sign.modality,
+      dignity: dignityFor(body, sign.sign),
       ...(chart
         ? { house: houseForLongitude(value, chart.ascendant.longitude) }
         : {}),
@@ -183,6 +267,48 @@ export function calculateAstrologyDetailed(
   const moon = timeKnown
     ? bodies.find((body) => body.body === "Moon") ?? null
     : null;
+
+  const balance = bodies.reduce(
+    (acc, body) => {
+      acc.elements[body.element] += 1;
+      acc.modalities[body.modality] += 1;
+      return acc;
+    },
+    {
+      elements: { fire: 0, earth: 0, air: 0, water: 0 },
+      modalities: { cardinal: 0, fixed: 0, mutable: 0 },
+    },
+  );
+
+  const chartRuler = chart
+    ? (() => {
+        const ruler = SIGN_RULERS[chart.ascendant.sign];
+        const primaryBody = bodies.find((body) => body.body === ruler.primary);
+        return {
+          ascendantSign: chart.ascendant.sign,
+          primary: ruler.primary,
+          coRuler: ruler.coRuler,
+          sign: primaryBody?.sign ?? "-",
+          house: primaryBody?.house,
+        };
+      })()
+    : null;
+
+  const houseRulers = chart
+    ? chart.houses.map((house) => {
+        const ruler = SIGN_RULERS[house.sign];
+        const rulerBody = bodies.find((body) => body.body === ruler.primary);
+
+        return {
+          house: house.house,
+          sign: house.sign,
+          ruler: ruler.primary,
+          coRuler: ruler.coRuler,
+          rulerSign: rulerBody?.sign ?? null,
+          rulerHouse: rulerBody?.house ?? null,
+        };
+      })
+    : [];
 
   return {
     timeKnown,
@@ -199,8 +325,11 @@ export function calculateAstrologyDetailed(
     imumCoeli: chart?.imumCoeli ?? null,
     houses: chart?.houses ?? [],
     aspects: calculateAspects(bodies),
+    balance,
+    chartRuler,
+    houseRulers,
     method: timeKnown
-      ? "Astronomy Engine · Sun~Pluto 황경 · 출생시각/지역 반영 · ASC/MC · Whole Sign 12 Houses · 주요 5개 각(conjunction/sextile/square/trine/opposition)"
+      ? "Astronomy Engine · Sun~Pluto 황경 · 출생시각/지역 반영 · ASC/MC · Whole Sign 12 Houses · 주요 5개 각 · 원소/모달리티 균형 · 차트 룰러/하우스 룰러 · 기본 dignity"
       : "Astronomy Engine · 출생시간 미상 · 정오 스냅샷 · Moon/ASC/MC/Houses 제외 · Sun~Pluto 시간 비민감 배치 및 주요 각 계산",
     pending: timeKnown
       ? []
