@@ -16,6 +16,10 @@ Prism은 기능을 계속 늘리는 것보다 **사용 → 측정 → 해석 →
 10. `destiny_timeline_opened`
 11. `destiny_date_inspected`
 12. `feedback_submitted`
+- `solar_return_calculated`
+- `name_numerology_calculated`
+- `destiny_bookmark_saved`
+- `destiny_bookmark_deleted`
 
 ### 우선 보는 지표
 
