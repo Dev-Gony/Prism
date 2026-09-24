@@ -956,3 +956,45 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. Name Numerology 결과를 선택적으로 Cross-System 정규화
 4. 연도별 Prism Year Book / Archive
 5. 기능 구현 종료 후 계산 기준값 및 회귀 테스트 일괄 수행
+
+
+---
+
+## Validation & CI Gate
+
+2026-09-24 검증 단계 구현 완료:
+
+- [x] `tests/calculation-validation.test.ts` 추가
+- [x] `tests/regression.test.ts` 추가
+- [x] Saju Quick upstream reference case 고정
+- [x] DaYun sect 2 upstream Yun reference case + Prism KST 보정 검증
+- [x] 음력 → 양력 알려진 기준일 검증
+- [x] Astrology KST → UTC / Zodiac boundary / Whole Sign invariant 검증
+- [x] Solar Return natal Sun residual orb / House 생성 검증
+- [x] Numerology birth-date / name fixture 검증
+- [x] 출생시간 미상 / 대운 기준 미입력 회귀 테스트
+- [x] Transit 결정론 / orb 정렬 회귀 테스트
+- [x] Destiny Timing의 Saju / Astrology / Numerology source 보존 회귀 테스트
+- [x] GitHub Actions CI 추가
+- [x] CI: `npm ci → npm run typecheck → npm test → npm run build`
+- [x] PR #6에서 TypeScript 기존 오류 3개 수정
+- [x] PR #6 CI에서 typecheck / calculation+regression tests / production build PASS
+- [x] PR #6 main merge 완료
+
+추가된 문서:
+- `docs/VALIDATION.md`
+
+이번 검증 과정에서 수정한 기존 타입 문제:
+- Solar Return API의 DetailedAnalysis type narrowing
+- 저장 리포트 cross-analysis reducer implicit any
+- 저장 재분석 input의 literal type widening
+
+남은 Release Gate:
+
+1. main push CI 최종 확인
+2. Vercel build-rate-limit 해소
+3. 최신 main Production 배포
+4. 배포 환경 Smoke Test
+5. 실제 Supabase / OAuth / 저장 / 재분석 흐름 검증
+
+검증되지 않은 항목은 PASS로 표시하지 않는다.
