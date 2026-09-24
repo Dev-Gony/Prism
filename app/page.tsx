@@ -1642,6 +1642,8 @@ function DetailedReport({
                   {body.longitude.toFixed(1)}°
                   {body.house ? " · " + body.house + "H" : ""}
                   {" · " + body.modality + " · " + body.dignity}
+                  {" · " + body.motion}
+                  {" · " + body.speedDegPerDay.toFixed(2) + "°/d"}
                 </em>
               </span>
             ))}
@@ -1651,10 +1653,41 @@ function DetailedReport({
             {data.engines.astrology.aspects.slice(0, 8).map((aspect) => (
               <div key={`${aspect.bodyA}-${aspect.bodyB}-${aspect.type}`}>
                 <strong>{aspect.bodyA} × {aspect.bodyB}</strong>
-                <span>{aspect.type}</span>
+                <span>{aspect.type} · {aspect.phase}</span>
                 <em>orb {aspect.orb.toFixed(1)}°</em>
               </div>
             ))}
+          </div>
+
+          <div className="astrology-patterns">
+            <div>
+              <small>Retrograde</small>
+              <strong>
+                {data.engines.astrology.patterns.retrogrades.length > 0
+                  ? data.engines.astrology.patterns.retrogrades.join(" · ")
+                  : "없음"}
+              </strong>
+            </div>
+            <div>
+              <small>Angular Planets</small>
+              <strong>
+                {data.engines.astrology.patterns.angularBodies.length > 0
+                  ? data.engines.astrology.patterns.angularBodies
+                      .map((item) => item.body + " " + item.house + "H")
+                      .join(" · ")
+                  : "시간 기반 강조 없음"}
+              </strong>
+            </div>
+            <div>
+              <small>Stellium</small>
+              <strong>
+                {data.engines.astrology.patterns.stelliums.length > 0
+                  ? data.engines.astrology.patterns.stelliums
+                      .map((item) => item.sign.replace("자리", "") + " " + item.bodies.join("/"))
+                      .join(" · ")
+                  : "3행성 이상 집중 없음"}
+              </strong>
+            </div>
           </div>
         </article>
 
