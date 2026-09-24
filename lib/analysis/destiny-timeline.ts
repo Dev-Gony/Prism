@@ -10,6 +10,20 @@ import type {
 
 export type DestinyTimelineResolution = "year" | "quarter" | "month";
 
+export type TransitExactWindow = {
+  date: string;
+  transitBody: "Jupiter" | "Saturn" | "Uranus" | "Neptune" | "Pluto";
+  natalPoint:
+    | DetailedAnalysisResponse["engines"]["astrology"]["bodies"][number]["body"]
+    | "ASC"
+    | "MC";
+  type: DetailedAnalysisResponse["engines"]["astrology"]["transits"]["aspects"][number]["type"];
+  orb: number;
+  phase: "applying" | "separating" | "exact";
+  motion: "direct" | "retrograde" | "stationary";
+  speedDegPerDay: number;
+};
+
 export type DestinyTimelinePoint = {
   asOfDate: string;
   year: number;
@@ -18,6 +32,7 @@ export type DestinyTimelinePoint = {
   timing: DestinyTimingSummary;
   dominantTheme: string | null;
   convergenceStrength: number;
+  transitWindows?: TransitExactWindow[];
 };
 
 export type DestinyTimelineResult = {
@@ -62,6 +77,77 @@ export function buildDestinyTimingAtDate(
   return buildDestinyTiming(saju, astrology, numerology);
 }
 
+function monthDate(year: number, month: number, day: number) {
+  return [
+    String(year).padStart(4, "0"),
+    String(month).padStart(2, "0"),
+    String(day).padStart(2, "0"),
+  ].join("-");
+}
+
+function buildTransitExactWindows(
+  analysis: DetailedAnalysisResponse,
+  year: number,
+  month: number,
+  limit = 3,
+): TransitExactWindow[] {
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const closest = new Map<string, TransitExactWindow>();
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const date = monthDate(year, month, day);
+    const transits = calculateAstrologyTransits(
+      analysis.engines.astrology.bodies,
+      analysis.engines.astrology.ascendant,
+      analysis.engines.astrology.midheaven,
+      date,
+    );
+
+    transits.aspects.forEach((aspect) => {
+      const body = transits.bodies.find(
+        (item) => item.body === aspect.transitBody,
+      );
+      if (!body) return;
+
+      const key = [
+        aspect.transitBody,
+        aspect.natalPoint,
+        aspect.type,
+      ].join(":");
+      const candidate: TransitExactWindow = {
+        date,
+        transitBody: aspect.transitBody,
+        natalPoint: aspect.natalPoint,
+        type: aspect.type,
+        orb: aspect.orb,
+        phase: aspect.phase,
+        motion: body.motion,
+        speedDegPerDay: body.speedDegPerDay,
+      };
+      const current = closest.get(key);
+
+      if (
+        !current ||
+        candidate.orb < current.orb ||
+        (candidate.orb === current.orb &&
+          candidate.date.localeCompare(current.date) < 0)
+      ) {
+        closest.set(key, candidate);
+      }
+    });
+  }
+
+  return [...closest.values()]
+    .filter((item) => item.orb <= 1)
+    .sort(
+      (a, b) =>
+        a.orb - b.orb ||
+        a.date.localeCompare(b.date) ||
+        a.transitBody.localeCompare(b.transitBody),
+    )
+    .slice(0, limit);
+}
+
 function pointFromDate(
   analysis: DetailedAnalysisResponse,
   asOfDate: string,
@@ -86,6 +172,9 @@ function pointFromDate(
     timing,
     dominantTheme: top?.label ?? null,
     convergenceStrength: top?.strength ?? 0,
+    ...(resolution === "month"
+      ? { transitWindows: buildTransitExactWindows(analysis, year, month) }
+      : {}),
   };
 }
 
