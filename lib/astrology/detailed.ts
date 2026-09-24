@@ -269,11 +269,13 @@ export function calculateAstrologyTransits(
   ).map((body) => {
     const value = longitude(body, now);
     const sign = signFromLongitude(value);
+    const motion = bodyMotion(body, now);
 
     return {
       body,
       longitude: Number(value.toFixed(4)),
       sign: sign.sign,
+      ...motion,
     };
   });
 
@@ -497,7 +499,7 @@ export function calculateAstrologyDetailed(
       chart?.midheaven ?? null,
     ),
     method: timeKnown
-      ? "Astronomy Engine · Sun~Pluto 황경 · 출생시각/지역 반영 · ASC/MC · Whole Sign 12 Houses · 주요 5개 각 · 원소/모달리티 균형 · 차트 룰러/하우스 룰러 · 기본 dignity · 행성 운동/역행 · applying/separating · stellium/angular emphasis"
+      ? "Astronomy Engine · Sun~Pluto 황경 · 출생시각/지역 반영 · ASC/MC · Whole Sign 12 Houses · 주요 5개 각 · 원소/모달리티 균형 · 차트 룰러/하우스 룰러 · 기본 dignity · natal/transit 행성 운동/역행 · natal/transit applying/separating · stellium/angular emphasis"
       : "Astronomy Engine · 출생시간 미상 · 정오 스냅샷 · Moon/ASC/MC/Houses 제외 · Sun~Pluto 시간 비민감 배치 및 주요 각 계산",
     pending: timeKnown
       ? []
