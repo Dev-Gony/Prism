@@ -508,3 +508,26 @@ Local visual/build validation still required after `git pull`.
 2. 공유용 결과 카드
 3. 저장된 Quick 리포트의 Detailed 업그레이드 진입
 4. 기능 구현 완료 후 일괄 Test / Validation
+
+
+---
+
+## Library Insight Summary
+
+구현 완료:
+
+- [x] 저장 리포트 전체 평균 합의도
+- [x] 가장 높은 합의도 리포트
+- [x] 최근 분석 유형 / 날짜 요약
+- [x] Quick / Detailed 저장 개수 요약
+- [x] 저장된 narrative keyword 반복 빈도 집계
+- [x] 2회 이상 반복된 핵심 키워드 최대 4개 표시
+- [x] 결과 삭제 시 인사이트 즉시 재계산
+- [x] 반응형 insight board
+
+다음 기능 구현 후보:
+
+1. Quick 저장 결과에서 바로 Detailed 업그레이드
+2. 공유용 결과 카드
+3. 라이브러리 기간별/타임라인 보기
+4. 기능 구현 완료 후 일괄 Test / Validation
