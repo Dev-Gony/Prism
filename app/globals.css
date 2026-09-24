@@ -5719,3 +5719,130 @@ body{
 .archive-question-clear:hover{
   text-decoration:underline;
 }
+
+
+/* Library insight board */
+.library-insight-board{
+  margin:18px 0 8px;
+  padding:18px;
+  border:1px solid var(--editorial-line);
+  border-radius:16px;
+  background:#fff;
+}
+
+.library-insight-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.library-insight-head small{
+  color:var(--editorial-primary);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.library-insight-head h2{
+  margin:4px 0 0;
+  font-family:"Noto Serif KR",serif;
+  font-size:18px;
+  font-weight:500;
+}
+
+.library-insight-head>span{
+  color:#8c807b;
+  font-size:8px;
+}
+
+.library-insight-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin-top:14px;
+}
+
+.library-insight-grid article{
+  min-width:0;
+  padding:13px;
+  border-radius:11px;
+  background:#f7f3f0;
+}
+
+.library-insight-grid article:nth-child(2){
+  background:#f8f6fb;
+}
+
+.library-insight-grid article:nth-child(3){
+  background:#f1f7f4;
+}
+
+.library-insight-grid small{
+  color:#8c807b;
+  font-size:8px;
+  font-weight:700;
+}
+
+.library-insight-grid strong{
+  display:block;
+  margin-top:5px;
+  color:#332d2a;
+  font-family:"Noto Serif KR",serif;
+  font-size:22px;
+  font-weight:500;
+}
+
+.library-insight-grid p{
+  margin:5px 0 0;
+  color:#766a65;
+  font-size:9px;
+  line-height:1.55;
+}
+
+.library-keyword-cloud{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+
+.library-keyword-cloud span{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:6px 8px;
+  border-radius:999px;
+  background:#fff;
+  color:#5d514d;
+  font-size:9px;
+  font-weight:700;
+}
+
+.library-keyword-cloud b{
+  min-width:18px;
+  height:18px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#ece3de;
+  color:#7a5c51;
+  font-size:8px;
+}
+
+@media (max-width:900px){
+  .library-insight-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media (max-width:560px){
+  .library-insight-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .library-insight-grid{
+    grid-template-columns:1fr;
+  }
+}
