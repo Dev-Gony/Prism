@@ -7375,3 +7375,77 @@ body{
     gap:4px;
   }
 }
+
+
+/* Astrology motion and pattern depth */
+.astrology-patterns{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  margin-top:10px;
+}
+
+.astrology-patterns>div{
+  min-width:0;
+  padding:9px;
+  border-radius:9px;
+  background:#f8f6fb;
+}
+
+.astrology-patterns small{
+  display:block;
+  color:#7a6f91;
+  font-size:7px;
+  font-weight:800;
+}
+
+.astrology-patterns strong{
+  display:block;
+  margin-top:4px;
+  color:#4e465f;
+  font-size:8px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+.archive-astrology-patterns{
+  margin-top:16px;
+}
+
+.archive-pattern-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin-top:10px;
+}
+
+.archive-pattern-list span{
+  min-width:0;
+  padding:9px;
+  border:1px solid var(--editorial-line);
+  border-radius:9px;
+  background:#faf8fb;
+}
+
+.archive-pattern-list b,
+.archive-pattern-list small{
+  display:block;
+}
+
+.archive-pattern-list b{
+  color:#433b4e;
+  font-size:9px;
+}
+
+.archive-pattern-list small{
+  margin-top:3px;
+  color:#7e7488;
+  font-size:8px;
+}
+
+@media (max-width:640px){
+  .astrology-patterns,
+  .archive-pattern-list{
+    grid-template-columns:1fr;
+  }
+}
