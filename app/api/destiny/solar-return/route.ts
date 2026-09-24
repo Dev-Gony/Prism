@@ -1,11 +1,30 @@
 import { NextResponse } from "next/server";
 import { calculateSolarReturn } from "@/lib/astrology/solar-return";
 import { getBirthplace } from "@/lib/analysis/birthplaces";
+import { buildDestinyTimingAtDate } from "@/lib/analysis/destiny-timeline";
+import { addMonthsClamped } from "@/lib/analysis/asof";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
 
 export const runtime = "nodejs";
 
 const MAX_BODY_BYTES = 256 * 1024;
+
+function dateInTimezone(iso: string, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date(iso));
+
+  const value = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  );
+
+  return `${value.year}-${value.month}-${value.day}`;
+}
 
 function isDetailedAnalysis(value: unknown): value is DetailedAnalysisResponse {
   if (!value || typeof value !== "object") return false;
@@ -77,20 +96,47 @@ export async function POST(request: Request) {
   }
 
   try {
-    return NextResponse.json(
-      calculateSolarReturn(
-        body.analysis,
-        year,
-        returnPlace
-          ? {
-              label: returnPlace.label,
-              latitude: returnPlace.latitude,
-              longitude: returnPlace.longitude,
-              timezone: returnPlace.timezone,
-            }
-          : null,
-      ),
+    const snapshot = calculateSolarReturn(
+      body.analysis,
+      year,
+      returnPlace
+        ? {
+            label: returnPlace.label,
+            latitude: returnPlace.latitude,
+            longitude: returnPlace.longitude,
+            timezone: returnPlace.timezone,
+          }
+        : null,
     );
+
+    const timeZone =
+      snapshot.location?.timezone ||
+      body.analysis.engines.astrology.birthplace.timezone ||
+      "Asia/Seoul";
+    const startDate = dateInTimezone(snapshot.exactUtc, timeZone);
+
+    const months = Array.from({ length: 12 }, (_, index) => {
+      const asOfDate = addMonthsClamped(startDate, index);
+      const timing = buildDestinyTimingAtDate(body.analysis, asOfDate);
+      const top = timing.convergences[0];
+
+      return {
+        index: index + 1,
+        asOfDate,
+        label: `${index + 1}개월차`,
+        dominantTheme: top?.label ?? null,
+        convergenceStrength: top?.strength ?? 0,
+        timing,
+      };
+    });
+
+    return NextResponse.json({
+      ...snapshot,
+      yearFlow: {
+        startDate,
+        months,
+      },
+    });
   } catch (error) {
     console.error("Prism solar return failed", error);
     return NextResponse.json(
