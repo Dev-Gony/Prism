@@ -54,8 +54,17 @@ function reduceDatePart(value: number) {
   );
 }
 
+function kstToday() {
+  const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(now.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function calculateNumerologyDetailed(
   date: string,
+  asOfDate = kstToday(),
 ): DetailedNumerologyResult {
   const [year, month, day] = date.split("-").map(Number);
 
@@ -87,6 +96,12 @@ export function calculateNumerologyDetailed(
   const challenge3 = Math.abs(challenge1 - challenge2);
   const challenge4 = Math.abs(reducedYear - reducedMonth);
 
+  const [asOfYear, asOfMonth, asOfDay] = asOfDate.split("-").map(Number);
+  const universalYear = reduceDatePart(asOfYear);
+  const personalYear = reduce(reducedMonth + reducedDay + universalYear);
+  const personalMonth = reduce(personalYear + asOfMonth);
+  const personalDay = reduce(personalMonth + asOfDay);
+
   return {
     lifePath,
     reduction,
@@ -96,7 +111,13 @@ export function calculateNumerologyDetailed(
     periodCycles,
     pinnacles: [pinnacle1, pinnacle2, pinnacle3, pinnacle4],
     challenges: [challenge1, challenge2, challenge3, challenge4],
+    personalCycles: {
+      asOfDate,
+      personalYear,
+      personalMonth,
+      personalDay,
+    },
     method:
-      "피타고라스식 생년월일 수비학 · Life Path · Birthday Number · Attitude Number · 3 Period Cycles · 4 Pinnacles · 4 Challenges · Master Number 11/22/33 보존",
+      "피타고라스식 생년월일 수비학 · Life Path · Birthday Number · Attitude Number · 3 Period Cycles · 4 Pinnacles · 4 Challenges · Personal Year/Month/Day · Master Number 11/22/33 보존",
   };
 }
