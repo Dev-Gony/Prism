@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { trackEvent } from "@/lib/analytics/client";
 import type {
   DestinyTimingSummary,
@@ -35,6 +35,16 @@ type TimelinePayload = {
   anchorDate: string;
   resolution: TimelineResolution;
   points: TimelinePoint[];
+};
+
+type DestinyBookmark = {
+  id: string;
+  birth_date: string;
+  as_of_date: string;
+  label: string;
+  timing: DestinyTimingSummary;
+  source: string;
+  created_at: string;
 };
 
 const THEME_LABELS: Record<string, string> = {
@@ -72,6 +82,11 @@ export default function DestinyTimelineExplorer({
     useState<TimelineResolution>("year");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [bookmarks, setBookmarks] = useState<DestinyBookmark[]>([]);
+  const [bookmarkStatus, setBookmarkStatus] = useState<
+    "idle" | "loading" | "saving" | "error"
+  >("idle");
+  const [bookmarkMessage, setBookmarkMessage] = useState("");
 
   const maxDate = useMemo(() => {
     const today = new Date();
@@ -96,6 +111,103 @@ export default function DestinyTimelineExplorer({
       timeline?.points.find((point) => point.asOfDate === selectedLabel) ?? null,
     [timeline, selectedLabel],
   );
+
+  async function loadBookmarks() {
+    try {
+      setBookmarkStatus("loading");
+      const response = await fetch(
+        `/api/destiny/bookmarks?birthDate=${encodeURIComponent(
+          analysis.input.date,
+        )}`,
+      );
+
+      if (response.status === 401) {
+        setBookmarkStatus("idle");
+        return;
+      }
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || "저장한 시점을 불러오지 못했어요.");
+      }
+
+      setBookmarks(Array.isArray(payload.items) ? payload.items : []);
+      setBookmarkStatus("idle");
+    } catch (error) {
+      setBookmarkStatus("error");
+      setBookmarkMessage(
+        error instanceof Error ? error.message : "저장한 시점을 불러오지 못했어요.",
+      );
+    }
+  }
+
+  useEffect(() => {
+    void loadBookmarks();
+  }, [analysis.input.date]);
+
+  async function saveBookmark() {
+    if (!selectedTiming) return;
+
+    setBookmarkStatus("saving");
+    setBookmarkMessage("");
+
+    const label =
+      selectedTiming.convergences[0]?.label
+        ? `${selectedTiming.asOfDate} · ${selectedTiming.convergences[0].label}`
+        : `${selectedTiming.asOfDate} · 독립 신호`;
+
+    try {
+      const response = await fetch("/api/destiny/bookmarks", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          birthDate: analysis.input.date,
+          asOfDate: selectedTiming.asOfDate,
+          label,
+          timing: selectedTiming,
+          source: "timeline",
+        }),
+      });
+      const payload = await response.json();
+
+      if (response.status === 401) {
+        throw new Error("로그인 후 운명 시점을 저장할 수 있어요.");
+      }
+
+      if (!response.ok) {
+        throw new Error(payload.error || "운명 시점을 저장하지 못했어요.");
+      }
+
+      setBookmarks((current) => [...current, payload.item]);
+      setBookmarkStatus("idle");
+      setBookmarkMessage("이 시점을 내 운명 지도에 저장했어요.");
+    } catch (error) {
+      setBookmarkStatus("error");
+      setBookmarkMessage(
+        error instanceof Error ? error.message : "운명 시점을 저장하지 못했어요.",
+      );
+    }
+  }
+
+  async function deleteBookmark(id: string) {
+    try {
+      const response = await fetch(
+        `/api/destiny/bookmarks?id=${encodeURIComponent(id)}`,
+        { method: "DELETE" },
+      );
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "저장한 시점을 삭제하지 못했어요.");
+      }
+
+      setBookmarks((current) => current.filter((item) => item.id !== id));
+    } catch (error) {
+      setBookmarkMessage(
+        error instanceof Error ? error.message : "저장한 시점을 삭제하지 못했어요.",
+      );
+    }
+  }
 
   async function request(body: Record<string, unknown>) {
     const response = await fetch("/api/destiny/timeline", {
@@ -495,6 +607,62 @@ export default function DestinyTimelineExplorer({
             )}
           </div>
         </>
+      )}
+
+      {selectedTiming && (
+        <div className="destiny-bookmark-save">
+          <div>
+            <small>SAVE THIS MOMENT</small>
+            <strong>{selectedTiming.asOfDate} 시점 보관</strong>
+          </div>
+          <button
+            type="button"
+            disabled={bookmarkStatus === "saving"}
+            onClick={() => void saveBookmark()}
+          >
+            {bookmarkStatus === "saving" ? "저장 중..." : "운명 지도에 저장"}
+          </button>
+        </div>
+      )}
+
+      {bookmarks.length > 0 && (
+        <div className="destiny-bookmark-list">
+          <div className="destiny-bookmark-list-head">
+            <div>
+              <small>MY DESTINY MOMENTS</small>
+              <strong>저장한 운명 시점</strong>
+            </div>
+            <span>{bookmarks.length}개</span>
+          </div>
+
+          <div>
+            {bookmarks.map((item) => (
+              <article key={item.id}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedTiming(item.timing);
+                    setSelectedLabel(item.as_of_date);
+                  }}
+                >
+                  <small>{item.as_of_date}</small>
+                  <strong>{item.label}</strong>
+                </button>
+                <button
+                  type="button"
+                  className="delete"
+                  onClick={() => void deleteBookmark(item.id)}
+                >
+                  삭제
+                </button>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {bookmarkMessage && (
+        <p className="destiny-bookmark-message">{bookmarkMessage}</p>
       )}
 
       {selectedTiming && (
