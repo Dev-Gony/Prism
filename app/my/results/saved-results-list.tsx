@@ -13,6 +13,7 @@ type ReanalysisInput = {
   timeKnown: boolean;
   time: string;
   birthplaceId: string;
+  yunGender?: "male" | "female" | null;
 };
 
 type SavedResult = {
