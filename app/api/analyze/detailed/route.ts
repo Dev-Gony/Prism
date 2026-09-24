@@ -4,7 +4,7 @@ import { normalizeBirthInput } from "@/lib/analysis/calendar";
 import { getBirthplace } from "@/lib/analysis/birthplaces";
 import { calculateSajuDetailed } from "@/lib/saju/detailed";
 import { calculateAstrologyDetailed } from "@/lib/astrology/detailed";
-import { calculateNumerologyQuick } from "@/lib/numerology/quick";
+import { calculateNumerologyDetailed } from "@/lib/numerology/detailed";
 import { normalizeDetailedResults } from "@/lib/analysis/normalize";
 import { crossAnalyze } from "@/lib/analysis/cross";
 import { fallbackNarrative } from "@/lib/analysis/fallback";
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       birthplace,
     );
 
-    const numerology = calculateNumerologyQuick(input.date);
+    const numerology = calculateNumerologyDetailed(input.date);
     const normalized = normalizeDetailedResults(saju, astrology, numerology);
     const cross = crossAnalyze(normalized);
     const narrative = fallbackNarrative(cross);
