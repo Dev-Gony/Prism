@@ -745,3 +745,29 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. Solar Return
 4. Numerology 이름 기반 코어 넘버
 5. 대운 규칙 결정
+
+
+---
+
+## Destiny Timeline v2
+
+구현 완료:
+
+- [x] 연 / 분기 / 월 해상도 전환
+- [x] 월운 사주 천간 십신 및 원국 지지 관계
+- [x] Target-date 월운 재계산
+- [x] Transit applying / separating / exact
+- [x] Destiny Timing에 세운 + 월운 신호 동시 반영
+- [x] Astrology 상위 3개 transit aspect 신호
+- [x] Numerology Personal Year + Personal Month 분리 신호
+- [x] 월/분기별 cross-system convergence
+- [x] strongest convergence 상위 3개 기간 빠른 탐색
+- [x] 연간 +3/+5/+10년, 분기 8개, 월 12개 스냅샷
+
+다음 심화 후보:
+
+1. Transit monthly exact-window 탐색
+2. Solar Return
+3. Numerology 이름 기반 코어 넘버
+4. 대운 규칙 결정 및 구현
+5. 장기 타임라인 저장/비교
