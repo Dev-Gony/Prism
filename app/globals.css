@@ -6348,3 +6348,114 @@ body{
     flex-wrap:wrap;
   }
 }
+
+
+/* Product feedback */
+.result-feedback{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid rgba(116,106,102,.16);
+  border-radius:14px;
+  background:#fff;
+}
+
+.result-feedback>div:first-child small{
+  color:var(--editorial-primary);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.result-feedback h3{
+  margin:4px 0 0;
+  font-family:"Noto Serif KR",serif;
+  font-size:16px;
+  font-weight:500;
+}
+
+.result-feedback p{
+  margin:6px 0 0;
+  color:#7b6f6a;
+  font-size:9px;
+  line-height:1.55;
+}
+
+.result-feedback-actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.result-feedback-actions button{
+  min-height:36px;
+  padding:0 11px;
+  border:1px solid var(--editorial-line);
+  border-radius:9px;
+  background:#faf7f5;
+  color:#655955;
+  font-size:9px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.result-feedback-actions button.selected{
+  border-color:rgba(146,70,44,.35);
+  background:#f4e9e4;
+  color:#8f4d38;
+}
+
+.result-feedback-actions button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.result-feedback-reason{
+  margin-top:10px;
+  padding:10px;
+  border:1px solid var(--editorial-line);
+  border-radius:10px;
+  background:#fbfaf9;
+}
+
+.result-feedback-reason textarea{
+  width:100%;
+  resize:vertical;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--editorial-text);
+  font:400 10px/1.55 "Plus Jakarta Sans","Noto Sans KR",sans-serif;
+}
+
+.result-feedback-reason>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:7px;
+}
+
+.result-feedback-reason small{
+  color:#9a8d88;
+  font-size:8px;
+}
+
+.result-feedback-reason button{
+  min-height:34px;
+  padding:0 11px;
+  border:0;
+  border-radius:9px;
+  background:var(--editorial-ink);
+  color:#fff;
+  font-size:9px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.feedback-message{
+  color:#5b8472 !important;
+}
+
+.feedback-message.error{
+  color:#a0523b !important;
+}
