@@ -867,3 +867,28 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. 장기 타임라인 저장 / 비교
 4. Solar Return ↔ Natal aspect overlay
 5. 기능 마감 후 계산 기준값 / 회귀 테스트 일괄 수행
+
+
+---
+
+## Solar Return v3 · Prism Year Matrix
+
+구현 완료:
+
+- [x] Solar Return 장소 기준 ASC / MC / Whole Sign Houses
+- [x] Solar Return 내부 주요 aspect 계산
+- [x] Solar Return ↔ Natal aspect overlay
+- [x] return body ↔ natal planet / ASC / MC 교차
+- [x] natal overlay는 orb 3° 이내만 노출
+- [x] 선택 연도의 Solar Return 정확 복귀일을 기준으로 Prism Destiny Timing 재계산
+- [x] Solar Return + 세운 / 월운 / Transit / Personal Cycle 통합 Year Matrix
+- [x] Solar Return 계산 이벤트 수집
+- [x] Supabase product_events constraint 확장
+
+다음 심화 후보:
+
+1. Solar Return 월별 활성 구간
+2. Numerology 이름 기반 코어 넘버
+3. 대운 규칙 결정 및 구현
+4. 장기 타임라인 저장 / 비교
+5. 기능 마감 후 계산 기준값 / 회귀 테스트 일괄 수행
