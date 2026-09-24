@@ -237,6 +237,7 @@ export type DetailedAnalysisResponse = {
 export type DestinyTheme =
   | "self"
   | "expression"
+  | "relationships"
   | "resources"
   | "responsibility"
   | "learning"
