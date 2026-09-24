@@ -31,6 +31,40 @@ export type DetailedSajuResult = {
     element: string;
   };
   tenGodSummary: Record<string, number>;
+  monthCommand: {
+    branch: string;
+    korean: string;
+    element: string;
+    mainHiddenStem: string;
+    mainHiddenTenGod: string;
+  };
+  rooting: {
+    dayMasterRooted: boolean;
+    rootBranches: Array<{
+      branch: string;
+      label: string;
+      hiddenStem: string;
+    }>;
+    visibleStemRoots: Array<{
+      pillar: string;
+      stem: string;
+      rootBranches: string[];
+    }>;
+  };
+  exposedHiddenStems: Array<{
+    stem: string;
+    korean: string;
+    element: string;
+    tenGod: string;
+    sourceBranches: string[];
+    visiblePillars: string[];
+  }>;
+  strength: {
+    score: number;
+    level: "신강 경향" | "중화 경향" | "신약 경향";
+    factors: string[];
+    heuristic: true;
+  };
   branchRelations: Array<{
     type: "합" | "충" | "형" | "파" | "해";
     branches: string[];
@@ -54,6 +88,14 @@ export type DetailedAstrologyBody = {
   longitude: number;
   sign: string;
   element: "fire" | "earth" | "air" | "water";
+  modality: "cardinal" | "fixed" | "mutable";
+  dignity:
+    | "domicile"
+    | "exaltation"
+    | "detriment"
+    | "fall"
+    | "modern-ruler"
+    | "peregrine";
   house?: number;
 };
 
@@ -98,6 +140,25 @@ export type DetailedAstrologyResult = {
   imumCoeli: DetailedChartAngle | null;
   houses: DetailedHouse[];
   aspects: DetailedAstrologyAspect[];
+  balance: {
+    elements: Record<"fire" | "earth" | "air" | "water", number>;
+    modalities: Record<"cardinal" | "fixed" | "mutable", number>;
+  };
+  chartRuler: {
+    ascendantSign: string;
+    primary: DetailedAstrologyBody["body"];
+    coRuler?: DetailedAstrologyBody["body"];
+    sign: string;
+    house?: number;
+  } | null;
+  houseRulers: Array<{
+    house: number;
+    sign: string;
+    ruler: DetailedAstrologyBody["body"];
+    coRuler?: DetailedAstrologyBody["body"];
+    rulerSign: string | null;
+    rulerHouse: number | null;
+  }>;
   method: string;
   pending: string[];
 };
@@ -115,6 +176,12 @@ export type DetailedNumerologyResult = {
   };
   pinnacles: [number, number, number, number];
   challenges: [number, number, number, number];
+  personalCycles: {
+    asOfDate: string;
+    personalYear: number;
+    personalMonth: number;
+    personalDay: number;
+  };
   method: string;
 };
 
