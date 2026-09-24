@@ -85,13 +85,18 @@ export default async function SavedResultsPage() {
       agreement,
       keywordTitles,
       reanalysisInput: {
-        analysisType: String(row.analysis_type) === "detailed" ? "detailed" : "quick",
+        analysisType:
+          String(row.analysis_type) === "detailed"
+            ? ("detailed" as const)
+            : ("quick" as const),
         date:
           typeof inputSnapshot.originalDate === "string"
             ? inputSnapshot.originalDate
             : String(row.birth_date),
         calendarType:
-          inputSnapshot.calendarType === "lunar" ? "lunar" : "solar",
+          inputSnapshot.calendarType === "lunar"
+            ? ("lunar" as const)
+            : ("solar" as const),
         isLeapMonth: Boolean(inputSnapshot.isLeapMonth),
         timeKnown:
           typeof inputSnapshot.timeKnown === "boolean"
