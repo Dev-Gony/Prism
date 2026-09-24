@@ -7027,3 +7027,351 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Destiny timeline explorer */
+.destiny-timeline-explorer{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid rgba(117,107,156,.16);
+  border-radius:16px;
+  background:#fbfafc;
+}
+
+.destiny-timeline-heading{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.destiny-timeline-heading small{
+  color:var(--editorial-secondary);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.destiny-timeline-heading h3{
+  margin:4px 0 0;
+  font-family:"Noto Serif KR",serif;
+  font-size:19px;
+  font-weight:500;
+}
+
+.destiny-timeline-heading p{
+  max-width:620px;
+  margin:7px 0 0;
+  color:#776c67;
+  font-size:9px;
+  line-height:1.6;
+}
+
+.destiny-range-actions{
+  display:flex;
+  gap:5px;
+}
+
+.destiny-range-actions button{
+  min-height:32px;
+  padding:0 9px;
+  border:1px solid var(--editorial-line);
+  border-radius:999px;
+  background:#fff;
+  color:#796f83;
+  font-size:8px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.destiny-range-actions button.active{
+  border-color:var(--editorial-secondary);
+  background:#eeeaf6;
+  color:#5f5680;
+}
+
+.destiny-map-open{
+  width:100%;
+  min-height:46px;
+  margin-top:14px;
+  border:1px dashed rgba(117,107,156,.34);
+  border-radius:11px;
+  background:#fff;
+  color:#655a7a;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.destiny-year-strip{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(116px,1fr);
+  gap:7px;
+  margin-top:14px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+
+.destiny-year-strip button{
+  min-width:0;
+  padding:11px;
+  border:1px solid var(--editorial-line);
+  border-radius:11px;
+  background:#fff;
+  text-align:left;
+  cursor:pointer;
+}
+
+.destiny-year-strip button.selected{
+  border-color:rgba(117,107,156,.38);
+  background:#f0edf7;
+  box-shadow:0 0 0 2px rgba(117,107,156,.08);
+}
+
+.destiny-year-strip small,
+.destiny-year-strip strong,
+.destiny-year-strip span{
+  display:block;
+}
+
+.destiny-year-strip small{
+  color:#8c8199;
+  font-size:8px;
+  font-weight:800;
+}
+
+.destiny-year-strip strong{
+  margin-top:5px;
+  color:#352f3e;
+  font-size:10px;
+}
+
+.destiny-year-strip span{
+  margin-top:4px;
+  color:#8b817e;
+  font-size:8px;
+}
+
+.destiny-date-probe{
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  margin-top:12px;
+}
+
+.destiny-date-probe label{
+  flex:1;
+}
+
+.destiny-date-probe label>span{
+  display:block;
+  margin-bottom:6px;
+  color:#8d817c;
+  font-size:8px;
+  font-weight:700;
+}
+
+.destiny-date-probe input{
+  width:100%;
+  min-height:40px;
+  padding:0 11px;
+  border:1px solid var(--editorial-line);
+  border-radius:10px;
+  background:#fff;
+  color:#4f4541;
+  font-size:9px;
+}
+
+.destiny-date-probe button{
+  min-height:40px;
+  padding:0 12px;
+  border:0;
+  border-radius:10px;
+  background:var(--editorial-ink);
+  color:#fff;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.destiny-date-probe button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.destiny-timeline-detail{
+  margin-top:14px;
+  padding:14px;
+  border-radius:12px;
+  background:#fff;
+}
+
+.destiny-timeline-detail-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.destiny-timeline-detail-head small{
+  display:block;
+  color:#8b8198;
+  font-size:8px;
+  font-weight:800;
+}
+
+.destiny-timeline-detail-head strong{
+  display:block;
+  margin-top:3px;
+  font-family:"Noto Serif KR",serif;
+  font-size:14px;
+  font-weight:500;
+}
+
+.destiny-timeline-detail-head>span{
+  padding:5px 7px;
+  border-radius:999px;
+  background:#f1edf6;
+  color:#665b7b;
+  font-size:8px;
+  font-weight:700;
+}
+
+.destiny-timeline-signal-list{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:12px;
+}
+
+.destiny-timeline-signal-list article{
+  min-width:0;
+  padding:11px;
+  border-radius:10px;
+  background:#faf8f7;
+}
+
+.destiny-timeline-signal-list article>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:7px;
+}
+
+.destiny-timeline-signal-list small{
+  color:#8a7f7a;
+  font-size:7px;
+  font-weight:800;
+}
+
+.destiny-timeline-signal-list article>div span{
+  color:#6a5f72;
+  font-size:7px;
+  font-weight:700;
+}
+
+.destiny-timeline-signal-list strong{
+  display:block;
+  margin-top:6px;
+  color:#332d2a;
+  font-size:10px;
+}
+
+.destiny-timeline-signal-list p{
+  margin:5px 0 0;
+  color:#786d68;
+  font-size:8px;
+  line-height:1.55;
+}
+
+.destiny-timeline-convergence{
+  margin-top:10px;
+  border-top:1px solid #eee8e4;
+  padding-top:9px;
+}
+
+.destiny-timeline-convergence>div{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  gap:9px;
+  align-items:center;
+  padding:7px 0;
+}
+
+.destiny-timeline-convergence span{
+  color:#4c423e;
+  font-size:9px;
+  font-weight:700;
+}
+
+.destiny-timeline-convergence strong{
+  color:#7e716c;
+  font-size:8px;
+}
+
+.destiny-timeline-convergence em{
+  min-width:36px;
+  padding:4px 6px;
+  border-radius:999px;
+  background:#ece8f5;
+  color:#655a7a;
+  text-align:center;
+  font-size:8px;
+  font-style:normal;
+  font-weight:800;
+}
+
+.destiny-timeline-convergence p,
+.destiny-timeline-disclaimer,
+.destiny-timeline-error{
+  color:#7d726d;
+  font-size:8px;
+  line-height:1.6;
+}
+
+.destiny-timeline-disclaimer{
+  margin:10px 0 0;
+}
+
+.destiny-timeline-error{
+  color:#a0523b;
+}
+
+@media (max-width:760px){
+  .destiny-timeline-heading{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .destiny-range-actions{
+    width:100%;
+  }
+
+  .destiny-range-actions button{
+    flex:1;
+  }
+
+  .destiny-timeline-signal-list{
+    grid-template-columns:1fr;
+  }
+
+  .destiny-date-probe{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .destiny-date-probe button{
+    width:100%;
+  }
+
+  .destiny-timeline-detail-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .destiny-timeline-convergence>div{
+    grid-template-columns:1fr;
+    gap:4px;
+  }
+}
