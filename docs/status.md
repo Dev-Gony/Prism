@@ -531,3 +531,20 @@ Local visual/build validation still required after `git pull`.
 2. 공유용 결과 카드
 3. 라이브러리 기간별/타임라인 보기
 4. 기능 구현 완료 후 일괄 Test / Validation
+
+
+---
+
+## Quick to Detailed Upgrade
+
+구현 완료:
+
+- [x] 라이브러리 Quick 카드에서 Detailed로 확장 CTA
+- [x] Quick 리포트 상세 화면에서 Detailed 확장 CTA
+- [x] 저장된 생년월일 / 양력·음력 / 윤달 입력 복원
+- [x] Detailed 확장 시 출생시간은 비워둔 상태로 입력 유도
+- [x] 출생지역 기본값 유지
+- [x] Detailed 입력 모달 자동 오픈
+- [x] 기존 Quick snapshot은 수정하지 않고 새 Detailed 분석으로 생성
+
+사용자 결정에 따라 전체 Test / Validation은 기능 구현 종료 후 일괄 진행.
