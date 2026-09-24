@@ -30,6 +30,7 @@ type SavedResult = {
 };
 
 type Filter = "all" | "quick" | "detailed";
+type ViewMode = "cards" | "timeline";
 
 export default function SavedResultsList({
   initialResults,
@@ -42,6 +43,7 @@ export default function SavedResultsList({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("cards");
 
   const counts = useMemo(
     () => ({
@@ -116,6 +118,26 @@ export default function SavedResultsList({
       return haystack.includes(keyword);
     });
   }, [results, filter, query]);
+
+  const timelineGroups = useMemo(() => {
+    const groups = new Map<string, SavedResult[]>();
+
+    visibleResults.forEach((item) => {
+      const date = new Date(item.createdAt);
+      const key = Number.isNaN(date.getTime())
+        ? "날짜 미상"
+        : new Intl.DateTimeFormat("ko-KR", {
+            year: "numeric",
+            month: "long",
+          }).format(date);
+
+      const current = groups.get(key) ?? [];
+      current.push(item);
+      groups.set(key, current);
+    });
+
+    return [...groups.entries()];
+  }, [visibleResults]);
 
   async function removeResult(id: string) {
     if (!window.confirm("이 프리즘 리포트를 삭제할까요?")) return;
@@ -273,6 +295,23 @@ export default function SavedResultsList({
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
+
+        <div className="library-view-toggle" role="group" aria-label="보기 방식">
+          <button
+            type="button"
+            className={viewMode === "cards" ? "active" : ""}
+            onClick={() => setViewMode("cards")}
+          >
+            카드
+          </button>
+          <button
+            type="button"
+            className={viewMode === "timeline" ? "active" : ""}
+            onClick={() => setViewMode("timeline")}
+          >
+            타임라인
+          </button>
+        </div>
       </div>
 
       {message && <p className="library-message">{message}</p>}
@@ -287,6 +326,57 @@ export default function SavedResultsList({
         <div className="library-empty compact">
           <h2>조건에 맞는 리포트가 없어요.</h2>
           <p>검색어나 필터를 바꿔보세요.</p>
+        </div>
+      ) : viewMode === "timeline" ? (
+        <div className="library-timeline">
+          {timelineGroups.map(([month, items]) => (
+            <section className="library-timeline-group" key={month}>
+              <div className="library-timeline-month">
+                <small>ARCHIVE</small>
+                <strong>{month}</strong>
+                <span>{items.length}개</span>
+              </div>
+
+              <div className="library-timeline-items">
+                {items.map((item) => (
+                  <article className="library-timeline-item" key={item.id}>
+                    <div className="library-timeline-dot" />
+                    <div className="library-timeline-card">
+                      <div className="library-timeline-top">
+                        <div>
+                          <span className={`analysis-type-badge ${item.analysisType}`}>
+                            {item.analysisType === "detailed" ? "Detailed" : "Quick"}
+                          </span>
+                          <strong>{item.birthDate.replaceAll("-", ".")}</strong>
+                        </div>
+                        <span>{item.agreement}%</span>
+                      </div>
+
+                      <p>{item.summary || "저장된 Prism 분석"}</p>
+
+                      <div className="library-timeline-meta">
+                        <span>{item.sajuLabel}</span>
+                        <span>{item.astrologyLabel}</span>
+                        <span>{item.numerologyLabel}</span>
+                      </div>
+
+                      <div className="library-timeline-actions">
+                        {item.analysisType === "quick" && (
+                          <button type="button" onClick={() => upgradeToDetailed(item)}>
+                            Detailed로 확장
+                          </button>
+                        )}
+                        <button type="button" onClick={() => reanalyze(item)}>
+                          다시 분석
+                        </button>
+                        <a href={`/my/results/${item.id}`}>리포트 열기</a>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
       ) : (
         <div className="library-grid">
