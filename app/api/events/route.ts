@@ -13,6 +13,8 @@ const ALLOWED_EVENTS = new Set([
   "share_card_created",
   "upgrade_detailed",
   "feedback_submitted",
+  "destiny_timeline_opened",
+  "destiny_date_inspected",
 ]);
 
 export async function POST(request: Request) {
