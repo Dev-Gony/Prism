@@ -40,6 +40,14 @@ export default async function SavedResultsPage() {
     const cross = Array.isArray(row.cross_analysis) ? row.cross_analysis : [];
 
     const dayMaster = record(saju.dayMaster);
+    const keywordTitles = Array.isArray(narrative.keywords)
+      ? narrative.keywords
+          .map((item) => {
+            const keyword = record(item);
+            return typeof keyword.title === "string" ? keyword.title : "";
+          })
+          .filter(Boolean)
+      : [];
     const inputSnapshot = record(row.input_snapshot);
     const birthPlace = record(row.birth_place);
     const agreement =
@@ -75,6 +83,7 @@ export default async function SavedResultsPage() {
           ? `Life Path ${numerology.lifePath}`
           : "수비",
       agreement,
+      keywordTitles,
       reanalysisInput: {
         analysisType: String(row.analysis_type) === "detailed" ? "detailed" : "quick",
         date:
