@@ -67,6 +67,32 @@ export function buildDestinyTiming(
   numerology: DetailedNumerologyResult,
 ): DestinyTimingSummary {
   const signals: DestinyTimingSignal[] = [];
+  const targetDate = numerology.personalCycles.asOfDate;
+  const activeDaYun = saju.daYun.available
+    ? saju.daYun.periods.find(
+        (period) =>
+          targetDate >= period.startDateTime.slice(0, 10) &&
+          targetDate < period.endDateTimeExclusive.slice(0, 10),
+      )
+    : null;
+
+  if (activeDaYun) {
+    signals.push({
+      source: "saju",
+      theme: sajuTheme(activeDaYun.stemTenGod),
+      title: `대운 ${activeDaYun.ganZhi} · ${activeDaYun.stemTenGod}`,
+      evidence: [
+        `${activeDaYun.startDateTime.slice(0, 10)} ~ ${activeDaYun.endDateTimeExclusive.slice(0, 10)}`,
+        `${saju.daYun.directionLabel} · ${activeDaYun.startAge}~${activeDaYun.endAge}세`,
+        ...(activeDaYun.branchRelations.length
+          ? activeDaYun.branchRelations.map(
+              (relation) =>
+                `${relation.natalLabel}와 대운 지지 ${relation.type}`,
+            )
+          : ["원국 지지와 주요 합충형파해 신호 없음"]),
+      ],
+    });
+  }
 
   signals.push({
     source: "saju",
