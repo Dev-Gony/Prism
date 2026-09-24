@@ -149,6 +149,24 @@ export default function SavedResultsList({
     router.push("/?reanalyze=1");
   }
 
+  function upgradeToDetailed(item: SavedResult) {
+    window.sessionStorage.setItem(
+      "prism.reanalysis-input.v1",
+      JSON.stringify({
+        createdAt: Date.now(),
+        input: {
+          ...item.reanalysisInput,
+          analysisType: "detailed",
+          timeKnown: true,
+          time: "",
+          birthplaceId: item.reanalysisInput.birthplaceId || "seoul",
+        },
+      }),
+    );
+
+    router.push("/?upgrade=detailed");
+  }
+
   async function signOut() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
@@ -305,6 +323,15 @@ export default function SavedResultsList({
               <div className="library-card-footer">
                 <small>{new Date(item.createdAt).toLocaleString("ko-KR")}</small>
                 <div>
+                  {item.analysisType === "quick" && (
+                    <button
+                      type="button"
+                      className="upgrade-detailed-btn"
+                      onClick={() => upgradeToDetailed(item)}
+                    >
+                      Detailed로 확장
+                    </button>
+                  )}
                   <button type="button" className="reanalyze-btn" onClick={() => reanalyze(item)}>
                     다시 분석
                   </button>
