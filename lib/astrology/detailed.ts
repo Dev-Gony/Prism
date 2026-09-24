@@ -11,6 +11,7 @@ import type {
   DetailedAstrologyResult,
 } from "@/lib/analysis/detailed-types";
 import type { Birthplace } from "@/lib/analysis/birthplaces";
+import { kstDateString } from "@/lib/analysis/asof";
 import {
   calculateWholeSignHouses,
   houseForLongitude,
@@ -197,6 +198,73 @@ function calculateAspects(
   return aspects.sort((a, b) => a.orb - b.orb);
 }
 
+
+function nearestAspect(distance: number) {
+  return ASPECTS
+    .map((aspect) => ({
+      ...aspect,
+      orbDistance: Math.abs(distance - aspect.angle),
+    }))
+    .filter((aspect) => aspect.orbDistance <= aspect.orb)
+    .sort((a, b) => a.orbDistance - b.orbDistance)[0];
+}
+
+function calculateCurrentTransits(
+  natalBodies: DetailedAstrologyBody[],
+  ascendant: DetailedAstrologyResult["ascendant"],
+  midheaven: DetailedAstrologyResult["midheaven"],
+): DetailedAstrologyResult["transits"] {
+  const now = new Date();
+  const transitBodies = (
+    ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"] as const
+  ).map((body) => {
+    const value = longitude(body, now);
+    const sign = signFromLongitude(value);
+
+    return {
+      body,
+      longitude: Number(value.toFixed(4)),
+      sign: sign.sign,
+    };
+  });
+
+  const natalPoints = [
+    ...natalBodies.map((body) => ({
+      point: body.body as DetailedAstrologyBody["body"] | "ASC" | "MC",
+      longitude: body.longitude,
+    })),
+    ...(ascendant
+      ? [{ point: "ASC" as const, longitude: ascendant.longitude }]
+      : []),
+    ...(midheaven
+      ? [{ point: "MC" as const, longitude: midheaven.longitude }]
+      : []),
+  ];
+
+  const aspects: DetailedAstrologyResult["transits"]["aspects"] = [];
+
+  transitBodies.forEach((transit) => {
+    natalPoints.forEach((natal) => {
+      const distance = angularDistance(transit.longitude, natal.longitude);
+      const match = nearestAspect(distance);
+      if (!match) return;
+
+      aspects.push({
+        transitBody: transit.body,
+        natalPoint: natal.point,
+        type: match.type,
+        orb: Number(match.orbDistance.toFixed(2)),
+      });
+    });
+  });
+
+  return {
+    asOfDate: kstDateString(),
+    bodies: transitBodies,
+    aspects: aspects.sort((a, b) => a.orb - b.orb),
+  };
+}
+
 export function calculateAstrologyDetailed(
   year: number,
   month: number,
@@ -328,6 +396,11 @@ export function calculateAstrologyDetailed(
     balance,
     chartRuler,
     houseRulers,
+    transits: calculateCurrentTransits(
+      bodies,
+      chart?.ascendant ?? null,
+      chart?.midheaven ?? null,
+    ),
     method: timeKnown
       ? "Astronomy Engine · Sun~Pluto 황경 · 출생시각/지역 반영 · ASC/MC · Whole Sign 12 Houses · 주요 5개 각 · 원소/모달리티 균형 · 차트 룰러/하우스 룰러 · 기본 dignity"
       : "Astronomy Engine · 출생시간 미상 · 정오 스냅샷 · Moon/ASC/MC/Houses 제외 · Sun~Pluto 시간 비민감 배치 및 주요 각 계산",
