@@ -843,3 +843,27 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. 대운 규칙 결정 및 구현
 4. 장기 타임라인 저장 / 비교
 5. 기능 마감 후 계산 기준값 / 회귀 테스트 일괄 수행
+
+
+---
+
+## Solar Return v2 · Location Houses
+
+구현 완료:
+
+- [x] Solar Return 당시 체류 장소 선택
+- [x] 기존 대한민국 출생지역 데이터셋 재사용
+- [x] 선택 장소 기준 ASC / MC 계산
+- [x] Whole Sign 12 Houses 계산
+- [x] Return 순간 10행성 House 배정
+- [x] 장소 변경 시 이전 계산 snapshot 즉시 초기화
+- [x] 실시간 Detailed / 저장 Detailed 모두 동일 기능
+- [x] 실제 체류 장소가 달라지면 ASC / Houses도 달라진다는 안내
+
+다음 심화 후보:
+
+1. Numerology 이름 기반 코어 넘버
+2. 대운 규칙 결정 및 구현
+3. 장기 타임라인 저장 / 비교
+4. Solar Return ↔ Natal aspect overlay
+5. 기능 마감 후 계산 기준값 / 회귀 테스트 일괄 수행
