@@ -67,13 +67,14 @@ export function normalizeQuickResults(
 
 import type {
   DetailedAstrologyResult,
+  DetailedNumerologyResult,
   DetailedSajuResult,
 } from "@/lib/analysis/detailed-types";
 
 export function normalizeDetailedResults(
   saju: DetailedSajuResult,
   astrology: DetailedAstrologyResult,
-  numerology: NumerologyQuickResult,
+  numerology: DetailedNumerologyResult,
 ): TraitScore[] {
   const dominantElement = Object.entries(saju.elements).sort(
     (a, b) => b[1] - a[1],
@@ -118,6 +119,9 @@ export function normalizeDetailedResults(
     ]),
     ...emit("numerology", numberVector, () => [
       "Life Path " + numerology.lifePath,
+      "Birthday " + numerology.birthdayNumber,
+      "Attitude " + numerology.attitudeNumber,
+      "Pinnacles " + numerology.pinnacles.join("/"),
       numerology.meaningKey,
     ]),
   ];
