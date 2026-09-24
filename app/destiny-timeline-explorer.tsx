@@ -178,6 +178,11 @@ export default function DestinyTimelineExplorer({
         throw new Error(payload.error || "운명 시점을 저장하지 못했어요.");
       }
 
+      void trackEvent(
+        "destiny_bookmark_saved",
+        { asOfDate: selectedTiming.asOfDate },
+        "detailed",
+      );
       setBookmarks((current) => [...current, payload.item]);
       setBookmarkStatus("idle");
       setBookmarkMessage("이 시점을 내 운명 지도에 저장했어요.");
@@ -201,6 +206,11 @@ export default function DestinyTimelineExplorer({
         throw new Error(payload.error || "저장한 시점을 삭제하지 못했어요.");
       }
 
+      void trackEvent(
+        "destiny_bookmark_deleted",
+        { bookmarkId: id },
+        "detailed",
+      );
       setBookmarks((current) => current.filter((item) => item.id !== id));
     } catch (error) {
       setBookmarkMessage(
