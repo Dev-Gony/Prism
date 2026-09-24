@@ -9,6 +9,8 @@ import {
   createSupabaseBrowserClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
+import { trackEvent } from "@/lib/analytics/client";
+import ResultFeedback from "@/app/result-feedback";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -96,6 +98,10 @@ export default function Home() {
       }`,
     [year, month, day],
   );
+
+  useEffect(() => {
+    void trackEvent("landing_view");
+  }, []);
 
   useEffect(() => {
     const raw = window.sessionStorage.getItem("prism.reanalysis-input.v1");
@@ -295,6 +301,7 @@ export default function Home() {
   async function saveCurrentAnalysis() {
     if (!analysis) return;
 
+    void trackEvent("save_clicked", {}, "quick");
     setSaveMessage("");
 
     if (!user) {
@@ -313,6 +320,7 @@ export default function Home() {
     try {
       setSaveStatus("saving");
       await saveAnalysisToServer(analysis);
+      void trackEvent("result_saved", {}, "quick");
       setSaveStatus("saved");
       setSaveMessage("내 프리즘 도감에 저장했어요.");
     } catch (saveError) {
@@ -328,6 +336,7 @@ export default function Home() {
   async function saveDetailedAnalysis() {
     if (!detailedAnalysis) return;
 
+    void trackEvent("save_clicked", {}, "detailed");
     setDetailedSaveMessage("");
 
     if (!user) {
@@ -346,6 +355,7 @@ export default function Home() {
     try {
       setDetailedSaveStatus("saving");
       await saveAnalysisToServer(detailedAnalysis);
+      void trackEvent("result_saved", {}, "detailed");
       setDetailedSaveStatus("saved");
       setDetailedSaveMessage("상세 리포트를 내 프리즘 도감에 저장했어요.");
     } catch (saveError) {
@@ -526,6 +536,7 @@ export default function Home() {
   }
 
   async function runDetailedAnalysis() {
+    void trackEvent("detailed_opened", { birthplaceId, timeKnown: birthTimeKnown }, "detailed");
     setDetailedStatus("loading");
     setDetailedError("");
 
@@ -549,6 +560,11 @@ export default function Home() {
       }
 
       const detailedResult = payload as DetailedAnalysisResponse;
+      void trackEvent("detailed_completed", {
+        birthplaceId,
+        timeKnown: birthTimeKnown,
+        narrativeSource: detailedResult.narrative.generatedBy,
+      }, "detailed");
       setDetailedAnalysis(detailedResult);
       setDetailedNarrativeState("loading");
       setDetailedStatus("done");
@@ -593,6 +609,10 @@ export default function Home() {
     }
 
     setError("");
+    void trackEvent("quick_started", {
+      calendarType,
+      isLeapMonth,
+    }, "quick");
     setAnalysis(null);
     setDetailedAnalysis(null);
     setNarrativeState("idle");
@@ -627,6 +647,11 @@ export default function Home() {
       }
 
       const quickResult = payload as QuickAnalysisResponse;
+      void trackEvent("quick_completed", {
+        calendarType,
+        isLeapMonth,
+        narrativeSource: quickResult.narrative.generatedBy,
+      }, "quick");
       setLoadingIndex(3);
       setAnalysis(quickResult);
       setNarrativeState("loading");
@@ -987,7 +1012,10 @@ export default function Home() {
                   <button
                     className="report-primary-btn"
                     type="button"
-                    onClick={() => setDetailedOpen(true)}
+                    onClick={() => {
+                      void trackEvent("detailed_opened", { source: "quick-result-cta" }, "detailed");
+                      setDetailedOpen(true);
+                    }}
                   >
                     상세 분석 열기
                     <span>→</span>
@@ -1026,6 +1054,8 @@ export default function Home() {
                 )}
               </p>
             )}
+
+            <ResultFeedback analysisType="quick" />
 
             <p className="report-disclaimer">
               본 분석은 전통적·문화적 자기탐색 프레임워크를 활용한 참고
