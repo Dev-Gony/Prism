@@ -272,6 +272,11 @@ LLM이 모르는 값을 채우거나 계산 결과를 발명하는 순서는 허
 - 지장간
 - 지장간 십신
 - 합 / 충 / 형 / 파 / 해
+- 월령
+- 통근 단서
+- 투간
+- 일간 강약 휴리스틱
+- 현재 세운 천간 십신 / 원국 지지 관계
 
 ### Astrology
 - Sun ~ Pluto 10 planets
@@ -279,6 +284,11 @@ LLM이 모르는 값을 채우거나 계산 결과를 발명하는 순서는 허
 - Whole Sign 12 Houses
 - 행성별 House
 - 5 Major Aspects + Orb
+- Elements / Modalities balance
+- Chart Ruler
+- House Rulers
+- 기본 Essential Dignity 상태
+- 현재 Jupiter~Pluto Transit major aspects
 
 ### Numerology
 - Life Path
@@ -287,18 +297,25 @@ LLM이 모르는 값을 채우거나 계산 결과를 발명하는 순서는 허
 - 3 Period Cycles
 - 4 Pinnacles
 - 4 Challenges
+- Personal Year / Month / Day
+
+### Prism Timing
+- Saju annual-flow signal
+- Astrology transit signal
+- Numerology current-cycle signal
+- 2개 이상 체계가 동일 테마를 강조할 때 convergence 표시
 
 ---
 
 ## 8. Next Depth Order
 
-1. 사주 월령 / 통근 / 투간 / 일간 강약
-2. Astrology modalities / chart ruler / house ruler / dignity
-3. Numerology Personal Year / Month / Day
-4. 사주 대운 / 세운
-5. Astrology transits
-6. Cross-System Time Alignment
-7. "나의 운명 지도" UI
+1. 사주 대운 방향/기산 규칙 결정 및 구현
+2. Astrology applying/separating / retrograde / aspect patterns
+3. Numerology 이름 기반 코어 넘버
+4. 목표 날짜를 선택하는 Destiny Timeline Explorer
+5. 장기 사주 대운·세운 + Astrology Transit + Numerology Cycle 동시 탐색
+6. Cross-System Time Alignment 고도화
+7. "나의 운명 지도" 장기 타임라인 UI
 
 최종 목표는 단순한 성향 리포트가 아니다.
 
