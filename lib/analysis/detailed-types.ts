@@ -1,7 +1,6 @@
 import type {
   AnalysisNarrative,
   CrossInsight,
-  NumerologyQuickResult,
   TraitScore,
 } from "@/lib/analysis/types";
 
@@ -13,6 +12,14 @@ export type DetailedPillar = {
   branch: string;
   stemElement: string;
   branchElement: string;
+  stemTenGod?: string;
+  branchTenGod?: string;
+  hiddenStems?: Array<{
+    stem: string;
+    korean: string;
+    element: string;
+    tenGod: string;
+  }>;
 };
 
 export type DetailedSajuResult = {
@@ -23,15 +30,39 @@ export type DetailedSajuResult = {
     korean: string;
     element: string;
   };
+  tenGodSummary: Record<string, number>;
+  branchRelations: Array<{
+    type: "합" | "충" | "형" | "파" | "해";
+    branches: string[];
+    labels: string[];
+  }>;
   method: string;
 };
 
 export type DetailedAstrologyBody = {
-  body: "Sun" | "Moon" | "Mercury" | "Venus" | "Mars" | "Jupiter" | "Saturn";
+  body:
+    | "Sun"
+    | "Moon"
+    | "Mercury"
+    | "Venus"
+    | "Mars"
+    | "Jupiter"
+    | "Saturn"
+    | "Uranus"
+    | "Neptune"
+    | "Pluto";
   longitude: number;
   sign: string;
   element: "fire" | "earth" | "air" | "water";
   house?: number;
+};
+
+export type DetailedAstrologyAspect = {
+  bodyA: DetailedAstrologyBody["body"];
+  bodyB: DetailedAstrologyBody["body"];
+  type: "conjunction" | "opposition" | "trine" | "square" | "sextile";
+  angle: number;
+  orb: number;
 };
 
 export type DetailedChartAngle = {
@@ -66,8 +97,25 @@ export type DetailedAstrologyResult = {
   descendant: DetailedChartAngle | null;
   imumCoeli: DetailedChartAngle | null;
   houses: DetailedHouse[];
+  aspects: DetailedAstrologyAspect[];
   method: string;
   pending: string[];
+};
+
+export type DetailedNumerologyResult = {
+  lifePath: number;
+  reduction: number[];
+  meaningKey: string;
+  birthdayNumber: number;
+  attitudeNumber: number;
+  periodCycles: {
+    first: number;
+    second: number;
+    third: number;
+  };
+  pinnacles: [number, number, number, number];
+  challenges: [number, number, number, number];
+  method: string;
 };
 
 export type DetailedAnalysisResponse = {
@@ -83,7 +131,7 @@ export type DetailedAnalysisResponse = {
   engines: {
     saju: DetailedSajuResult;
     astrology: DetailedAstrologyResult;
-    numerology: NumerologyQuickResult;
+    numerology: DetailedNumerologyResult;
   };
   normalized: TraitScore[];
   cross: CrossInsight[];
