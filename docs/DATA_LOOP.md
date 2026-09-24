@@ -13,7 +13,9 @@ Prism은 기능을 계속 늘리는 것보다 **사용 → 측정 → 해석 →
 7. `result_saved`
 8. `ask_prism_used`
 9. `share_card_created`
-10. `feedback_submitted`
+10. `destiny_timeline_opened`
+11. `destiny_date_inspected`
+12. `feedback_submitted`
 
 ### 우선 보는 지표
 
