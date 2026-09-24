@@ -110,7 +110,7 @@ export default async function SavedResultDetailPage({
   const averageAgreement =
     crossItems.length > 0
       ? Math.round(
-          crossItems.reduce((sum, item) => {
+          crossItems.reduce((sum: number, item: unknown) => {
             const value = record(item).agreement;
             return sum + (typeof value === "number" ? value : 0);
           }, 0) / crossItems.length,

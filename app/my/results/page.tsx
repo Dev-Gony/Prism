@@ -85,13 +85,18 @@ export default async function SavedResultsPage() {
       agreement,
       keywordTitles,
       reanalysisInput: {
-        analysisType: String(row.analysis_type) === "detailed" ? "detailed" : "quick",
+        analysisType:
+          String(row.analysis_type) === "detailed"
+            ? ("detailed" as const)
+            : ("quick" as const),
         date:
           typeof inputSnapshot.originalDate === "string"
             ? inputSnapshot.originalDate
             : String(row.birth_date),
         calendarType:
-          inputSnapshot.calendarType === "lunar" ? "lunar" : "solar",
+          inputSnapshot.calendarType === "lunar"
+            ? ("lunar" as const)
+            : ("solar" as const),
         isLeapMonth: Boolean(inputSnapshot.isLeapMonth),
         timeKnown:
           typeof inputSnapshot.timeKnown === "boolean"
@@ -110,9 +115,11 @@ export default async function SavedResultsPage() {
               ? String(birthPlace.id)
               : "seoul",
         yunGender:
-          inputSnapshot.yunGender === "male" || inputSnapshot.yunGender === "female"
-            ? inputSnapshot.yunGender
-            : null,
+          inputSnapshot.yunGender === "male"
+            ? ("male" as const)
+            : inputSnapshot.yunGender === "female"
+              ? ("female" as const)
+              : null,
       },
     };
   });
