@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
+import { trackEvent } from "@/lib/analytics/client";
 
 type SavedQuestionMessage = {
   question: string;
@@ -95,6 +96,12 @@ export default function SavedDetailedQuestionPanel({
       if (!response.ok) {
         throw new Error(payload.error || "답변을 만들지 못했어요.");
       }
+
+      void trackEvent("ask_prism_used", {
+        reportId,
+        source: "saved-detailed-report",
+        generatedBy: payload.generatedBy === "gemini" ? "gemini" : "fallback",
+      }, "detailed");
 
       persist([
         ...messages,
