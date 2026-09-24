@@ -68,54 +68,60 @@ export function buildDestinyTiming(
 ): DestinyTimingSummary {
   const signals: DestinyTimingSignal[] = [];
 
-  const sajuTimingTenGod =
-    saju.monthlyFlow?.stemTenGod ?? saju.annualFlow.stemTenGod;
-
   signals.push({
     source: "saju",
-    theme: sajuTheme(sajuTimingTenGod),
-    title: saju.monthlyFlow
-      ? `세운 ${saju.annualFlow.pillar} · 월운 ${saju.monthlyFlow.pillar}`
-      : `세운 ${saju.annualFlow.pillar} · ${saju.annualFlow.stemTenGod}`,
+    theme: sajuTheme(saju.annualFlow.stemTenGod),
+    title: `세운 ${saju.annualFlow.pillar} · ${saju.annualFlow.stemTenGod}`,
     evidence: [
       `기준일 ${saju.annualFlow.asOfDate}`,
       `세운 천간 십신 ${saju.annualFlow.stemTenGod}`,
-      ...(saju.monthlyFlow
-        ? [
-            `월운 천간 십신 ${saju.monthlyFlow.stemTenGod}`,
-            ...(saju.monthlyFlow.branchRelations.length
-              ? saju.monthlyFlow.branchRelations.map(
-                  (relation) =>
-                    `${relation.natalLabel}와 월운 지지 ${relation.type}`,
-                )
-              : ["월운 지지와 원국의 주요 합충형파해 신호 없음"]),
-          ]
-        : []),
       ...(saju.annualFlow.branchRelations.length
         ? saju.annualFlow.branchRelations.map(
             (relation) =>
               `${relation.natalLabel}와 세운 지지 ${relation.type}`,
           )
-        : []),
+        : ["세운 지지와 원국의 주요 합충형파해 신호 없음"]),
     ],
   });
 
-  const strongestTransit = astrology.transits.aspects[0];
-  if (strongestTransit) {
+  if (saju.monthlyFlow) {
     signals.push({
-      source: "astrology",
-      theme: astrologyTheme(strongestTransit.transitBody),
-      title: `${strongestTransit.transitBody} transit · ${strongestTransit.type}`,
+      source: "saju",
+      theme: sajuTheme(saju.monthlyFlow.stemTenGod),
+      title: `월운 ${saju.monthlyFlow.pillar} · ${saju.monthlyFlow.stemTenGod}`,
       evidence: [
-        `기준일 ${astrology.transits.asOfDate}`,
-        `${strongestTransit.transitBody} → natal ${strongestTransit.natalPoint}`,
-        `orb ${strongestTransit.orb.toFixed(2)}° · ${strongestTransit.phase}`,
+        `기준일 ${saju.monthlyFlow.asOfDate}`,
+        `월운 천간 십신 ${saju.monthlyFlow.stemTenGod}`,
+        ...(saju.monthlyFlow.branchRelations.length
+          ? saju.monthlyFlow.branchRelations.map(
+              (relation) =>
+                `${relation.natalLabel}와 월운 지지 ${relation.type}`,
+            )
+          : ["월운 지지와 원국의 주요 합충형파해 신호 없음"]),
       ],
+    });
+  }
+
+  const transitAspects = astrology.transits.aspects.slice(0, 3);
+
+  if (transitAspects.length > 0) {
+    transitAspects.forEach((transit) => {
+      signals.push({
+        source: "astrology",
+        theme: astrologyTheme(transit.transitBody),
+        title: `${transit.transitBody} transit · ${transit.type}`,
+        evidence: [
+          `기준일 ${astrology.transits.asOfDate}`,
+          `${transit.transitBody} → natal ${transit.natalPoint}`,
+          `orb ${transit.orb.toFixed(2)}° · ${transit.phase}`,
+        ],
+      });
     });
   } else {
     const jupiter = astrology.transits.bodies.find(
       (body) => body.body === "Jupiter",
     );
+
     if (jupiter) {
       signals.push({
         source: "astrology",
@@ -131,8 +137,8 @@ export function buildDestinyTiming(
 
   signals.push({
     source: "numerology",
-    theme: numerologyTheme(numerology.personalCycles.personalMonth),
-    title: `Personal Year ${numerology.personalCycles.personalYear} · Month ${numerology.personalCycles.personalMonth}`,
+    theme: numerologyTheme(numerology.personalCycles.personalYear),
+    title: `Personal Year ${numerology.personalCycles.personalYear}`,
     evidence: [
       `기준일 ${numerology.personalCycles.asOfDate}`,
       `Personal Month ${numerology.personalCycles.personalMonth}`,
@@ -140,7 +146,21 @@ export function buildDestinyTiming(
     ],
   });
 
-  const grouped = new Map<DestinyTheme, Set<DestinyTimingSignal["source"]>>();
+  signals.push({
+    source: "numerology",
+    theme: numerologyTheme(numerology.personalCycles.personalMonth),
+    title: `Personal Month ${numerology.personalCycles.personalMonth}`,
+    evidence: [
+      `Personal Year ${numerology.personalCycles.personalYear}`,
+      `Personal Day ${numerology.personalCycles.personalDay}`,
+    ],
+  });
+
+  const grouped = new Map<
+    DestinyTheme,
+    Set<DestinyTimingSignal["source"]>
+  >();
+
   signals.forEach((signal) => {
     const sources = grouped.get(signal.theme) ?? new Set();
     sources.add(signal.source);
