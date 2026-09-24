@@ -1689,6 +1689,27 @@ function DetailedReport({
               </strong>
             </div>
           </div>
+
+          <div className="aspect-list">
+            {data.engines.astrology.transits.aspects.slice(0, 6).map((aspect) => {
+              const body = data.engines.astrology.transits.bodies.find(
+                (item) => item.body === aspect.transitBody,
+              );
+
+              return (
+                <div key={`transit-${aspect.transitBody}-${aspect.natalPoint}-${aspect.type}`}>
+                  <strong>{aspect.transitBody} → {aspect.natalPoint}</strong>
+                  <span>{aspect.type} · {aspect.phase}</span>
+                  <em>
+                    orb {aspect.orb.toFixed(1)}°
+                    {body
+                      ? ` · ${body.motion} · ${body.speedDegPerDay.toFixed(3)}°/d`
+                      : ""}
+                  </em>
+                </div>
+              );
+            })}
+          </div>
         </article>
 
         <article className="domain-depth-card numero">

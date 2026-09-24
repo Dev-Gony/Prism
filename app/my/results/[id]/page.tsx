@@ -77,6 +77,9 @@ export default async function SavedResultDetailPage({
 
   const pillars = arrayOfRecords(saju.pillars);
   const bodies = arrayOfRecords(astrology.bodies);
+  const transitSnapshot = record(astrology.transits);
+  const transitBodies = arrayOfRecords(transitSnapshot.bodies);
+  const transitAspects = arrayOfRecords(transitSnapshot.aspects);
   const houses = arrayOfRecords(astrology.houses);
   const ascendant = record(astrology.ascendant);
   const midheaven = record(astrology.midheaven);
@@ -315,6 +318,38 @@ export default async function SavedResultDetailPage({
                     </small>
                   </span>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {transitAspects.length > 0 && (
+            <div className="archive-astrology-patterns">
+              <div className="archive-subheading">
+                <h3>Transit Motion & Phase</h3>
+                <span>{text(transitSnapshot.asOfDate, "저장 당시 기준일")}</span>
+              </div>
+              <div className="archive-pattern-list">
+                {transitAspects.slice(0, 6).map((aspect, index) => {
+                  const transitBody = transitBodies.find(
+                    (body) => text(body.body) === text(aspect.transitBody),
+                  );
+
+                  return (
+                    <span key={text(aspect.transitBody) + text(aspect.natalPoint) + index}>
+                      <b>{text(aspect.transitBody)} → {text(aspect.natalPoint)}</b>
+                      <small>
+                        {text(aspect.type)}
+                        {text(aspect.phase) ? ` · ${text(aspect.phase)}` : ""}
+                        {typeof aspect.orb === "number"
+                          ? ` · orb ${number(aspect.orb).toFixed(1)}°`
+                          : ""}
+                        {transitBody && text(transitBody.motion)
+                          ? ` · ${text(transitBody.motion)}`
+                          : ""}
+                      </small>
+                    </span>
+                  );
+                })}
               </div>
             </div>
           )}

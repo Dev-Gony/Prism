@@ -203,6 +203,8 @@ export type DetailedAstrologyResult = {
       body: "Jupiter" | "Saturn" | "Uranus" | "Neptune" | "Pluto";
       longitude: number;
       sign: string;
+      speedDegPerDay: number;
+      motion: "direct" | "retrograde" | "stationary";
     }>;
     aspects: Array<{
       transitBody: "Jupiter" | "Saturn" | "Uranus" | "Neptune" | "Pluto";
