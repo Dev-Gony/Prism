@@ -67,6 +67,8 @@ export async function POST(request: Request) {
     );
   }
 
+  const analysis = body.analysis;
+
   const year =
     typeof body.year === "number" && Number.isInteger(body.year)
       ? body.year
@@ -97,7 +99,7 @@ export async function POST(request: Request) {
 
   try {
     const snapshot = calculateSolarReturn(
-      body.analysis,
+      analysis,
       year,
       returnPlace
         ? {
@@ -111,13 +113,13 @@ export async function POST(request: Request) {
 
     const timeZone =
       snapshot.location?.timezone ||
-      body.analysis.engines.astrology.birthplace.timezone ||
+      analysis.engines.astrology.birthplace.timezone ||
       "Asia/Seoul";
     const startDate = dateInTimezone(snapshot.exactUtc, timeZone);
 
     const months = Array.from({ length: 12 }, (_, index) => {
       const asOfDate = addMonthsClamped(startDate, index);
-      const timing = buildDestinyTimingAtDate(body.analysis, asOfDate);
+      const timing = buildDestinyTimingAtDate(analysis, asOfDate);
       const top = timing.convergences[0];
 
       return {
