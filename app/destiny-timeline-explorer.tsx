@@ -10,13 +10,18 @@ import type {
 type TimelinePoint = {
   asOfDate: string;
   year: number;
+  month: number;
+  label: string;
   timing: DestinyTimingSummary;
   dominantTheme: string | null;
   convergenceStrength: number;
 };
 
+type TimelineResolution = "year" | "quarter" | "month";
+
 type TimelinePayload = {
   anchorDate: string;
+  resolution: TimelineResolution;
   points: TimelinePoint[];
 };
 
@@ -45,6 +50,8 @@ export default function DestinyTimelineExplorer({
     analysis.destinyTiming?.asOfDate ?? "현재",
   );
   const [yearsAfter, setYearsAfter] = useState(5);
+  const [resolution, setResolution] =
+    useState<TimelineResolution>("year");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState("");
 
@@ -72,24 +79,38 @@ export default function DestinyTimelineExplorer({
     return payload;
   }
 
-  async function loadTimeline(nextYearsAfter = yearsAfter) {
+  async function loadTimeline(
+    nextYearsAfter = yearsAfter,
+    nextResolution = resolution,
+  ) {
     setStatus("loading");
     setMessage("");
 
     try {
-      const payload = (await request({
-        yearsBefore: 1,
-        yearsAfter: nextYearsAfter,
-      })) as TimelinePayload;
+      const payload = (await request(
+        nextResolution === "year"
+          ? {
+              resolution: "year",
+              count: nextYearsAfter,
+            }
+          : {
+              resolution: nextResolution,
+              count: nextResolution === "quarter" ? 8 : 12,
+            },
+      )) as TimelinePayload;
 
       void trackEvent(
         "destiny_timeline_opened",
-        { yearsAfter: nextYearsAfter },
+        {
+          yearsAfter: nextYearsAfter,
+          resolution: nextResolution,
+        },
         "detailed",
       );
 
       setTimeline(payload);
       setYearsAfter(nextYearsAfter);
+      setResolution(nextResolution);
 
       const current =
         payload.points.find((point) => point.asOfDate === payload.anchorDate) ??
@@ -154,8 +175,28 @@ export default function DestinyTimelineExplorer({
           </p>
         </div>
 
-        <div className="destiny-range-actions">
-          {[3, 5, 10].map((years) => (
+        <div className="destiny-range-stack">
+          <div className="destiny-resolution-actions">
+            {([
+              ["year", "연"],
+              ["quarter", "분기"],
+              ["month", "월"],
+            ] as const).map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                className={resolution === value ? "active" : ""}
+                disabled={status === "loading"}
+                onClick={() => void loadTimeline(yearsAfter, value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {resolution === "year" && (
+            <div className="destiny-range-actions">
+              {[3, 5, 10].map((years) => (
             <button
               type="button"
               key={years}
@@ -165,7 +206,9 @@ export default function DestinyTimelineExplorer({
             >
               +{years}년
             </button>
-          ))}
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -176,7 +219,13 @@ export default function DestinyTimelineExplorer({
           disabled={status === "loading"}
           onClick={() => void loadTimeline()}
         >
-          {status === "loading" ? "운명 지도 계산 중..." : "7년 운명 지도 펼치기"}
+          {status === "loading"
+            ? "운명 지도 계산 중..."
+            : resolution === "year"
+              ? "운명 지도 펼치기"
+              : resolution === "quarter"
+                ? "분기 흐름 펼치기"
+                : "월 흐름 펼치기"}
         </button>
       )}
 
@@ -193,7 +242,7 @@ export default function DestinyTimelineExplorer({
                   setSelectedLabel(point.asOfDate);
                 }}
               >
-                <small>{point.year}</small>
+                <small>{point.label}</small>
                 <strong>{point.dominantTheme ?? "독립 신호"}</strong>
                 <span>
                   {point.convergenceStrength > 0
@@ -202,6 +251,14 @@ export default function DestinyTimelineExplorer({
                 </span>
               </button>
             ))}
+          </div>
+
+          <div className="destiny-resolution-note">
+            {timeline.resolution === "year"
+              ? "연간 보기는 같은 월·일을 기준으로 비교합니다."
+              : timeline.resolution === "quarter"
+                ? "분기 보기는 3개월 간격의 동일 기준일 스냅샷입니다."
+                : "월간 보기는 매달 같은 일자의 세 체계 신호를 비교합니다."}
           </div>
 
           <div className="destiny-date-probe">
