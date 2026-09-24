@@ -128,8 +128,9 @@ export async function POST(request: Request) {
       narrative: analysis.narrative,
       narrative_source: analysis.narrative.generatedBy,
       llm_model: analysis.narrative.model ?? null,
+      destiny_timing: isDetailed ? analysis.destinyTiming ?? null : null,
       warnings: analysis.warnings,
-      schema_version: "v1",
+      schema_version: isDetailed ? "v2" : "v1",
     })
     .select("id")
     .single();
