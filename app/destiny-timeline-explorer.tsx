@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { trackEvent } from "@/lib/analytics/client";
 import type {
   DestinyTimingSummary,
   DetailedAnalysisResponse,
@@ -81,6 +82,12 @@ export default function DestinyTimelineExplorer({
         yearsAfter: nextYearsAfter,
       })) as TimelinePayload;
 
+      void trackEvent(
+        "destiny_timeline_opened",
+        { yearsAfter: nextYearsAfter },
+        "detailed",
+      );
+
       setTimeline(payload);
       setYearsAfter(nextYearsAfter);
 
@@ -119,6 +126,11 @@ export default function DestinyTimelineExplorer({
         timing: DestinyTimingSummary;
       };
 
+      void trackEvent(
+        "destiny_date_inspected",
+        { targetDate: selectedDate },
+        "detailed",
+      );
       setSelectedTiming(payload.timing);
       setSelectedLabel(payload.targetDate);
       setStatus("idle");
