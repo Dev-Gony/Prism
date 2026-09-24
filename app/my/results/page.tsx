@@ -109,6 +109,10 @@ export default async function SavedResultsPage() {
             : typeof birthPlace.id === "string"
               ? String(birthPlace.id)
               : "seoul",
+        yunGender:
+          inputSnapshot.yunGender === "male" || inputSnapshot.yunGender === "female"
+            ? inputSnapshot.yunGender
+            : null,
       },
     };
   });
