@@ -65,6 +65,18 @@ export type DetailedSajuResult = {
     factors: string[];
     heuristic: true;
   };
+  annualFlow: {
+    asOfDate: string;
+    pillar: string;
+    korean: string;
+    stemTenGod: string;
+    branchRelations: Array<{
+      type: "합" | "충" | "형" | "파" | "해";
+      natalBranch: string;
+      annualBranch: string;
+      natalLabel: string;
+    }>;
+  };
   branchRelations: Array<{
     type: "합" | "충" | "형" | "파" | "해";
     branches: string[];
@@ -159,6 +171,20 @@ export type DetailedAstrologyResult = {
     rulerSign: string | null;
     rulerHouse: number | null;
   }>;
+  transits: {
+    asOfDate: string;
+    bodies: Array<{
+      body: "Jupiter" | "Saturn" | "Uranus" | "Neptune" | "Pluto";
+      longitude: number;
+      sign: string;
+    }>;
+    aspects: Array<{
+      transitBody: "Jupiter" | "Saturn" | "Uranus" | "Neptune" | "Pluto";
+      natalPoint: DetailedAstrologyBody["body"] | "ASC" | "MC";
+      type: DetailedAstrologyAspect["type"];
+      orb: number;
+    }>;
+  };
   method: string;
   pending: string[];
 };
@@ -203,5 +229,35 @@ export type DetailedAnalysisResponse = {
   normalized: TraitScore[];
   cross: CrossInsight[];
   narrative: AnalysisNarrative;
+  destinyTiming?: DestinyTimingSummary;
   warnings: string[];
+};
+
+
+export type DestinyTheme =
+  | "self"
+  | "expression"
+  | "resources"
+  | "responsibility"
+  | "learning"
+  | "expansion"
+  | "change"
+  | "transformation";
+
+export type DestinyTimingSignal = {
+  source: "saju" | "astrology" | "numerology";
+  theme: DestinyTheme;
+  title: string;
+  evidence: string[];
+};
+
+export type DestinyTimingSummary = {
+  asOfDate: string;
+  signals: DestinyTimingSignal[];
+  convergences: Array<{
+    theme: DestinyTheme;
+    sources: Array<"saju" | "astrology" | "numerology">;
+    strength: number;
+    label: string;
+  }>;
 };
