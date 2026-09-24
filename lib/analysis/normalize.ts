@@ -105,6 +105,11 @@ export function normalizeDetailedResults(
   return [
     ...emit("saju", sajuVector, () => [
       "일간 " + saju.dayMaster.korean + saju.dayMaster.element,
+      "월령 " + saju.monthCommand.korean + " · " + saju.monthCommand.mainHiddenTenGod,
+      "강약 " + saju.strength.level + " " + saju.strength.score,
+      saju.rooting.dayMasterRooted
+        ? "통근 단서 " + saju.rooting.rootBranches.length + "개"
+        : "통근 단서 적음",
       saju.pillars[3]
         ? "시주 " + saju.pillars[3].text
         : "출생시간 미상 · 시주 제외",
@@ -115,6 +120,13 @@ export function normalizeDetailedResults(
       astrology.moonSign
         ? "달 " + astrology.moonSign
         : "출생시간 미상 · 달/ASC/House 제외",
+      astrology.chartRuler
+        ? "차트 룰러 " +
+          astrology.chartRuler.primary +
+          " · " +
+          astrology.chartRuler.sign
+        : "차트 룰러 계산에는 출생시간 필요",
+      "주요 각 " + astrology.aspects.length + "개",
       astrology.timeKnown ? "출생시각 반영" : "정오 스냅샷 기반",
     ]),
     ...emit("numerology", numberVector, () => [
@@ -122,6 +134,9 @@ export function normalizeDetailedResults(
       "Birthday " + numerology.birthdayNumber,
       "Attitude " + numerology.attitudeNumber,
       "Pinnacles " + numerology.pinnacles.join("/"),
+      "Personal Year " + numerology.personalCycles.personalYear,
+      "Personal Month " + numerology.personalCycles.personalMonth,
+      "Personal Day " + numerology.personalCycles.personalDay,
       numerology.meaningKey,
     ]),
   ];
