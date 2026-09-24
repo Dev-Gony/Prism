@@ -8011,3 +8011,70 @@ body{
     grid-template-columns:repeat(3,minmax(0,1fr));
   }
 }
+
+
+/* Solar Return deep aspects */
+.solar-return-aspects{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid rgba(117,107,156,.14);
+  border-radius:11px;
+  background:#faf8fc;
+}
+
+.solar-return-aspects.natal-overlay{
+  border-color:rgba(91,132,114,.16);
+  background:#f6faf8;
+}
+
+.solar-return-aspects>div:first-child small{
+  display:block;
+  color:#766a86;
+  font-size:7px;
+  font-weight:800;
+  letter-spacing:.06em;
+}
+
+.solar-return-aspects>div:first-child strong{
+  display:block;
+  margin-top:4px;
+  color:#403747;
+  font-size:10px;
+}
+
+.solar-return-aspect-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+  margin-top:9px;
+}
+
+.solar-return-aspect-list span{
+  min-width:0;
+  padding:8px 9px;
+  border-radius:9px;
+  background:#fff;
+}
+
+.solar-return-aspect-list b,
+.solar-return-aspect-list em{
+  display:block;
+}
+
+.solar-return-aspect-list b{
+  color:#4b414f;
+  font-size:8px;
+}
+
+.solar-return-aspect-list em{
+  margin-top:3px;
+  color:#83788c;
+  font-size:7px;
+  font-style:normal;
+}
+
+@media (max-width:640px){
+  .solar-return-aspect-list{
+    grid-template-columns:1fr;
+  }
+}
