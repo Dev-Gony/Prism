@@ -117,6 +117,168 @@ function pillar(
   };
 }
 
+
+function supportiveElement(dayElement: string, candidate: string) {
+  if (candidate === dayElement) return true;
+
+  const resource = Object.entries(elementProduces).find(
+    ([, produced]) => produced === dayElement,
+  )?.[0];
+
+  return candidate === resource;
+}
+
+function buildExpertSajuProfile(
+  pillars: DetailedSajuResult["pillars"],
+  dayStem: string,
+): Pick<
+  DetailedSajuResult,
+  "monthCommand" | "rooting" | "exposedHiddenStems" | "strength"
+> {
+  const dayMeta = stemMeta(dayStem);
+  const monthPillar = pillars.find((item) => item.label === "월주")!;
+  const monthMainHidden = monthPillar.hiddenStems?.[0];
+  const visibleStems = pillars.map((item) => item.stem);
+
+  const rootBranches = pillars.flatMap((pillar) =>
+    (pillar.hiddenStems ?? [])
+      .filter(
+        (hidden) =>
+          hidden.stem === dayStem ||
+          (hidden.element === dayMeta.element &&
+            hidden.tenGod !== "겁재"),
+      )
+      .map((hidden) => ({
+        branch: pillar.branch,
+        label: pillar.label,
+        hiddenStem: hidden.stem,
+      })),
+  );
+
+  const visibleStemRoots = pillars.map((pillar) => ({
+    pillar: pillar.label,
+    stem: pillar.stem,
+    rootBranches: pillars
+      .filter((branchPillar) =>
+        (branchPillar.hiddenStems ?? []).some(
+          (hidden) => hidden.stem === pillar.stem,
+        ),
+      )
+      .map((branchPillar) => branchPillar.branch),
+  }));
+
+  const hiddenByStem = new Map<
+    string,
+    {
+      stem: string;
+      korean: string;
+      element: string;
+      tenGod: string;
+      sourceBranches: Set<string>;
+      visiblePillars: Set<string>;
+    }
+  >();
+
+  pillars.forEach((pillar) => {
+    (pillar.hiddenStems ?? []).forEach((hidden) => {
+      if (!visibleStems.includes(hidden.stem)) return;
+
+      const current = hiddenByStem.get(hidden.stem) ?? {
+        stem: hidden.stem,
+        korean: hidden.korean,
+        element: hidden.element,
+        tenGod: hidden.tenGod,
+        sourceBranches: new Set<string>(),
+        visiblePillars: new Set<string>(),
+      };
+
+      current.sourceBranches.add(pillar.branch);
+      pillars
+        .filter((visible) => visible.stem === hidden.stem)
+        .forEach((visible) => current.visiblePillars.add(visible.label));
+
+      hiddenByStem.set(hidden.stem, current);
+    });
+  });
+
+  const exposedHiddenStems = [...hiddenByStem.values()].map((item) => ({
+    stem: item.stem,
+    korean: item.korean,
+    element: item.element,
+    tenGod: item.tenGod,
+    sourceBranches: [...item.sourceBranches],
+    visiblePillars: [...item.visiblePillars],
+  }));
+
+  let score = 50;
+  const factors: string[] = [];
+
+  if (monthMainHidden) {
+    if (supportiveElement(dayMeta.element, monthMainHidden.element)) {
+      score += 18;
+      factors.push(
+        `월령 본기 ${monthMainHidden.korean}(${monthMainHidden.element})가 일간을 돕는 방향`,
+      );
+    } else {
+      score -= 12;
+      factors.push(
+        `월령 본기 ${monthMainHidden.korean}(${monthMainHidden.element})가 일간과 다른 방향`,
+      );
+    }
+  }
+
+  if (rootBranches.length > 0) {
+    const rootBonus = Math.min(18, rootBranches.length * 6);
+    score += rootBonus;
+    factors.push(`일간 통근 단서 ${rootBranches.length}개`);
+  } else {
+    score -= 10;
+    factors.push("일간의 직접 통근 단서가 적음");
+  }
+
+  const supportiveVisible = pillars.filter((pillar) =>
+    supportiveElement(dayMeta.element, pillar.stemElement),
+  ).length;
+
+  if (supportiveVisible >= 2) {
+    score += 10;
+    factors.push(`천간에서 일간을 돕는 오행 ${supportiveVisible}개`);
+  }
+
+  const drainingVisible = pillars.length - supportiveVisible;
+  if (drainingVisible >= 3) {
+    score -= 8;
+    factors.push(`천간에서 일간과 다른 작용 ${drainingVisible}개`);
+  }
+
+  score = Math.max(0, Math.min(100, score));
+
+  const level =
+    score >= 62 ? "신강 경향" : score <= 38 ? "신약 경향" : "중화 경향";
+
+  return {
+    monthCommand: {
+      branch: monthPillar.branch,
+      korean: branchKo[branches.indexOf(monthPillar.branch)],
+      element: monthPillar.branchElement,
+      mainHiddenStem: monthMainHidden?.stem ?? monthPillar.branch,
+      mainHiddenTenGod: monthMainHidden?.tenGod ?? "미분류",
+    },
+    rooting: {
+      dayMasterRooted: rootBranches.length > 0,
+      rootBranches,
+      visibleStemRoots,
+    },
+    exposedHiddenStems,
+    strength: {
+      score,
+      level,
+      factors,
+      heuristic: true,
+    },
+  };
+}
+
 function detectBranchRelations(
   pillarBranches: string[],
 ): DetailedSajuResult["branchRelations"] {
@@ -274,6 +436,8 @@ export function calculateSajuDetailed(
     });
   });
 
+  const expertProfile = buildExpertSajuProfile(pillars, dayStem);
+
   return {
     pillars,
     elements,
@@ -283,12 +447,13 @@ export function calculateSajuDetailed(
       element: stemElement[stems.indexOf(dayStem)],
     },
     tenGodSummary,
+    ...expertProfile,
     branchRelations: detectBranchRelations(
       pillars.map((item) => item.branch),
     ),
     method:
       hour === null
-        ? "양력 · 한국 표준시(UTC+9) · 출생시간 미상 · 시주 제외 · 천간 십신/지장간/지지 관계 포함 · 진태양시 보정 없음"
+        ? "양력 · 한국 표준시(UTC+9) · 출생시간 미상 · 시주 제외 · 천간 십신/지장간/월령/통근/투간/강약 휴리스틱/지지 관계 포함 · 진태양시 보정 없음"
         : "양력 · 한국 표준시(UTC+9) · 출생시각 반영 · 23시 일자 변경 · 천간 십신/지장간/지지 관계 포함 · 진태양시 보정 없음",
   };
 }
