@@ -892,3 +892,67 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. 대운 규칙 결정 및 구현
 4. 장기 타임라인 저장 / 비교
 5. 기능 마감 후 계산 기준값 / 회귀 테스트 일괄 수행
+
+
+---
+
+## Prism Expansion Batch · Name Numerology / Year Flow / Saved Moments
+
+이번 대형 확장 구현:
+
+### Numerology Expert · Name Layer
+
+- [x] 영문/로마자 이름 기반 Pythagorean Numerology
+- [x] Expression / Destiny Number
+- [x] Soul Urge
+- [x] Personality Number
+- [x] Maturity Number
+- [x] Balance Number
+- [x] Cornerstone / Capstone
+- [x] First Vowel
+- [x] Hidden Passion
+- [x] Karmic Lessons
+- [x] Subconscious Self
+- [x] 1~9 문자값 분포
+- [x] 이름 수비학은 자동 저장하지 않는 선택 입력
+- [x] 한글 자동 음역 금지, 사용자가 실제 로마자 표기를 직접 입력
+
+### Solar Return Year Flow
+
+- [x] Solar Return 내부 major aspects
+- [x] Solar Return ↔ Natal planet / ASC / MC overlay
+- [x] orb 3° 이내 natal overlay
+- [x] Solar Return 정확 복귀일 기준 12개월 Year Flow
+- [x] 매월 세운 / 월운 / Transit / Personal Cycle 재계산
+- [x] 월별 dominant convergence / strength
+- [x] strongest 3 months 표시
+- [x] 기존 Prism Year Matrix와 함께 노출
+
+### Destiny Timeline Comparison
+
+- [x] 날짜 A / 날짜 B 직접 선택
+- [x] 각 시점 Cross-System Timing 병렬 계산
+- [x] 두 시점 dominant theme / convergence 비교
+- [x] 같은 사람의 시간 변화 탐색
+
+### Saved Destiny Moments
+
+- [x] Supabase `destiny_bookmarks`
+- [x] 로그인 사용자 전용 저장
+- [x] birth_date + as_of_date + timing immutable snapshot
+- [x] 저장한 시점 다시 열기
+- [x] 저장한 시점 삭제
+- [x] RLS select / insert / delete own
+- [x] bookmark save/delete product analytics
+
+제품 구조는 이제 단순 리포트 저장에서
+**출생 원본 → 전문 엔진 → 시간 탐색 → 특정 시점 비교 → 중요한 시점 보관**
+흐름으로 확장됨.
+
+다음 대형 축:
+
+1. 사주 대운 규칙 확정 및 대운 10년 주기 엔진
+2. Solar Return / Transit / 대운을 한 장의 장기 타임라인으로 병합
+3. Name Numerology 결과를 선택적으로 Cross-System 정규화
+4. 연도별 Prism Year Book / Archive
+5. 기능 구현 종료 후 계산 기준값 및 회귀 테스트 일괄 수행
