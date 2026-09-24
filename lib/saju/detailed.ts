@@ -1,5 +1,6 @@
 import lunar from "lunar-javascript";
 import type { DetailedSajuResult } from "@/lib/analysis/detailed-types";
+import { kstDateParts, kstDateString } from "@/lib/analysis/asof";
 
 const { Solar } = lunar;
 
@@ -360,6 +361,51 @@ function detectBranchRelations(
   return found;
 }
 
+
+function calculateAnnualFlow(
+  pillars: DetailedSajuResult["pillars"],
+  dayStem: string,
+): DetailedSajuResult["annualFlow"] {
+  const now = kstDateParts();
+  const chinaTime = new Date(
+    Date.UTC(now.year, now.month - 1, now.day, now.hour - 1, now.minute),
+  );
+
+  const currentTerms = Solar.fromYmdHms(
+    chinaTime.getUTCFullYear(),
+    chinaTime.getUTCMonth() + 1,
+    chinaTime.getUTCDate(),
+    chinaTime.getUTCHours(),
+    chinaTime.getUTCMinutes(),
+    0,
+  )
+    .getLunar()
+    .getEightChar();
+
+  const text = currentTerms.getYear();
+  const [stem, branch] = [...text];
+
+  const branchRelations = pillars.flatMap((pillar) =>
+    detectBranchRelations([pillar.branch, branch])
+      .filter((relation) => relation.branches.includes(branch))
+      .map((relation) => ({
+        type: relation.type,
+        natalBranch: pillar.branch,
+        annualBranch: branch,
+        natalLabel: pillar.label,
+      })),
+  );
+
+  return {
+    asOfDate: kstDateString(),
+    pillar: text,
+    korean:
+      stemKo[stems.indexOf(stem)] + branchKo[branches.indexOf(branch)],
+    stemTenGod: tenGod(dayStem, stem),
+    branchRelations,
+  };
+}
+
 export function calculateSajuDetailed(
   year: number,
   month: number,
@@ -448,6 +494,7 @@ export function calculateSajuDetailed(
     },
     tenGodSummary,
     ...expertProfile,
+    annualFlow: calculateAnnualFlow(pillars, dayStem),
     branchRelations: detectBranchRelations(
       pillars.map((item) => item.branch),
     ),
