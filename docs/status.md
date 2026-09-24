@@ -694,3 +694,30 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. Astrology transit 패턴 확장
 4. 이름 기반 Numerology 선택 입력
 5. 장기 운명 지도 UI
+
+
+---
+
+## Destiny Timeline Explorer v1
+
+구현 완료:
+
+- [x] Target-date Saju annual flow 계산
+- [x] Target-date Astrology outer-planet transit 계산
+- [x] Target-date Numerology Personal Cycle 계산
+- [x] `POST /api/destiny/timeline`
+- [x] 현재 -1년 / 미래 +3·+5·+10년 범위 선택
+- [x] 연도별 dominant convergence / strength 표시
+- [x] 특정 날짜 직접 분석
+- [x] Detailed Result에 인터랙티브 운명 지도
+- [x] 저장 Detailed Report에서도 동일 탐색
+- [x] timeline open / exact date inspect analytics
+- [x] Supabase product_events constraint 확장 및 migration versioning
+
+다음 구현:
+
+1. Astrology applying / separating 및 retrograde
+2. Aspect pattern / stellium / angular emphasis
+3. Numerology 이름 기반 선택 분석
+4. 대운 규칙 결정
+5. Destiny Timeline 월/분기 단위 확대
