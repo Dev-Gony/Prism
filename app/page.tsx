@@ -1561,6 +1561,7 @@ function DetailedReport({
       </section>
 
       <DetailedQuestionPanel analysis={data} />
+      <ResultFeedback analysisType="detailed" />
 
       <div className="detailed-report-actions">
         <button
@@ -1634,6 +1635,11 @@ function DetailedQuestionPanel({
       if (!response.ok) {
         throw new Error(payload.error || "답변을 만들지 못했어요.");
       }
+
+      void trackEvent("ask_prism_used", {
+        source: "live-detailed-report",
+        generatedBy: payload.generatedBy === "gemini" ? "gemini" : "fallback",
+      }, "detailed");
 
       setMessages((current) => [
         ...current.slice(-4),
