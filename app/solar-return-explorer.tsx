@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { DetailedAnalysisResponse } from "@/lib/analysis/detailed-types";
+import { BIRTHPLACES } from "@/lib/analysis/birthplaces";
 import type { SolarReturnSnapshot } from "@/lib/astrology/solar-return";
 
 export default function SolarReturnExplorer({
@@ -11,6 +12,9 @@ export default function SolarReturnExplorer({
 }) {
   const initialYear = new Date().getFullYear();
   const [year, setYear] = useState(initialYear);
+  const [returnPlaceId, setReturnPlaceId] = useState(
+    analysis.engines.astrology.birthplace.id || "seoul",
+  );
   const [snapshot, setSnapshot] = useState<SolarReturnSnapshot | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -20,7 +24,10 @@ export default function SolarReturnExplorer({
 
     try {
       return new Intl.DateTimeFormat("ko-KR", {
-        timeZone: analysis.engines.astrology.birthplace.timezone || "Asia/Seoul",
+        timeZone:
+          snapshot.returnPlace?.timezone ||
+          analysis.engines.astrology.birthplace.timezone ||
+          "Asia/Seoul",
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
@@ -42,7 +49,11 @@ export default function SolarReturnExplorer({
       const response = await fetch("/api/destiny/solar-return", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ analysis, year: nextYear }),
+        body: JSON.stringify({
+          analysis,
+          year: nextYear,
+          returnPlaceId,
+        }),
       });
       const payload = await response.json();
 
@@ -93,6 +104,28 @@ export default function SolarReturnExplorer({
         </div>
       </div>
 
+      <label className="solar-return-place">
+        <span>Solar Return 당시 체류 장소</span>
+        <select
+          value={returnPlaceId}
+          disabled={status === "loading"}
+          onChange={(event) => {
+            setReturnPlaceId(event.target.value);
+            setSnapshot(null);
+            setMessage("");
+          }}
+        >
+          {BIRTHPLACES.map((place) => (
+            <option key={place.id} value={place.id}>
+              {place.label} · {place.region}
+            </option>
+          ))}
+        </select>
+        <small>
+          실제 생일 무렵 머물렀거나 머물 예정인 장소를 선택하세요.
+        </small>
+      </label>
+
       {!snapshot && (
         <button
           className="solar-return-open"
@@ -110,7 +143,11 @@ export default function SolarReturnExplorer({
             <div>
               <small>EXACT RETURN</small>
               <strong>{localExactTime}</strong>
-              <span>{analysis.engines.astrology.birthplace.timezone}</span>
+              <span>
+                {snapshot.returnPlace
+                  ? `${snapshot.returnPlace.label} · ${snapshot.returnPlace.timezone}`
+                  : analysis.engines.astrology.birthplace.timezone}
+              </span>
             </div>
             <div>
               <small>RESIDUAL ORB</small>
@@ -123,15 +160,49 @@ export default function SolarReturnExplorer({
             </div>
           </div>
 
+          {snapshot.ascendant && snapshot.midheaven && (
+            <div className="solar-return-angles">
+              <span>
+                <small>ASC</small>
+                <strong>{snapshot.ascendant.sign.replace("자리", "")}</strong>
+                <em>{snapshot.ascendant.degreeInSign.toFixed(2)}°</em>
+              </span>
+              <span>
+                <small>MC</small>
+                <strong>{snapshot.midheaven.sign.replace("자리", "")}</strong>
+                <em>{snapshot.midheaven.degreeInSign.toFixed(2)}°</em>
+              </span>
+              <span>
+                <small>HOUSE SYSTEM</small>
+                <strong>Whole Sign</strong>
+                <em>{snapshot.returnPlace?.label ?? "-"}</em>
+              </span>
+            </div>
+          )}
+
           <div className="solar-return-bodies">
             {snapshot.bodies.map((body) => (
               <span key={body.body}>
                 <small>{body.body}</small>
                 <strong>{body.sign.replace("자리", "")}</strong>
-                <em>{body.longitude.toFixed(2)}°</em>
+                <em>
+                  {body.longitude.toFixed(2)}°
+                  {body.house ? ` · ${body.house}H` : ""}
+                </em>
               </span>
             ))}
           </div>
+
+          {snapshot.houses.length > 0 && (
+            <div className="solar-return-houses">
+              {snapshot.houses.map((house) => (
+                <span key={house.house}>
+                  <small>{house.house}H</small>
+                  <strong>{house.sign.replace("자리", "")}</strong>
+                </span>
+              ))}
+            </div>
+          )}
 
           <p className="solar-return-note">{snapshot.note}</p>
         </div>
@@ -166,9 +237,9 @@ export default function SolarReturnExplorer({
       {message && <p className="solar-return-error">{message}</p>}
 
       <p className="solar-return-disclaimer">
-        Solar Return 당시 실제 체류 장소를 입력하지 않았기 때문에 ASC와
-        Houses는 계산하지 않습니다. 특정 사건의 발생을 예측하는 기능이
-        아닙니다.
+        선택한 장소 기준으로 Whole Sign ASC와 Houses를 계산합니다. 실제
+        Solar Return 당시 체류 장소가 달라지면 각도와 Houses도 달라집니다.
+        특정 사건의 발생을 예측하는 기능이 아닙니다.
       </p>
     </section>
   );
