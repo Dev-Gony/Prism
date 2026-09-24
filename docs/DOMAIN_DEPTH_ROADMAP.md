@@ -309,10 +309,10 @@ LLM이 모르는 값을 채우거나 계산 결과를 발명하는 순서는 허
 
 ## 8. Next Depth Order
 
-1. 사주 대운 방향/기산 규칙 결정 및 구현
-2. Astrology applying/separating / retrograde / aspect patterns
-3. Numerology 이름 기반 코어 넘버
-4. 목표 날짜를 선택하는 Destiny Timeline Explorer
+1. Astrology applying/separating / retrograde / aspect patterns
+2. Numerology 이름 기반 코어 넘버
+3. 사주 대운 방향/기산 규칙 결정 및 구현
+4. Destiny Timeline 월/분기 해상도 확장
 5. 장기 사주 대운·세운 + Astrology Transit + Numerology Cycle 동시 탐색
 6. Cross-System Time Alignment 고도화
 7. "나의 운명 지도" 장기 타임라인 UI
@@ -320,3 +320,26 @@ LLM이 모르는 값을 채우거나 계산 결과를 발명하는 순서는 허
 최종 목표는 단순한 성향 리포트가 아니다.
 
 **세 전문 체계의 원국/차트/수리 구조와 시간 흐름을 겹쳐서, 사용자가 자신의 반복 패턴과 시기적 변화를 탐색하는 통합 운명 지도.**
+
+
+---
+
+## Destiny Timeline Explorer v1
+
+현재 구현:
+
+- 현재 기준 전년 1개 + 미래 3/5/10년 연도 스냅샷
+- 각 연도 동일 월/일 기준:
+  - 사주 세운
+  - Jupiter~Pluto Transit
+  - Numerology Personal Year / Month / Day
+- 같은 날짜에서 세 체계의 theme convergence 계산
+- 원하는 특정 날짜 직접 입력
+- 현재 분석 결과와 저장된 Detailed 리포트에서 모두 사용
+- 실제 제품 이벤트로 timeline open / exact-date inspect 기록
+
+주의:
+
+- 연도 카드는 해당 연도의 모든 사건을 요약하는 예언이 아님
+- 선택한 기준일의 세 체계상 강조 신호를 비교하는 스냅샷
+- 대운은 순역/기산 규칙을 확정하기 전까지 포함하지 않음
