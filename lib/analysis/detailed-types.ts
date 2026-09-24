@@ -57,6 +57,7 @@ export type DetailedDaYunResult = {
   forward: boolean | null;
   directionLabel: "순행" | "역행" | null;
   ruleLabel: string;
+  ageBasis: "세는나이(연도 기준)";
   startOffset: {
     years: number;
     months: number;
