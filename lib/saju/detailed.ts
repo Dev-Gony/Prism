@@ -1,6 +1,6 @@
 import lunar from "lunar-javascript";
 import type { DetailedSajuResult } from "@/lib/analysis/detailed-types";
-import { kstDateParts, kstDateString } from "@/lib/analysis/asof";
+import { kstDateString } from "@/lib/analysis/asof";
 
 const { Solar } = lunar;
 
@@ -362,13 +362,14 @@ function detectBranchRelations(
 }
 
 
-function calculateAnnualFlow(
+export function calculateSajuAnnualFlow(
   pillars: DetailedSajuResult["pillars"],
   dayStem: string,
+  asOfDate = kstDateString(),
 ): DetailedSajuResult["annualFlow"] {
-  const now = kstDateParts();
+  const [year, month, day] = asOfDate.split("-").map(Number);
   const chinaTime = new Date(
-    Date.UTC(now.year, now.month - 1, now.day, now.hour - 1, now.minute),
+    Date.UTC(year, month - 1, day, 11, 0),
   );
 
   const currentTerms = Solar.fromYmdHms(
@@ -397,7 +398,7 @@ function calculateAnnualFlow(
   );
 
   return {
-    asOfDate: kstDateString(),
+    asOfDate,
     pillar: text,
     korean:
       stemKo[stems.indexOf(stem)] + branchKo[branches.indexOf(branch)],
@@ -494,7 +495,7 @@ export function calculateSajuDetailed(
     },
     tenGodSummary,
     ...expertProfile,
-    annualFlow: calculateAnnualFlow(pillars, dayStem),
+    annualFlow: calculateSajuAnnualFlow(pillars, dayStem),
     branchRelations: detectBranchRelations(
       pillars.map((item) => item.branch),
     ),
