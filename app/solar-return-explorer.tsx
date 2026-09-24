@@ -9,6 +9,20 @@ import type {
 import { BIRTHPLACES } from "@/lib/analysis/birthplaces";
 import type { SolarReturnSnapshot } from "@/lib/astrology/solar-return";
 
+type SolarReturnWithYearFlow = SolarReturnSnapshot & {
+  yearFlow?: {
+    startDate: string;
+    months: Array<{
+      index: number;
+      asOfDate: string;
+      label: string;
+      dominantTheme: string | null;
+      convergenceStrength: number;
+      timing: DestinyTimingSummary;
+    }>;
+  };
+};
+
 function dateInTimezone(iso: string, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
@@ -36,7 +50,7 @@ export default function SolarReturnExplorer({
   const [returnPlaceId, setReturnPlaceId] = useState(
     analysis.engines.astrology.birthplace.id || "seoul",
   );
-  const [snapshot, setSnapshot] = useState<SolarReturnSnapshot | null>(null);
+  const [snapshot, setSnapshot] = useState<SolarReturnWithYearFlow | null>(null);
   const [yearTiming, setYearTiming] =
     useState<DestinyTimingSummary | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -84,7 +98,7 @@ export default function SolarReturnExplorer({
         throw new Error(payload.error || "Solar Return을 계산하지 못했어요.");
       }
 
-      const solarSnapshot = payload as SolarReturnSnapshot;
+      const solarSnapshot = payload as SolarReturnWithYearFlow;
       const timeZone =
         solarSnapshot.location?.timezone ||
         analysis.engines.astrology.birthplace.timezone ||
@@ -295,6 +309,57 @@ export default function SolarReturnExplorer({
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {snapshot.yearFlow && (
+            <div className="solar-return-month-flow">
+              <div className="solar-return-month-flow-head">
+                <div>
+                  <small>12-MONTH ACTIVATION</small>
+                  <strong>Solar Return부터 다음 복귀 전까지의 흐름</strong>
+                </div>
+                <span>{snapshot.yearFlow.startDate} 시작</span>
+              </div>
+
+              <div className="solar-return-month-flow-grid">
+                {snapshot.yearFlow.months.map((month) => (
+                  <article key={month.asOfDate}>
+                    <small>{month.label}</small>
+                    <strong>{month.asOfDate.slice(0, 7)}</strong>
+                    <span>{month.dominantTheme ?? "독립 신호"}</span>
+                    <em>
+                      {month.convergenceStrength > 0
+                        ? `${month.convergenceStrength}% 겹침`
+                        : "겹침 없음"}
+                    </em>
+                  </article>
+                ))}
+              </div>
+
+              <div className="solar-return-month-highlights">
+                {[...snapshot.yearFlow.months]
+                  .filter((month) => month.convergenceStrength > 0)
+                  .sort(
+                    (a, b) =>
+                      b.convergenceStrength - a.convergenceStrength ||
+                      a.asOfDate.localeCompare(b.asOfDate),
+                  )
+                  .slice(0, 3)
+                  .map((month) => (
+                    <span key={"strong-" + month.asOfDate}>
+                      <small>{month.asOfDate.slice(0, 7)}</small>
+                      <b>{month.dominantTheme}</b>
+                      <em>{month.convergenceStrength}%</em>
+                    </span>
+                  ))}
+              </div>
+
+              <p>
+                매달 같은 날짜를 기준으로 세운·월운·Transit·Personal Cycle을
+                다시 계산한 12개 스냅샷입니다. 월 전체의 사건을 예언하는
+                기능이 아니라, 그 시점의 전통적 해석 신호를 비교합니다.
+              </p>
             </div>
           )}
 
