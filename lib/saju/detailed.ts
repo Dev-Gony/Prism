@@ -407,6 +407,50 @@ export function calculateSajuAnnualFlow(
   };
 }
 
+
+export function calculateSajuMonthlyFlow(
+  pillars: DetailedSajuResult["pillars"],
+  dayStem: string,
+  asOfDate = kstDateString(),
+): DetailedSajuResult["monthlyFlow"] {
+  const [year, month, day] = asOfDate.split("-").map(Number);
+  const chinaTime = new Date(Date.UTC(year, month - 1, day, 11, 0));
+
+  const currentTerms = Solar.fromYmdHms(
+    chinaTime.getUTCFullYear(),
+    chinaTime.getUTCMonth() + 1,
+    chinaTime.getUTCDate(),
+    chinaTime.getUTCHours(),
+    chinaTime.getUTCMinutes(),
+    0,
+  )
+    .getLunar()
+    .getEightChar();
+
+  const text = currentTerms.getMonth();
+  const [stem, branch] = [...text];
+
+  const branchRelations = pillars.flatMap((pillar) =>
+    detectBranchRelations([pillar.branch, branch])
+      .filter((relation) => relation.branches.includes(branch))
+      .map((relation) => ({
+        type: relation.type,
+        natalBranch: pillar.branch,
+        monthlyBranch: branch,
+        natalLabel: pillar.label,
+      })),
+  );
+
+  return {
+    asOfDate,
+    pillar: text,
+    korean:
+      stemKo[stems.indexOf(stem)] + branchKo[branches.indexOf(branch)],
+    stemTenGod: tenGod(dayStem, stem),
+    branchRelations,
+  };
+}
+
 export function calculateSajuDetailed(
   year: number,
   month: number,
@@ -496,6 +540,7 @@ export function calculateSajuDetailed(
     tenGodSummary,
     ...expertProfile,
     annualFlow: calculateSajuAnnualFlow(pillars, dayStem),
+    monthlyFlow: calculateSajuMonthlyFlow(pillars, dayStem),
     branchRelations: detectBranchRelations(
       pillars.map((item) => item.branch),
     ),
