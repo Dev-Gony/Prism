@@ -164,8 +164,38 @@ function angularDistance(a: number, b: number) {
   return diff > 180 ? 360 - diff : diff;
 }
 
+function signedLongitudeDelta(from: number, to: number) {
+  let diff = ((to - from + 540) % 360) - 180;
+  if (Object.is(diff, -0)) diff = 0;
+  return diff;
+}
+
+function bodyMotion(
+  body: DetailedAstrologyBody["body"],
+  instant: Date,
+) {
+  const start = longitude(body, instant);
+  const next = longitude(
+    body,
+    new Date(instant.getTime() + 24 * 60 * 60 * 1000),
+  );
+  const speedDegPerDay = signedLongitudeDelta(start, next);
+  const motion =
+    Math.abs(speedDegPerDay) < 0.02
+      ? "stationary"
+      : speedDegPerDay < 0
+        ? "retrograde"
+        : "direct";
+
+  return {
+    speedDegPerDay: Number(speedDegPerDay.toFixed(4)),
+    motion,
+  } as const;
+}
+
 function calculateAspects(
   bodies: DetailedAstrologyBody[],
+  instant: Date,
 ): DetailedAstrologyAspect[] {
   const aspects: DetailedAstrologyAspect[] = [];
 
@@ -185,12 +215,29 @@ function calculateAspects(
 
       if (!match) continue;
 
+      const futureInstant = new Date(
+        instant.getTime() + 6 * 60 * 60 * 1000,
+      );
+      const futureDistance = angularDistance(
+        longitude(bodyA.body, futureInstant),
+        longitude(bodyB.body, futureInstant),
+      );
+      const futureOrb = Math.abs(futureDistance - match.angle);
+      const currentOrb = match.orbDistance;
+      const phase =
+        currentOrb <= 0.1
+          ? "exact"
+          : futureOrb < currentOrb
+            ? "applying"
+            : "separating";
+
       aspects.push({
         bodyA: bodyA.body,
         bodyB: bodyB.body,
         type: match.type,
         angle: Number(distance.toFixed(2)),
-        orb: Number(match.orbDistance.toFixed(2)),
+        orb: Number(currentOrb.toFixed(2)),
+        phase,
       });
     }
   }
@@ -320,6 +367,8 @@ export function calculateAstrologyDetailed(
     const value = longitude(body, instant);
     const sign = signFromLongitude(value);
 
+    const motion = bodyMotion(body, instant);
+
     return {
       body,
       longitude: Number(value.toFixed(4)),
@@ -327,6 +376,7 @@ export function calculateAstrologyDetailed(
       element: sign.element,
       modality: sign.modality,
       dignity: dignityFor(body, sign.sign),
+      ...motion,
       ...(chart
         ? { house: houseForLongitude(value, chart.ascendant.longitude) }
         : {}),
@@ -380,6 +430,36 @@ export function calculateAstrologyDetailed(
       })
     : [];
 
+  const bodiesBySign = new Map<
+    string,
+    DetailedAstrologyBody["body"][]
+  >();
+
+  bodies.forEach((body) => {
+    const current = bodiesBySign.get(body.sign) ?? [];
+    current.push(body.body);
+    bodiesBySign.set(body.sign, current);
+  });
+
+  const patterns = {
+    stelliums: [...bodiesBySign.entries()]
+      .filter(([, items]) => items.length >= 3)
+      .map(([sign, items]) => ({ sign, bodies: items })),
+    angularBodies: bodies
+      .filter(
+        (body) =>
+          typeof body.house === "number" &&
+          [1, 4, 7, 10].includes(body.house),
+      )
+      .map((body) => ({
+        body: body.body,
+        house: body.house as number,
+      })),
+    retrogrades: bodies
+      .filter((body) => body.motion === "retrograde")
+      .map((body) => body.body),
+  };
+
   return {
     timeKnown,
     instantUtc: timeKnown ? instant.toISOString() : null,
@@ -394,17 +474,18 @@ export function calculateAstrologyDetailed(
     descendant: chart?.descendant ?? null,
     imumCoeli: chart?.imumCoeli ?? null,
     houses: chart?.houses ?? [],
-    aspects: calculateAspects(bodies),
+    aspects: calculateAspects(bodies, instant),
     balance,
     chartRuler,
     houseRulers,
+    patterns,
     transits: calculateAstrologyTransits(
       bodies,
       chart?.ascendant ?? null,
       chart?.midheaven ?? null,
     ),
     method: timeKnown
-      ? "Astronomy Engine · Sun~Pluto 황경 · 출생시각/지역 반영 · ASC/MC · Whole Sign 12 Houses · 주요 5개 각 · 원소/모달리티 균형 · 차트 룰러/하우스 룰러 · 기본 dignity"
+      ? "Astronomy Engine · Sun~Pluto 황경 · 출생시각/지역 반영 · ASC/MC · Whole Sign 12 Houses · 주요 5개 각 · 원소/모달리티 균형 · 차트 룰러/하우스 룰러 · 기본 dignity · 행성 운동/역행 · applying/separating · stellium/angular emphasis"
       : "Astronomy Engine · 출생시간 미상 · 정오 스냅샷 · Moon/ASC/MC/Houses 제외 · Sun~Pluto 시간 비민감 배치 및 주요 각 계산",
     pending: timeKnown
       ? []
