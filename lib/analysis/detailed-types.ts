@@ -4,6 +4,8 @@ import type {
   TraitScore,
 } from "@/lib/analysis/types";
 
+export type DaYunGender = "male" | "female";
+
 export type DetailedPillar = {
   label: "년주" | "월주" | "일주" | "시주";
   text: string;
@@ -20,6 +22,49 @@ export type DetailedPillar = {
     element: string;
     tenGod: string;
   }>;
+};
+
+export type DetailedDaYunPeriod = {
+  index: number;
+  ganZhi: string;
+  korean: string;
+  stem: string;
+  branch: string;
+  stemTenGod: string;
+  branchTenGod: string | null;
+  startYear: number;
+  endYear: number;
+  startAge: number;
+  endAge: number;
+  startDateTime: string;
+  endDateTimeExclusive: string;
+  xun: string;
+  xunKong: string;
+  branchRelations: Array<{
+    type: "합" | "충" | "형" | "파" | "해";
+    natalBranch: string;
+    daYunBranch: string;
+    natalLabel: string;
+  }>;
+};
+
+export type DetailedDaYunResult = {
+  available: boolean;
+  pendingReason: string | null;
+  gender: DaYunGender | null;
+  genderCode: 0 | 1 | null;
+  sect: 2;
+  forward: boolean | null;
+  directionLabel: "순행" | "역행" | null;
+  ruleLabel: string;
+  startOffset: {
+    years: number;
+    months: number;
+    days: number;
+    hours: number;
+  } | null;
+  startDateTime: string | null;
+  periods: DetailedDaYunPeriod[];
 };
 
 export type DetailedSajuResult = {
@@ -77,6 +122,7 @@ export type DetailedSajuResult = {
       natalLabel: string;
     }>;
   };
+  daYun: DetailedDaYunResult;
   monthlyFlow: {
     asOfDate: string;
     pillar: string;
@@ -249,6 +295,7 @@ export type DetailedAnalysisResponse = {
     calendarType?: "solar" | "lunar";
     originalDate?: string;
     isLeapMonth?: boolean;
+    yunGender?: DaYunGender | null;
   };
   engines: {
     saju: DetailedSajuResult;
