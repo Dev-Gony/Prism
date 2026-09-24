@@ -76,6 +76,8 @@ export default async function SavedResultDetailPage({
   const astrology = record(data.astrology_result);
   const numerology = record(data.numerology_result);
   const dayMaster = record(saju.dayMaster);
+  const daYun = record(saju.daYun);
+  const daYunPeriods = arrayOfRecords(daYun.periods);
 
   const pillars = arrayOfRecords(saju.pillars);
   const bodies = arrayOfRecords(astrology.bodies);
@@ -406,6 +408,35 @@ export default async function SavedResultDetailPage({
           </article>
         </div>
       </section>
+
+      {isDetailed && Boolean(daYun.available) && daYunPeriods.length > 0 && (
+        <section className="archive-section archive-dayun-section">
+          <div className="archive-section-heading">
+            <div>
+              <small>DAEUN · 大運</small>
+              <h2>10년 대운 흐름</h2>
+            </div>
+            <span>
+              {text(daYun.directionLabel, "-")} · 기산 {text(daYun.startDateTime, "-").slice(0, 10)}
+            </span>
+          </div>
+
+          <div className="archive-dayun-grid">
+            {daYunPeriods.map((period, index) => (
+              <article key={text(period.ganZhi) + index}>
+                <small>{number(period.startYear)}–{number(period.endYear)}</small>
+                <strong>{text(period.ganZhi)} · {text(period.korean)}</strong>
+                <span>{text(period.stemTenGod)}</span>
+                <em>{number(period.startAge)}–{number(period.endAge)}세</em>
+              </article>
+            ))}
+          </div>
+
+          <p className="archive-destiny-note">
+            {text(daYun.ruleLabel)} · {text(daYun.ageBasis)}
+          </p>
+        </section>
+      )}
 
       {isDetailed && destinySignals.length > 0 && (
         <section className="archive-section archive-destiny-now">
