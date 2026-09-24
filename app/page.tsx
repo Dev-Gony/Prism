@@ -1510,7 +1510,33 @@ function DetailedReport({
         <article className="domain-depth-card saju">
           <div className="domain-depth-head">
             <small>SAJU DEPTH</small>
-            <h3>십신 · 지장간 · 지지 관계</h3>
+            <h3>월령 · 강약 · 통근 · 십신 · 지장간</h3>
+          </div>
+
+          <div className="saju-strength-panel">
+            <div>
+              <small>일간 강약 휴리스틱</small>
+              <strong>{data.engines.saju.strength.level}</strong>
+              <span>{data.engines.saju.strength.score}/100</span>
+            </div>
+            <div>
+              <small>월령</small>
+              <strong>
+                {data.engines.saju.monthCommand.korean}
+                · {data.engines.saju.monthCommand.mainHiddenTenGod}
+              </strong>
+              <span>
+                {data.engines.saju.rooting.dayMasterRooted
+                  ? "통근 " + data.engines.saju.rooting.rootBranches.length + "개"
+                  : "직접 통근 단서 적음"}
+              </span>
+            </div>
+          </div>
+
+          <div className="saju-strength-factors">
+            {data.engines.saju.strength.factors.map((factor) => (
+              <span key={factor}>{factor}</span>
+            ))}
           </div>
 
           <div className="domain-depth-stat-list">
@@ -1557,7 +1583,41 @@ function DetailedReport({
         <article className="domain-depth-card astro">
           <div className="domain-depth-head">
             <small>ASTROLOGY DEPTH</small>
-            <h3>10 Planets · Major Aspects</h3>
+            <h3>10 Planets · Aspects · Rulers · Dignity</h3>
+          </div>
+
+          <div className="astrology-structure-row">
+            <span>
+              <small>Chart Ruler</small>
+              <b>{data.engines.astrology.chartRuler?.primary ?? "시간 필요"}</b>
+              <em>
+                {data.engines.astrology.chartRuler
+                  ? data.engines.astrology.chartRuler.sign +
+                    (data.engines.astrology.chartRuler.house
+                      ? " · " + data.engines.astrology.chartRuler.house + "H"
+                      : "")
+                  : "ASC 필요"}
+              </em>
+            </span>
+            <span>
+              <small>Elements</small>
+              <b>
+                F{data.engines.astrology.balance.elements.fire} ·
+                E{data.engines.astrology.balance.elements.earth} ·
+                A{data.engines.astrology.balance.elements.air} ·
+                W{data.engines.astrology.balance.elements.water}
+              </b>
+              <em>10 planets balance</em>
+            </span>
+            <span>
+              <small>Modalities</small>
+              <b>
+                C{data.engines.astrology.balance.modalities.cardinal} ·
+                F{data.engines.astrology.balance.modalities.fixed} ·
+                M{data.engines.astrology.balance.modalities.mutable}
+              </b>
+              <em>cardinal / fixed / mutable</em>
+            </span>
           </div>
 
           <div className="planet-depth-grid">
@@ -1565,7 +1625,11 @@ function DetailedReport({
               <span key={body.body}>
                 <small>{body.body}</small>
                 <b>{body.sign.replace("자리", "")}</b>
-                <em>{body.longitude.toFixed(1)}°{body.house ? ` · ${body.house}H` : ""}</em>
+                <em>
+                  {body.longitude.toFixed(1)}°
+                  {body.house ? " · " + body.house + "H" : ""}
+                  {" · " + body.modality + " · " + body.dignity}
+                </em>
               </span>
             ))}
           </div>
@@ -1612,6 +1676,26 @@ function DetailedReport({
           <div className="numerology-cycle-block">
             <strong>Challenges</strong>
             <p>{data.engines.numerology.challenges.join(" · ")}</p>
+          </div>
+
+          <div className="numerology-current-cycle">
+            <small>
+              CURRENT CYCLE · {data.engines.numerology.personalCycles.asOfDate}
+            </small>
+            <div>
+              <span>
+                <b>{data.engines.numerology.personalCycles.personalYear}</b>
+                <em>Personal Year</em>
+              </span>
+              <span>
+                <b>{data.engines.numerology.personalCycles.personalMonth}</b>
+                <em>Personal Month</em>
+              </span>
+              <span>
+                <b>{data.engines.numerology.personalCycles.personalDay}</b>
+                <em>Personal Day</em>
+              </span>
+            </div>
           </div>
         </article>
       </section>
