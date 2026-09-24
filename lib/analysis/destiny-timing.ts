@@ -68,19 +68,35 @@ export function buildDestinyTiming(
 ): DestinyTimingSummary {
   const signals: DestinyTimingSignal[] = [];
 
+  const sajuTimingTenGod =
+    saju.monthlyFlow?.stemTenGod ?? saju.annualFlow.stemTenGod;
+
   signals.push({
     source: "saju",
-    theme: sajuTheme(saju.annualFlow.stemTenGod),
-    title: `세운 ${saju.annualFlow.pillar} · ${saju.annualFlow.stemTenGod}`,
+    theme: sajuTheme(sajuTimingTenGod),
+    title: saju.monthlyFlow
+      ? `세운 ${saju.annualFlow.pillar} · 월운 ${saju.monthlyFlow.pillar}`
+      : `세운 ${saju.annualFlow.pillar} · ${saju.annualFlow.stemTenGod}`,
     evidence: [
       `기준일 ${saju.annualFlow.asOfDate}`,
-      `연간 천간 십신 ${saju.annualFlow.stemTenGod}`,
+      `세운 천간 십신 ${saju.annualFlow.stemTenGod}`,
+      ...(saju.monthlyFlow
+        ? [
+            `월운 천간 십신 ${saju.monthlyFlow.stemTenGod}`,
+            ...(saju.monthlyFlow.branchRelations.length
+              ? saju.monthlyFlow.branchRelations.map(
+                  (relation) =>
+                    `${relation.natalLabel}와 월운 지지 ${relation.type}`,
+                )
+              : ["월운 지지와 원국의 주요 합충형파해 신호 없음"]),
+          ]
+        : []),
       ...(saju.annualFlow.branchRelations.length
         ? saju.annualFlow.branchRelations.map(
             (relation) =>
               `${relation.natalLabel}와 세운 지지 ${relation.type}`,
           )
-        : ["원국 지지와 주요 합충형파해 신호 없음"]),
+        : []),
     ],
   });
 
@@ -93,7 +109,7 @@ export function buildDestinyTiming(
       evidence: [
         `기준일 ${astrology.transits.asOfDate}`,
         `${strongestTransit.transitBody} → natal ${strongestTransit.natalPoint}`,
-        `orb ${strongestTransit.orb.toFixed(2)}°`,
+        `orb ${strongestTransit.orb.toFixed(2)}° · ${strongestTransit.phase}`,
       ],
     });
   } else {
@@ -115,8 +131,8 @@ export function buildDestinyTiming(
 
   signals.push({
     source: "numerology",
-    theme: numerologyTheme(numerology.personalCycles.personalYear),
-    title: `Personal Year ${numerology.personalCycles.personalYear}`,
+    theme: numerologyTheme(numerology.personalCycles.personalMonth),
+    title: `Personal Year ${numerology.personalCycles.personalYear} · Month ${numerology.personalCycles.personalMonth}`,
     evidence: [
       `기준일 ${numerology.personalCycles.asOfDate}`,
       `Personal Month ${numerology.personalCycles.personalMonth}`,
