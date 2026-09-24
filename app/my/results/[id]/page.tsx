@@ -145,6 +145,25 @@ export default async function SavedResultDetailPage({
         </dl>
       </section>
 
+      {!isDetailed && (
+        <section className="archive-upgrade-detailed">
+          <div>
+            <small>EXPAND THIS REPORT</small>
+            <h2>이 Quick Reading을 Detailed로 확장</h2>
+            <p>
+              생년월일은 그대로 두고 출생시간과 지역을 추가해 시주, ASC, MC,
+              Houses까지 확장할 수 있어요.
+            </p>
+          </div>
+          <a
+            href={`/?upgrade=detailed&from=${encodeURIComponent(String(data.id))}`}
+            className="archive-upgrade-link"
+          >
+            Detailed 입력으로 이동
+          </a>
+        </section>
+      )}
+
       {isDetailed && (
         <section className="archive-section archive-detailed-hero">
           <div className="archive-section-heading">
