@@ -78,7 +78,18 @@ export async function POST(request: Request) {
 
   try {
     return NextResponse.json(
-      calculateSolarReturn(body.analysis, year, returnPlace),
+      calculateSolarReturn(
+        body.analysis,
+        year,
+        returnPlace
+          ? {
+              label: returnPlace.label,
+              latitude: returnPlace.latitude,
+              longitude: returnPlace.longitude,
+              timezone: returnPlace.timezone,
+            }
+          : null,
+      ),
     );
   } catch (error) {
     console.error("Prism solar return failed", error);
