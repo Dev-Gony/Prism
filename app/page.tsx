@@ -212,6 +212,11 @@ export default function Home() {
 
         try {
           await saveAnalysisToServer(pending.analysis);
+          void trackEvent(
+            "result_saved",
+            { source: "oauth-return" },
+            isDetailedPending ? "detailed" : "quick",
+          );
           window.sessionStorage.removeItem("prism.pending-analysis.v1");
 
           if (isDetailedPending) {
@@ -269,6 +274,13 @@ export default function Home() {
       authSubscription.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!detailedOpen) return;
+    void trackEvent("detailed_opened", {
+      source: "detailed-modal",
+    }, "detailed");
+  }, [detailedOpen]);
 
   useEffect(() => {
     if (phase !== "loading") return;
@@ -536,7 +548,6 @@ export default function Home() {
   }
 
   async function runDetailedAnalysis() {
-    void trackEvent("detailed_opened", { birthplaceId, timeKnown: birthTimeKnown }, "detailed");
     setDetailedStatus("loading");
     setDetailedError("");
 
@@ -1012,10 +1023,7 @@ export default function Home() {
                   <button
                     className="report-primary-btn"
                     type="button"
-                    onClick={() => {
-                      void trackEvent("detailed_opened", { source: "quick-result-cta" }, "detailed");
-                      setDetailedOpen(true);
-                    }}
+                    onClick={() => setDetailedOpen(true)}
                   >
                     상세 분석 열기
                     <span>→</span>
