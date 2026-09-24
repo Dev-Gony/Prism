@@ -118,7 +118,7 @@ const ASPECTS: Array<{
   { type: "opposition", angle: 180, orb: 8 },
 ];
 
-function signFromLongitude(longitude: number) {
+export function signFromLongitude(longitude: number) {
   const normalized = ((longitude % 360) + 360) % 360;
   const index = Math.floor(normalized / 30);
 
@@ -129,7 +129,7 @@ function signFromLongitude(longitude: number) {
   };
 }
 
-function longitude(body: DetailedAstrologyBody["body"], date: Date) {
+export function longitude(body: DetailedAstrologyBody["body"], date: Date) {
   if (body === "Sun") return SunPosition(date).elon;
   if (body === "Moon") return EclipticGeoMoon(date).lon;
 
