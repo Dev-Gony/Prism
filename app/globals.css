@@ -8991,3 +8991,35 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Archive DaYun */
+.archive-dayun-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+  margin-top:12px;
+}
+.archive-dayun-grid article{
+  min-width:0;
+  padding:10px;
+  border:1px solid var(--editorial-line);
+  border-radius:10px;
+  background:#fffaf7;
+}
+.archive-dayun-grid small,
+.archive-dayun-grid strong,
+.archive-dayun-grid span,
+.archive-dayun-grid em{
+  display:block;
+}
+.archive-dayun-grid small{color:#9b8175;font-size:7px}
+.archive-dayun-grid strong{margin-top:4px;color:#493b35;font-size:9px}
+.archive-dayun-grid span{margin-top:3px;color:#815a4c;font-size:8px;font-weight:700}
+.archive-dayun-grid em{margin-top:2px;color:#91837d;font-size:7px;font-style:normal}
+@media (max-width:900px){
+  .archive-dayun-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:520px){
+  .archive-dayun-grid{grid-template-columns:1fr}
+}
