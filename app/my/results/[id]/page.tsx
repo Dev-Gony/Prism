@@ -5,6 +5,7 @@ import SavedDetailedQuestionPanel from "./saved-detailed-question-panel";
 import UpgradeDetailedLink from "./upgrade-detailed-link";
 import ShareReportCard from "./share-report-card";
 import ResultFeedback from "@/app/result-feedback";
+import DestinyTimelineExplorer from "@/app/destiny-timeline-explorer";
 
 export const dynamic = "force-dynamic";
 
@@ -457,6 +458,10 @@ export default async function SavedResultDetailPage({
           ))}
         </ol>
       </section>
+
+      {detailedAnalysisSnapshot && (
+        <DestinyTimelineExplorer analysis={detailedAnalysisSnapshot} />
+      )}
 
       {detailedAnalysisSnapshot && (
         <SavedDetailedQuestionPanel
