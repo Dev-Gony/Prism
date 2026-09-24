@@ -5846,3 +5846,67 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Quick to Detailed upgrade */
+.library-card-footer .upgrade-detailed-btn{
+  color:var(--editorial-primary);
+  font-weight:800;
+}
+
+.archive-upgrade-detailed{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-top:18px;
+  padding:18px;
+  border:1px solid rgba(146,70,44,.18);
+  border-radius:14px;
+  background:#fbf6f3;
+}
+
+.archive-upgrade-detailed small{
+  color:var(--editorial-primary);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.archive-upgrade-detailed h2{
+  margin:4px 0 0;
+  font-family:"Noto Serif KR",serif;
+  font-size:18px;
+  font-weight:500;
+}
+
+.archive-upgrade-detailed p{
+  margin:7px 0 0;
+  color:#766a65;
+  font-size:10px;
+  line-height:1.6;
+}
+
+.archive-upgrade-link{
+  flex:none;
+  min-height:40px;
+  padding:0 13px;
+  border:0;
+  border-radius:10px;
+  background:var(--editorial-ink);
+  color:#fff;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+@media (max-width:640px){
+  .archive-upgrade-detailed{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .archive-upgrade-link{
+    width:100%;
+  }
+}
