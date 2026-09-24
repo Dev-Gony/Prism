@@ -168,7 +168,7 @@ async function generateNarrative(
             "이 요청은 Detailed Reading입니다.",
             "출생시간과 출생지역을 반영한 시주, Moon, ASC, MC, 12 Houses, 행성별 House 정보를 중요한 추가 근거로 활용하세요.",
             "사주의 월령, 통근, 투간, 강약 휴리스틱, 십신, 지장간, 합충형파해를 서로 구분해 근거로 활용하세요.",
-            "점성술의 10개 행성, 주요 각과 orb, 원소/모달리티 균형, 차트 룰러, 하우스 룰러, dignity를 활용하세요.",
+            "점성술의 10개 행성, 주요 각과 orb, applying/separating, 행성 direct/retrograde, stellium, angular emphasis, 원소/모달리티 균형, 차트 룰러, 하우스 룰러, dignity를 활용하세요.",
             "수비학의 Life Path뿐 아니라 Birthday, Attitude, Period Cycles, Pinnacles, Challenges, Personal Year/Month/Day를 활용하세요.",
             "Quick Reading보다 무엇이 더 구체화되었는지 자연스럽게 드러내세요.",
             "ASC·MC·House·시주 같은 전문용어는 먼저 일상적인 의미를 설명한 뒤 괄호나 짧은 보조 표현으로 전문용어를 붙이세요.",
