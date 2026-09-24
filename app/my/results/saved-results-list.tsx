@@ -25,6 +25,7 @@ type SavedResult = {
   astrologyLabel: string;
   numerologyLabel: string;
   agreement: number;
+  keywordTitles: string[];
   reanalysisInput: ReanalysisInput;
 };
 
@@ -50,6 +51,50 @@ export default function SavedResultsList({
     }),
     [results],
   );
+
+  const libraryInsights = useMemo(() => {
+    if (results.length === 0) {
+      return {
+        averageAgreement: 0,
+        highestAgreement: null as SavedResult | null,
+        latest: null as SavedResult | null,
+        repeatedKeywords: [] as Array<{ title: string; count: number }>,
+      };
+    }
+
+    const averageAgreement = Math.round(
+      results.reduce((sum, item) => sum + item.agreement, 0) / results.length,
+    );
+
+    const highestAgreement = [...results].sort(
+      (a, b) => b.agreement - a.agreement,
+    )[0] ?? null;
+
+    const latest = [...results].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )[0] ?? null;
+
+    const keywordCounts = new Map<string, number>();
+    results.forEach((item) => {
+      item.keywordTitles.forEach((title) => {
+        keywordCounts.set(title, (keywordCounts.get(title) ?? 0) + 1);
+      });
+    });
+
+    const repeatedKeywords = [...keywordCounts.entries()]
+      .filter(([, count]) => count > 1)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko"))
+      .slice(0, 4)
+      .map(([title, count]) => ({ title, count }));
+
+    return {
+      averageAgreement,
+      highestAgreement,
+      latest,
+      repeatedKeywords,
+    };
+  }, [results]);
 
   const visibleResults = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -120,6 +165,68 @@ export default function SavedResultsList({
         </div>
         <button type="button" onClick={signOut}>로그아웃</button>
       </div>
+
+      {results.length > 0 && (
+        <section className="library-insight-board">
+          <div className="library-insight-head">
+            <div>
+              <small>LIBRARY INSIGHTS</small>
+              <h2>저장된 리포트에서 반복되는 흐름</h2>
+            </div>
+            <span>{counts.quick} Quick · {counts.detailed} Detailed</span>
+          </div>
+
+          <div className="library-insight-grid">
+            <article>
+              <small>평균 합의도</small>
+              <strong>{libraryInsights.averageAgreement}%</strong>
+              <p>저장된 리포트 전체의 세 관점 평균 합의도예요.</p>
+            </article>
+
+            <article>
+              <small>가장 높은 합의도</small>
+              <strong>{libraryInsights.highestAgreement?.agreement ?? 0}%</strong>
+              <p>
+                {libraryInsights.highestAgreement
+                  ? libraryInsights.highestAgreement.birthDate.replaceAll("-", ".")
+                  : "-"}
+              </p>
+            </article>
+
+            <article>
+              <small>최근 분석</small>
+              <strong>
+                {libraryInsights.latest
+                  ? libraryInsights.latest.analysisType === "detailed"
+                    ? "Detailed"
+                    : "Quick"
+                  : "-"}
+              </strong>
+              <p>
+                {libraryInsights.latest
+                  ? new Date(libraryInsights.latest.createdAt).toLocaleDateString("ko-KR")
+                  : "-"}
+              </p>
+            </article>
+
+            <article className="keyword-insight-card">
+              <small>반복 키워드</small>
+              {libraryInsights.repeatedKeywords.length > 0 ? (
+                <div className="library-keyword-cloud">
+                  {libraryInsights.repeatedKeywords.map((item) => (
+                    <span key={item.title}>
+                      {item.title}
+                      <b>{item.count}</b>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p>아직 두 번 이상 반복된 핵심 키워드가 없어요.</p>
+              )}
+            </article>
+          </div>
+        </section>
+      )}
 
       <div className="library-controls">
         <div className="library-filter-tabs" role="tablist" aria-label="분석 유형">
