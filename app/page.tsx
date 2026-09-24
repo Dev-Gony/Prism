@@ -131,7 +131,9 @@ export default function Home() {
       setCalendarType(payload.input.calendarType ?? "solar");
       setIsLeapMonth(Boolean(payload.input.isLeapMonth));
       setBirthTimeKnown(payload.input.timeKnown ?? true);
-      setBirthTime(payload.input.time || "12:00");
+      setBirthTime(
+        typeof payload.input.time === "string" ? payload.input.time : "12:00",
+      );
       setBirthplaceId(payload.input.birthplaceId || "seoul");
       setBirthplaceQuery("");
 
