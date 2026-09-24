@@ -60,6 +60,19 @@ export default function DestinyTimelineExplorer({
     return `${today.getFullYear() + 20}-12-31`;
   }, []);
 
+  const timelineHighlights = useMemo(() => {
+    if (!timeline) return [];
+
+    return [...timeline.points]
+      .filter((point) => point.convergenceStrength > 0)
+      .sort(
+        (a, b) =>
+          b.convergenceStrength - a.convergenceStrength ||
+          a.asOfDate.localeCompare(b.asOfDate),
+      )
+      .slice(0, 3);
+  }, [timeline]);
+
   async function request(body: Record<string, unknown>) {
     const response = await fetch("/api/destiny/timeline", {
       method: "POST",
@@ -252,6 +265,28 @@ export default function DestinyTimelineExplorer({
               </button>
             ))}
           </div>
+
+          {timelineHighlights.length > 0 && (
+            <div className="destiny-highlight-strip">
+              <small>STRONGEST CONVERGENCE</small>
+              <div>
+                {timelineHighlights.map((point) => (
+                  <button
+                    type="button"
+                    key={"highlight-" + point.asOfDate}
+                    onClick={() => {
+                      setSelectedTiming(point.timing);
+                      setSelectedLabel(point.asOfDate);
+                    }}
+                  >
+                    <span>{point.label}</span>
+                    <strong>{point.dominantTheme}</strong>
+                    <em>{point.convergenceStrength}%</em>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="destiny-resolution-note">
             {timeline.resolution === "year"
