@@ -8168,3 +8168,279 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+
+/* Name numerology expert */
+.name-numerology-explorer{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid rgba(91,132,114,.16);
+  border-radius:16px;
+  background:#f7faf8;
+}
+
+.name-numerology-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.name-numerology-head small{
+  color:var(--editorial-tertiary);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.name-numerology-head h3{
+  margin:4px 0 0;
+  font-family:"Noto Serif KR",serif;
+  font-size:19px;
+  font-weight:500;
+}
+
+.name-numerology-head p{
+  max-width:650px;
+  margin:7px 0 0;
+  color:#736963;
+  font-size:9px;
+  line-height:1.6;
+}
+
+.name-numerology-head>span{
+  flex:none;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#e9f2ed;
+  color:#527361;
+  font-size:8px;
+  font-weight:800;
+}
+
+.name-numerology-input{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  align-items:end;
+  margin-top:14px;
+}
+
+.name-numerology-input label>span{
+  display:block;
+  margin-bottom:6px;
+  color:#756a65;
+  font-size:8px;
+  font-weight:700;
+}
+
+.name-numerology-input input{
+  width:100%;
+  min-height:42px;
+  padding:0 12px;
+  border:1px solid var(--editorial-line);
+  border-radius:10px;
+  background:#fff;
+  color:#3f3834;
+  font-size:10px;
+  outline:none;
+}
+
+.name-numerology-input button{
+  min-height:42px;
+  padding:0 14px;
+  border:0;
+  border-radius:10px;
+  background:#426b5b;
+  color:#fff;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.name-numerology-input button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.name-numerology-privacy,
+.name-numerology-note,
+.name-numerology-error{
+  margin:8px 0 0;
+  color:#7d726d;
+  font-size:8px;
+  line-height:1.6;
+}
+
+.name-numerology-error{color:#a0523b}
+
+.name-numerology-result{
+  margin-top:14px;
+}
+
+.name-numerology-core{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+}
+
+.name-numerology-core article{
+  padding:11px;
+  border-radius:11px;
+  background:#fff;
+}
+
+.name-numerology-core small{
+  display:block;
+  color:#6b8578;
+  font-size:7px;
+  font-weight:800;
+}
+
+.name-numerology-core strong{
+  display:block;
+  margin-top:5px;
+  font-family:"Noto Serif KR",serif;
+  font-size:20px;
+  font-weight:500;
+  color:#355b4c;
+}
+
+.name-numerology-core p{
+  margin:4px 0 0;
+  color:#736a65;
+  font-size:8px;
+  line-height:1.5;
+}
+
+.name-numerology-secondary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:8px;
+}
+
+.name-numerology-secondary span{
+  padding:9px;
+  border-radius:9px;
+  background:#eef5f1;
+}
+
+.name-numerology-secondary small,
+.name-numerology-secondary b{
+  display:block;
+}
+
+.name-numerology-secondary small{
+  color:#72887d;
+  font-size:7px;
+}
+
+.name-numerology-secondary b{
+  margin-top:3px;
+  color:#435b50;
+  font-size:9px;
+}
+
+.name-numerology-patterns{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:8px;
+}
+
+.name-numerology-patterns>div{
+  padding:10px;
+  border-radius:10px;
+  background:#fff;
+}
+
+.name-numerology-patterns small{
+  display:block;
+  color:#668274;
+  font-size:7px;
+  font-weight:800;
+}
+
+.name-numerology-patterns strong{
+  display:block;
+  margin-top:4px;
+  color:#3f5048;
+  font-size:11px;
+}
+
+.name-numerology-patterns p{
+  margin:4px 0 0;
+  color:#817671;
+  font-size:8px;
+  line-height:1.5;
+}
+
+.name-numerology-evidence{
+  margin-top:9px;
+  padding:9px 10px;
+  border:1px solid rgba(91,132,114,.14);
+  border-radius:9px;
+  background:#fff;
+}
+
+.name-numerology-evidence summary{
+  color:#597062;
+  font-size:8px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.name-numerology-evidence>div{
+  display:grid;
+  grid-template-columns:repeat(9,1fr);
+  gap:5px;
+  margin-top:8px;
+}
+
+.name-numerology-evidence span{
+  padding:6px 3px;
+  border-radius:7px;
+  background:#f3f7f5;
+  text-align:center;
+}
+
+.name-numerology-evidence b,
+.name-numerology-evidence em{
+  display:block;
+}
+
+.name-numerology-evidence b{
+  color:#4c6256;
+  font-size:8px;
+}
+
+.name-numerology-evidence em{
+  margin-top:2px;
+  color:#849288;
+  font-size:7px;
+  font-style:normal;
+}
+
+@media (max-width:760px){
+  .name-numerology-head{
+    flex-direction:column;
+  }
+
+  .name-numerology-input{
+    grid-template-columns:1fr;
+  }
+
+  .name-numerology-core,
+  .name-numerology-secondary{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .name-numerology-patterns{
+    grid-template-columns:1fr;
+  }
+
+  .name-numerology-evidence>div{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
