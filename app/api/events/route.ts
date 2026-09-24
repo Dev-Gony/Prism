@@ -16,6 +16,7 @@ const ALLOWED_EVENTS = new Set([
   "destiny_timeline_opened",
   "destiny_date_inspected",
   "solar_return_calculated",
+  "name_numerology_calculated",
 ]);
 
 export async function POST(request: Request) {
