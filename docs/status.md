@@ -745,3 +745,26 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 3. Solar Return
 4. Numerology 이름 기반 코어 넘버
 5. 대운 규칙 결정
+
+
+---
+
+## Transit Motion / Phase Expansion
+
+구현 완료:
+
+- [x] Jupiter / Saturn / Uranus / Neptune / Pluto transit 일일 황경 속도 계산
+- [x] transit direct / retrograde / stationary 판정
+- [x] Transit ↔ Natal 주요 각 applying / separating / exact 표시
+- [x] DESTINY NOW 점성술 근거에 phase / motion 반영
+- [x] Detailed 결과 화면에 transit phase / motion 표시
+- [x] 저장된 Detailed 리포트에 transit snapshot phase / motion 표시
+- [x] 기존 저장본에 motion 정보가 없을 때 호환 유지
+
+다음 심화 후보:
+
+1. 분기 / 월 단위 Destiny Timeline
+2. Solar Return
+3. Numerology 이름 기반 코어 넘버
+4. 대운 규칙 결정
+5. 기능 마감 후 계산 기준값 / 회귀 테스트 일괄 수행
