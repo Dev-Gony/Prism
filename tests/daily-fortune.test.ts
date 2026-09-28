@@ -69,3 +69,25 @@ test("첫 화면은 비로그인 사용자에게도 오늘의 운세 진입점�
   assert.match(panelSource, /if \(!isAuthenticated\)/);
   assert.match(panelSource, /Google로 로그인하고 보기/);
 });
+
+test("오늘 운세가 없으면 로그인 사용자의 저장 분석으로 즉시 생성한다", () => {
+  const routeSource = readFileSync(
+    new URL("../app/api/daily-fortune/route.ts", import.meta.url),
+    "utf8",
+  );
+  const sql = readFileSync(
+    new URL(
+      "../supabase/migrations/20260928074903_daily_fortune_on_demand.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+
+  assert.match(routeSource, /if \(!data\)[\s\S]*rpc\([\s\S]*"generate_my_daily_fortune"/);
+  assert.match(routeSource, /if \(generated\)[\s\S]*from\("daily_fortunes"\)/);
+  assert.match(sql, /security definer/i);
+  assert.match(sql, /current_user_id uuid := \(select auth\.uid\(\)\)/i);
+  assert.match(sql, /where analysis\.user_id = current_user_id/i);
+  assert.match(sql, /revoke all on function public\.generate_my_daily_fortune\(date\) from public/i);
+  assert.match(sql, /grant execute on function public\.generate_my_daily_fortune\(date\) to authenticated/i);
+});
