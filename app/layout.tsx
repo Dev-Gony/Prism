@@ -5,6 +5,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Prism | 세 가지 관점으로 나를 보다",
   description: "사주, 점성술, 수비학의 여러 관점으로 나를 알아보는 자기이해 서비스",
+  manifest: "/manifest.webmanifest",
+  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  appleWebApp: {
+    capable: true,
+    title: "Prism",
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

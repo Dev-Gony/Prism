@@ -17,7 +17,11 @@ import ResultFeedback from "@/app/result-feedback";
 import DestinyTimelineExplorer from "@/app/destiny-timeline-explorer";
 import SolarReturnExplorer from "@/app/solar-return-explorer";
 import NameNumerologyExplorer from "@/app/name-numerology-explorer";
-import DailyFortunePanel from "@/app/daily-fortune-panel";
+import DailyFortunePanel, {
+  DailyFortuneCard,
+} from "@/app/daily-fortune-panel";
+import DailyFortuneOptIn from "@/app/daily-fortune-opt-in";
+import { buildGuestDailyFortune } from "@/lib/daily-fortune";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -88,6 +92,8 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<QuickAnalysisResponse | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
+  const [dailyOptInOpen, setDailyOptInOpen] = useState(false);
+  const [dailyOptInNotice, setDailyOptInNotice] = useState("");
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
@@ -117,6 +123,10 @@ export default function Home() {
         day.padStart(2, "0") || "--"
       }`,
     [year, month, day],
+  );
+  const sessionDailyFortune = useMemo(
+    () => (analysis ? buildGuestDailyFortune(analysis) : null),
+    [analysis],
   );
 
   useEffect(() => {
@@ -188,6 +198,13 @@ export default function Home() {
 
       const currentUser = data.user ?? null;
       setUser(currentUser);
+
+      if (
+        currentUser &&
+        window.sessionStorage.getItem("prism.push-opt-in.pending.v1") === "1"
+      ) {
+        setDailyOptInOpen(true);
+      }
 
       if (!currentUser || pendingHandled) return;
 
@@ -367,11 +384,35 @@ export default function Home() {
     }
   }
 
+  async function prepareDailySubscription() {
+    if (!user || !analysis) return false;
+    if (saveStatus === "saved") return true;
+
+    try {
+      setSaveStatus("saving");
+      await saveAnalysisToServer(analysis);
+      setSaveStatus("saved");
+      setSaveMessage("내 프리즘 도감에 저장했어요.");
+      void trackEvent("result_saved", { source: "push-opt-in" }, "quick");
+      return true;
+    } catch (subscriptionSaveError) {
+      setSaveStatus("error");
+      setSaveMessage(
+        subscriptionSaveError instanceof Error
+          ? subscriptionSaveError.message
+          : "알림을 받을 분석을 저장하지 못했어요.",
+      );
+      return false;
+    }
+  }
+
   async function saveDetailedAnalysis() {
     if (!detailedAnalysis) return;
 
     void trackEvent("save_clicked", {}, "detailed");
     setDetailedSaveMessage("");
+    setDailyOptInOpen(false);
+    setDailyOptInNotice("");
 
     if (!user) {
       window.sessionStorage.setItem(
@@ -692,6 +733,12 @@ export default function Home() {
       setAnalysis(quickResult);
       setNarrativeState("loading");
       setPhase("result");
+      if (
+        window.localStorage.getItem("prism.push-subscribed.v1") !== "1" &&
+        window.sessionStorage.getItem("prism.push-prompt-dismissed.v1") !== "1"
+      ) {
+        setDailyOptInOpen(true);
+      }
       window.scrollTo({ top: 0, behavior: "instant" });
       void enrichNarrative(quickResult);
     } catch (requestError) {
@@ -855,6 +902,7 @@ export default function Home() {
             </div>
 
             <nav className="anchor-nav">
+              <a href="#daily-fortune">오늘의 운세</a>
               <a href="#core-essence">핵심 성향</a>
               <a href="#cross-analysis">교차 분석</a>
               <a href="#three-lenses">각 관점</a>
@@ -881,6 +929,25 @@ export default function Home() {
                 <span><i className="source-dot numero" />수비학 · Pico</span>
               </div>
             </section>
+
+            {sessionDailyFortune && (
+              <section className="report-section daily-fortune-report-section">
+                <DailyFortuneCard
+                  fortune={sessionDailyFortune}
+                  guest={!user}
+                />
+                <button
+                  className="daily-fortune-opt-in-link"
+                  type="button"
+                  onClick={() => setDailyOptInOpen(true)}
+                >
+                  매일 아침 9시, 오늘의 운세 알림 받기 →
+                </button>
+                {dailyOptInNotice && (
+                  <p className="daily-opt-in-success">{dailyOptInNotice}</p>
+                )}
+              </section>
+            )}
 
             <section className="report-section" id="core-essence">
               <div className="section-heading-row">
@@ -1110,6 +1177,24 @@ export default function Home() {
           />
         )}
 
+        <DailyFortuneOptIn
+          open={dailyOptInOpen}
+          isAuthenticated={Boolean(user)}
+          onClose={() => {
+            window.sessionStorage.setItem("prism.push-prompt-dismissed.v1", "1");
+            setDailyOptInOpen(false);
+          }}
+          onRequireLogin={() => {
+            setDailyOptInOpen(false);
+            void startGoogleLogin(true);
+          }}
+          onPrepareSubscription={prepareDailySubscription}
+          onSubscribed={() => {
+            setDailyOptInOpen(false);
+            setDailyOptInNotice("알림 신청이 완료됐어요. 앞으로 매일 아침 9시에 알려드릴게요.");
+          }}
+        />
+
         {detailedOpen && (
           <DetailedModal
             birthTime={birthTime}
@@ -1145,7 +1230,12 @@ export default function Home() {
 
       <DailyFortunePanel
         isAuthenticated={Boolean(user)}
-        onSignIn={() => void startGoogleLogin(false)}
+        onStartGuest={() => {
+          document.getElementById("birth-date-input")?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }}
       />
 
       <section className="landing-hero">
@@ -1193,7 +1283,7 @@ export default function Home() {
         </div>
       </section>
 
-      <form className="editorial-input-card" onSubmit={submit}>
+      <form id="birth-date-input" className="editorial-input-card" onSubmit={submit}>
         <div className="input-card-head">
           <div>
             <h2>생년월일 입력</h2>

@@ -90,6 +90,8 @@ Prism의 현재 개발 상태를 추적합니다.
 - [x] `011-google-login.md`
 - [x] `012-analysis-result-storage.md`
 - [x] `013-daily-fortune-cron.md`
+- [x] `014-daily-fortune-on-demand.md`
+- [x] `015-daily-fortune-web-push.md`
 
 
 ---
@@ -999,3 +1001,35 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 5. 실제 Supabase / OAuth / 저장 / 재분석 흐름 검증
 
 검증되지 않은 항목은 PASS로 표시하지 않는다.
+
+---
+
+## Daily Fortune Guest Access & Web Push
+
+구현 완료:
+
+- [x] 비로그인 Quick 분석 결과로 당일 운세 즉시 생성
+- [x] 분석 완료 뒤 매일 09:00 알림 신청 팝업
+- [x] OAuth 왕복 중 알림 신청 의도와 분석 snapshot 유지
+- [x] 사용자의 명시적 버튼 조작 뒤에만 브라우저 알림 권한 요청
+- [x] PWA manifest와 Push Service Worker
+- [x] Supabase `push_subscriptions`와 사용자별 RLS 정책
+- [x] 구독 저장·해제 API
+- [x] 기존 Vercel Cron의 운세 생성 뒤 웹 푸시 발송
+- [x] 만료 endpoint 자동 비활성화
+- [x] iOS/iPadOS 홈 화면 추가 안내
+- [x] Vercel Production/Preview VAPID 환경변수 등록
+
+현재 검증:
+
+- `npm run check`: 타입 검사 및 전체 테스트 32개 통과
+- `npm run build`: production build 통과
+- localhost: 비로그인 운세, 신청 팝업, 375px 모바일, 가로 화면, Esc 닫기 확인
+- Supabase: migration 적용 및 SELECT/INSERT/UPDATE/DELETE 본인 정책 확인
+
+남은 Release Gate:
+
+1. 기능 브랜치 커밋·push·PR
+2. PR 자동 검사 통과 후 main 병합
+3. 고정 운영 주소에서 비로그인 흐름과 manifest/worker 확인
+4. 실제 기기 알림 권한 허용 및 첫 구독은 사용자 동의 버튼 조작 후 확인
