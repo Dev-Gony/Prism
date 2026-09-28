@@ -22,6 +22,7 @@ import DailyFortunePanel, {
 } from "@/app/daily-fortune-panel";
 import DailyFortuneOptIn from "@/app/daily-fortune-opt-in";
 import { buildGuestDailyFortune } from "@/lib/daily-fortune";
+import { sourceTraitSummary } from "@/lib/analysis/cross";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -1006,14 +1007,23 @@ export default function Home() {
                             <span className="evidence-avatar">
                               {entry.source === "saju" ? "M" : entry.source === "astrology" ? "S" : "P"}
                             </span>
-                            <strong>
-                              {entry.source === "saju"
-                                ? "Modi"
-                                : entry.source === "astrology"
-                                  ? "Stella"
-                                  : "Pico"}
-                            </strong>
-                            <p>{entry.evidence.join(" · ")}</p>
+                            <div className="evidence-source-meta">
+                              <strong>
+                                {entry.source === "saju"
+                                  ? "Modi"
+                                  : entry.source === "astrology"
+                                    ? "Stella"
+                                    : "Pico"}
+                              </strong>
+                              <span>{entry.score}/5</span>
+                            </div>
+                            <div className="evidence-copy">
+                              <p>{sourceTraitSummary(highlight.trait, entry.score)}</p>
+                              <details className="evidence-details">
+                                <summary>계산 근거 보기</summary>
+                                <p>{entry.evidence.join(" · ")}</p>
+                              </details>
+                            </div>
                           </div>
                         ))}
                       </div>

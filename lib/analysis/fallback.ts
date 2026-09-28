@@ -1,4 +1,4 @@
-import { traitLabel } from "@/lib/analysis/cross";
+import { buildCrossExplanation, traitLabel } from "@/lib/analysis/cross";
 import type { AnalysisNarrative,CrossInsight,TraitKey } from "@/lib/analysis/types";
 
 const WORDS:Record<TraitKey,string>={
@@ -35,7 +35,7 @@ export function fallbackNarrative(cross:CrossInsight[]):AnalysisNarrative{
       trait:item.trait,
       title:item.label,
       label:item.status==="AGREEMENT"?"비슷하게 보여요":item.status==="COMPLEMENTARY"?"서로 보완돼요":item.status==="DIVERGENCE"?"조금 다르게 보여요":"더 알아야 해요",
-      explanation:"세 체계의 점수 범위를 기준으로 "+item.status+"로 분류했어요. 하나의 체계를 정답으로 선택하지 않습니다.",
+      explanation:buildCrossExplanation(item),
     })),
     generatedBy:"fallback",
   };

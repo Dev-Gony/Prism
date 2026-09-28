@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { buildCrossExplanation } from "@/lib/analysis/cross";
 import { fallbackNarrative } from "@/lib/analysis/fallback";
 import type {
   AnalysisNarrative,
@@ -107,6 +108,32 @@ function isNarrative(
   );
 }
 
+function repairCrossHighlights(
+  narrative: Omit<AnalysisNarrative, "generatedBy" | "model">,
+  cross: CrossInsight[],
+) {
+  const seen = new Set<string>();
+
+  return narrative.crossHighlights.map((highlight) => {
+    const insight = cross.find((item) => item.trait === highlight.trait);
+    const fingerprint = highlight.explanation
+      .replace(/[\s.,!?·]/g, "")
+      .toLowerCase();
+    const isGeneric =
+      highlight.explanation.includes("세 체계의 점수 범위를 기준으로") ||
+      highlight.explanation.length < 35;
+    const isDuplicate = seen.has(fingerprint);
+    seen.add(fingerprint);
+
+    if (!insight || (!isGeneric && !isDuplicate)) return highlight;
+
+    return {
+      ...highlight,
+      explanation: buildCrossExplanation(insight),
+    };
+  });
+}
+
 function logFallback(
   mode: "quick" | "detailed",
   reason: string,
@@ -203,6 +230,9 @@ async function generateNarrative(
     task,
     "summary는 2문장 이내, keyword/observation/cross explanation은 각각 2문장 이내로 작성하세요.",
     "crossHighlights의 trait 값은 제공된 cross의 trait 중에서만 선택하세요.",
+    "각 cross explanation은 해당 trait의 세 엔진 점수와 방향 차이를 비교해 설명하세요.",
+    "서로 다른 cross explanation에 같은 문장이나 문장 틀을 반복하지 마세요.",
+    "차이가 있는 경우 Modi, Stella, Pico 중 관련 엔진 이름과 점수 차이를 구체적으로 언급하세요.",
     "",
     JSON.stringify({ mode, engines, cross }),
   ].join("\n");
@@ -240,6 +270,7 @@ async function generateNarrative(
 
     return {
       ...parsed,
+      crossHighlights: repairCrossHighlights(parsed, cross),
       generatedBy: "gemini",
       model,
     };

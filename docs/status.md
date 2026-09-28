@@ -1033,3 +1033,28 @@ Prism은 사주/점성술/수비학을 얕게 조합하는 앱이 아니라,
 2. PR 자동 검사 통과 후 main 병합
 3. 고정 운영 주소에서 비로그인 흐름과 manifest/worker 확인
 4. 실제 기기 알림 권한 허용 및 첫 구독은 사용자 동의 버튼 조작 후 확인
+
+---
+
+## Distinct Cross Analysis
+
+2026-09-28 교차 분석 반복 콘텐츠 개선:
+
+- [x] 7개 trait별 낮음·균형·높음 방향 문구 분리
+- [x] 엔진별 1~5 점수와 쉬운 방향 설명 표시
+- [x] Agreement는 공통 방향, Complementary/Divergence는 최고·최저 엔진 점수로 통합 설명
+- [x] 전문 계산 근거를 기본 접힘 상태로 변경
+- [x] Gemini 중복·일반론 설명을 결정론적 trait 해석으로 보정
+- [x] 기존 교차 상태와 합의도 계산 유지
+
+검증:
+
+- `npm run check`: 타입 검사 및 전체 테스트 36개 통과
+- `npm run build`: production build 통과
+- localhost: 상위 3개 카드의 제목·엔진 방향·통합 해석이 서로 다름을 확인
+- localhost: `계산 근거 보기` 기본 닫힘과 펼치기 동작 확인
+- 375px 모바일: 카드 폭 335px, 문서 가로 넘침 없음 확인
+
+관련 명세:
+
+- `docs/specs/016-distinct-cross-analysis.md`
