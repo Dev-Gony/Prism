@@ -89,6 +89,7 @@ Prism의 현재 개발 상태를 추적합니다.
 - [ ] `010-ai-question.md`
 - [x] `011-google-login.md`
 - [x] `012-analysis-result-storage.md`
+- [x] `013-daily-fortune-cron.md`
 
 
 ---

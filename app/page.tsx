@@ -17,6 +17,7 @@ import ResultFeedback from "@/app/result-feedback";
 import DestinyTimelineExplorer from "@/app/destiny-timeline-explorer";
 import SolarReturnExplorer from "@/app/solar-return-explorer";
 import NameNumerologyExplorer from "@/app/name-numerology-explorer";
+import DailyFortunePanel from "@/app/daily-fortune-panel";
 
 type Phase = "landing" | "loading" | "result";
 
@@ -1141,6 +1142,8 @@ export default function Home() {
           <UserAccountMenu user={user} onLogout={signOutUser} />
         </div>
       )}
+
+      {user && <DailyFortunePanel />}
 
       <section className="landing-hero">
         <span className="landing-kicker"><i /> 인간 본질을 비추는 세 가지 빛</span>
