@@ -13,7 +13,7 @@ export async function GET() {
   }
 
   const fortuneDate = getKstDate();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("daily_fortunes")
     .select("fortune_date, fortune, updated_at")
     .eq("fortune_date", fortuneDate)
@@ -25,6 +25,40 @@ export async function GET() {
       { error: "오늘의 운세를 불러오지 못했어요." },
       { status: 500 },
     );
+  }
+
+  if (!data) {
+    const { data: generated, error: generationError } = await supabase.rpc(
+      "generate_my_daily_fortune",
+      { target_date: fortuneDate },
+    );
+
+    if (generationError) {
+      console.error("Failed to generate daily fortune on demand", generationError);
+      return NextResponse.json(
+        { error: "오늘의 운세를 준비하지 못했어요." },
+        { status: 500 },
+      );
+    }
+
+    if (generated) {
+      const refreshed = await supabase
+        .from("daily_fortunes")
+        .select("fortune_date, fortune, updated_at")
+        .eq("fortune_date", fortuneDate)
+        .maybeSingle();
+
+      data = refreshed.data;
+      error = refreshed.error;
+
+      if (error) {
+        console.error("Failed to reload generated daily fortune", error);
+        return NextResponse.json(
+          { error: "오늘의 운세를 불러오지 못했어요." },
+          { status: 500 },
+        );
+      }
+    }
   }
 
   return NextResponse.json({
