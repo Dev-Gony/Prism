@@ -2447,10 +2447,19 @@ body{
   font-size:13px;
 }
 
-.daily-fortune-card.is-empty a{
+.daily-fortune-card.is-empty a,
+.daily-fortune-card.is-empty button{
   color:var(--editorial-primary);
   font-size:12px;
   font-weight:700;
+}
+
+.daily-fortune-card.is-empty button{
+  padding:10px 14px;
+  border:1px solid currentColor;
+  border-radius:999px;
+  background:rgba(255,255,255,.72);
+  cursor:pointer;
 }
 
 .daily-fortune-head,

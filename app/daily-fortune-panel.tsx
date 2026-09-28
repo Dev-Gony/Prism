@@ -1,14 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { DailyFortunePayload } from "@/lib/daily-fortune";
+import { getKstDate, type DailyFortunePayload } from "@/lib/daily-fortune";
 
 type DailyFortuneResponse = {
   fortuneDate: string;
   fortune: DailyFortunePayload | null;
 };
 
-export default function DailyFortunePanel() {
+type DailyFortunePanelProps = {
+  isAuthenticated: boolean;
+  onSignIn: () => void;
+};
+
+export default function DailyFortunePanel({
+  isAuthenticated,
+  onSignIn,
+}: DailyFortunePanelProps) {
   const [state, setState] = useState<
     | { status: "loading" }
     | { status: "ready"; data: DailyFortuneResponse }
@@ -16,6 +24,8 @@ export default function DailyFortunePanel() {
   >({ status: "loading" });
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     let active = true;
 
     void fetch("/api/daily-fortune", { cache: "no-store" })
@@ -33,7 +43,18 @@ export default function DailyFortunePanel() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return (
+      <section className="daily-fortune-card is-empty">
+        <span className="daily-fortune-kicker">DAILY PRISM · {getKstDate()}</span>
+        <strong>오늘의 운세가 준비되어 있어요.</strong>
+        <p>로그인하면 저장된 분석을 바탕으로 오늘의 흐름을 바로 보여드려요.</p>
+        <button type="button" onClick={onSignIn}>Google로 로그인하고 보기</button>
+      </section>
+    );
+  }
 
   if (state.status === "loading") {
     return <section className="daily-fortune-card is-loading">오늘의 프리즘을 불러오고 있어요.</section>;

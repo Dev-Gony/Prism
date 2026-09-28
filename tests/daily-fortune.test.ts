@@ -53,3 +53,19 @@ test("생성 함수는 날짜·분석 ID의 결정론적 seed와 Detailed 우선
   assert.doesNotMatch(sql, /random\s*\(/i);
   assert.match(sql, /grant execute on function public\.generate_daily_fortunes\(date\) to service_role/i);
 });
+
+test("첫 화면은 비로그인 사용자에게도 오늘의 운세 진입점을 보여준다", () => {
+  const pageSource = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const panelSource = readFileSync(
+    new URL("../app/daily-fortune-panel.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    pageSource,
+    /<DailyFortunePanel[\s\S]*isAuthenticated=\{Boolean\(user\)\}/,
+  );
+  assert.doesNotMatch(pageSource, /\{user && <DailyFortunePanel/);
+  assert.match(panelSource, /if \(!isAuthenticated\)/);
+  assert.match(panelSource, /Google로 로그인하고 보기/);
+});

@@ -419,9 +419,9 @@ export default function Home() {
     window.location.assign("/");
   }
 
-  async function startGoogleLogin() {
+  async function startGoogleLogin(requireAnalysis = true) {
     const pendingRaw = window.sessionStorage.getItem("prism.pending-analysis.v1");
-    if (!analysis && !pendingRaw) return;
+    if (requireAnalysis && !analysis && !pendingRaw) return;
 
     if (!isSupabaseConfigured()) {
       setAuthPromptOpen(false);
@@ -1143,7 +1143,10 @@ export default function Home() {
         </div>
       )}
 
-      {user && <DailyFortunePanel />}
+      <DailyFortunePanel
+        isAuthenticated={Boolean(user)}
+        onSignIn={() => void startGoogleLogin(false)}
+      />
 
       <section className="landing-hero">
         <span className="landing-kicker"><i /> 인간 본질을 비추는 세 가지 빛</span>
