@@ -10,12 +10,12 @@ type DailyFortuneResponse = {
 
 type DailyFortunePanelProps = {
   isAuthenticated: boolean;
-  onSignIn: () => void;
+  onStartGuest: () => void;
 };
 
 export default function DailyFortunePanel({
   isAuthenticated,
-  onSignIn,
+  onStartGuest,
 }: DailyFortunePanelProps) {
   const [state, setState] = useState<
     | { status: "loading" }
@@ -49,9 +49,9 @@ export default function DailyFortunePanel({
     return (
       <section className="daily-fortune-card is-empty">
         <span className="daily-fortune-kicker">DAILY PRISM · {getKstDate()}</span>
-        <strong>오늘의 운세가 준비되어 있어요.</strong>
-        <p>로그인하면 저장된 분석을 바탕으로 오늘의 흐름을 바로 보여드려요.</p>
-        <button type="button" onClick={onSignIn}>Google로 로그인하고 보기</button>
+        <strong>로그인 없이 오늘의 운세를 볼 수 있어요.</strong>
+        <p>생년월일로 분석을 마치면 오늘의 흐름을 바로 만들어 드려요.</p>
+        <button type="button" onClick={onStartGuest}>오늘의 운세 분석하기</button>
       </section>
     );
   }
@@ -81,8 +81,18 @@ export default function DailyFortunePanel({
     );
   }
 
+  return <DailyFortuneCard fortune={fortune} />;
+}
+
+export function DailyFortuneCard({
+  fortune,
+  guest = false,
+}: {
+  fortune: DailyFortunePayload;
+  guest?: boolean;
+}) {
   return (
-    <section className="daily-fortune-card">
+    <section className="daily-fortune-card" id="daily-fortune">
       <div className="daily-fortune-head">
         <div>
           <span className="daily-fortune-kicker">DAILY PRISM · {fortune.date}</span>
@@ -100,6 +110,11 @@ export default function DailyFortunePanel({
         ))}
       </div>
       <small>{fortune.disclaimer}</small>
+      {guest && (
+        <p className="daily-fortune-guest-note">
+          지금 분석한 결과로 만든 비로그인 운세예요. 저장과 매일 알림은 신청할 때만 로그인합니다.
+        </p>
+      )}
     </section>
   );
 }
